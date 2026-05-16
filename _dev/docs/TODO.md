@@ -17,18 +17,27 @@ Sequenced delivery plan for shipping v1 of pastiche, derived from `OSS_SPEC.md`.
 - [x] **1.3** `_dev/agents/pastiche-implementer-round2.md` → `agents/pastiche-implementer-round2.md` + `.claude-code.meta.yaml` + `.codex.meta.yaml` sidecars (same).
 - [x] **1.4** `_dev/agents/pastiche-reviewer.md` → `agents/pastiche-reviewer.md` + `.claude-code.meta.yaml` + `.codex.meta.yaml` sidecars (same).
 - [x] **1.5** `_dev/skills/pastiche/SKILL.md` → `skills/pastiche.md` (canonical orchestrator body; strip Claude-Code framing).
-- [ ] **1.6** Author `skills/pastiche-setup.md` (OSS_SPEC §7.2, §11).
-- [ ] [WIP] **1.7** Author `skills/pastiche-write-knowledge.md` (§7.3).
-- [x] **1.8** Author `skills/pastiche-write-wisdom.md` (§7.4).
 
 ---
 
-## Phase 2 — Templates
+## Phase 2 — Templates + skills that depend on them
+
+> **Sequencing note:** Phase 1 canonical bodies were authored before this phase's templates were finalized, which inverted the real dependency — the skills/agents bake in template-shaped read patterns (Brand Identity load, section grep, FACT/WISDOM bullet shape). Tasks 2.5, 2.6, 2.7 were therefore moved here from Phase 1; task 2.8 is the closer that sweeps the rest of Phase 1 for template-shape drift.
+>
+> Dependencies:
+> - **2.5** depends on **2.2**.
+> - **2.6** depends on **2.3**. Completed pre-2.3 as task 1.8 (spec at `docs/spec/task-1.8-pastiche-write-wisdom.md`); revisit covered by 2.8.
+> - **2.7** depends on **2.1 + 2.2 + 2.3 + 2.4** (it orchestrates all three documents and reads config).
+> - **2.8** depends on **2.1 + 2.2 + 2.3**.
 
 - [ ] **2.1** Generalize `templates/FACT.md` (extractor banner only; §9.1).
 - [ ] **2.2** Generalize `templates/KNOWLEDGE.md` with the canonical 12 H2 stubs (§9.2).
 - [ ] **2.3** Generalize `templates/WISDOM.md` (header + commented `[GENERAL]` suggestions; §9.3).
 - [ ] **2.4** Author `templates/pastiche.config.yaml` per §9.4.
+- [ ] **2.5** Author `skills/pastiche-write-knowledge.md` (§7.3). *Depends on 2.2.*
+- [x] **2.6** Author `skills/pastiche-write-wisdom.md` (§7.4). *Depends on 2.3; revisit via 2.8.*
+- [ ] **2.7** Author `skills/pastiche-setup.md` (OSS_SPEC §7.2, §11). *Formerly task 1.6. Depends on 2.1–2.4.*
+- [ ] **2.8** Revisit Phase 1 canonical bodies against finalized templates — sweep `agents/pastiche-implementer-round1.md`, `agents/pastiche-implementer-round2.md`, `agents/pastiche-reviewer.md`, `skills/pastiche.md`, and `skills/pastiche-write-wisdom.md` (2.6) for template-shape drift introduced by 2.1–2.3.
 
 ---
 
