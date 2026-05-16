@@ -12,11 +12,11 @@ Sequenced delivery plan for shipping v1 of pastiche, derived from `OSS_SPEC.md`.
 
 ## Phase 1 — Canonical sources (generalize from `_dev/`)
 
-- [ ] **1.1** Port `_dev/spec.md` → `spec.md` (de-KISA pass).
+- [x] **1.1** Port `_dev/spec.md` → `spec.md` (de-KISA pass).
 - [ ] **1.2** `_dev/agents/pastiche-implementer-round1.md` → `agents/round1.md` (strip frontmatter, KISA atoms/paths, Claude-Code-specific tool names).
 - [ ] **1.3** `_dev/agents/pastiche-implementer-round2.md` → `agents/round2.md` (same).
 - [ ] **1.4** `_dev/agents/pastiche-reviewer.md` → `agents/reviewer.md` (same).
-- [ ] **1.5** `_dev/skills/pastiche/SKILL.md` → `skills/pastiche.md` (canonical orchestrator body; strip Claude-Code framing).
+- [ ] [WIP] **1.5** `_dev/skills/pastiche/SKILL.md` → `skills/pastiche.md` (canonical orchestrator body; strip Claude-Code framing).
 - [ ] **1.6** Author `skills/pastiche-setup.md` (OSS_SPEC §7.2, §11).
 - [ ] **1.7** Author `skills/pastiche-write-knowledge.md` (§7.3).
 - [ ] **1.8** Author `skills/pastiche-write-wisdom.md` (§7.4).
