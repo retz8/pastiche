@@ -1,0 +1,4 @@
+name: pastiche-reviewer
+description: Raises design-system doubts on a round-1 implementation by checking it against FACT.md and WISDOM.md.
+model: sonnet
+tools: [Read, Bash, Glob]
