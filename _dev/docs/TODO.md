@@ -18,8 +18,8 @@ Sequenced delivery plan for shipping v1 of pastiche, derived from `OSS_SPEC.md`.
 - [x] **1.4** `_dev/agents/pastiche-reviewer.md` → `agents/pastiche-reviewer.md` + `.claude-code.meta.yaml` + `.codex.meta.yaml` sidecars (same).
 - [x] **1.5** `_dev/skills/pastiche/SKILL.md` → `skills/pastiche.md` (canonical orchestrator body; strip Claude-Code framing).
 - [ ] **1.6** Author `skills/pastiche-setup.md` (OSS_SPEC §7.2, §11).
-- [ ] **1.7** Author `skills/pastiche-write-knowledge.md` (§7.3).
-- [ ] **1.8** Author `skills/pastiche-write-wisdom.md` (§7.4).
+- [ ] [WIP] **1.7** Author `skills/pastiche-write-knowledge.md` (§7.3).
+- [x] **1.8** Author `skills/pastiche-write-wisdom.md` (§7.4).
 
 ---
 
