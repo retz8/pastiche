@@ -1,4 +1,4 @@
-# pastiche — Claude project instructions
+# pastiche
 
 ## What this project is
 
