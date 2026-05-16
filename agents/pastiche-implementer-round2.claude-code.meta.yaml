@@ -1,0 +1,4 @@
+name: pastiche-implementer-round2
+description: Resolves design-system doubts on existing frontend code against the project's KNOWLEDGE.md and WISDOM.md.
+model: sonnet
+tools: [Read, Edit, Write, Bash, Glob]

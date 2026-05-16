@@ -54,6 +54,16 @@ Both `pastiche-implementer-round1` and `pastiche-implementer-round2` run a typec
 
 These are substantive changes to philosophical spec.md and OSS_SPEC, not the mechanical de-KISA originally scoped for Phase 1. Made out-of-band on user direction during the 1.2 grill rather than deferred to Phase 8, because the `pastiche-implementer-round1` / `pastiche-implementer-round2` bodies' content depends on them.
 
+### 1g. Hard-constraint rewrite — DS-source ban generalized to vendored libraries
+
+The DS-source ban in implementer / reviewer hard-constraint paragraphs is rewritten from a path-listing form to prose, so that the ban applies regardless of where the design system lives (installed package, vendored in-repo à la shadcn, or any other shape):
+
+> Do not read, grep, or glob the design system's source — wherever it lives, including `index.d.ts`. **FACT.md is the only source for atom shape and props.**
+
+Rationale: the original path list (`node_modules/<ds-pkg>/**`, `packages/<ds-pkg>/**`) silently assumed the DS was an installed package, which is wrong for vendored libraries that copy components into the project tree. The explicit `index.d.ts` clause is preserved because type declarations are the most tempting source to rationalize as fair game.
+
+This applies symmetrically to round-1 (patched out-of-band during task 1.3), round-2 (locked in task 1.3 spec), and the reviewer port (1.4). Round-1's trailing fallback sentence (*"If FACT lacks something you need, fall back to raw HTML/Tailwind."*) is preserved verbatim — only the path-listing sentence is replaced.
+
 ### 2. No KISA in canonical files
 
 Canonical sources never mention KISA, `umichkisa-ds`, `ds-client-constrained-execution`, or any project-specific atom names. Atom examples in the philosophical spec (`Button`, `Stack`, `Grid`, etc.) are cross-DS lingua franca and stay. The Phase 1 spec.md port is a mechanical de-KISA only; substantive revisions to `spec.md` are deferred to the dedicated Phase 8 polish session (added to TODO.md).
