@@ -49,7 +49,7 @@ Anything beyond that — additional platform adapters, mechanical DESIGN.md impo
 | User-facing skills | `pastiche`, `pastiche-setup`, `pastiche-write-knowledge`, `pastiche-write-wisdom` |
 | Internal agents | `pastiche-implementer-round1`, `pastiche-implementer-round2`, `pastiche-reviewer` |
 | Templates | `FACT.md`, `KNOWLEDGE.md`, `WISDOM.md`, `pastiche.config.yaml` |
-| Platform adapters | Claude Code, Codex CLI |
+| Platform adapters | Claude Code (validated end-to-end), Codex CLI (placeholder — files shipped, runtime unverified by author; community validation invited) |
 | Reference adoption | `examples/primer-react/` — small Next.js + `@primer/react` app with populated docs |
 | External adopter | KISA design system (linked from README; not in-tree) |
 
@@ -58,6 +58,7 @@ Anything beyond that — additional platform adapters, mechanical DESIGN.md impo
 See §13 for full list. Highlights:
 
 - Gemini CLI / Cursor / Aider / other-platform adapters.
+- **End-to-end validation of the Codex CLI adapter.** Codex sidecars and adapter template ship in v1, but the author lacks Codex CLI access; runtime correctness is unverified. The §15 acceptance checklist runs against Claude Code only. Codex validation is a v1.x community follow-up.
 - A `pastiche import --from design-md` standalone CLI verb (DESIGN.md handling lives inside the setup skill in v1; see §11).
 - Atom-tagged WISDOM seeding tooling.
 - Aesthetic review skill (philosophical spec §15).
@@ -109,12 +110,15 @@ This was the decision over Shape 2 (commit pre-built per-platform files and copy
 
 ```
 agents/
-  pastiche-implementer-round1.md       # pure markdown prompt body, no frontmatter
-  pastiche-implementer-round1.meta.yaml # sidecar manifest (name, description, model, capabilities)
+  pastiche-implementer-round1.md                       # pure markdown prompt body, no frontmatter
+  pastiche-implementer-round1.claude-code.meta.yaml    # Claude Code envelope: name, description, model, tools
+  pastiche-implementer-round1.codex.meta.yaml          # Codex envelope: name, description, model, sandbox_mode
   pastiche-implementer-round2.md
-  pastiche-implementer-round2.meta.yaml
+  pastiche-implementer-round2.claude-code.meta.yaml
+  pastiche-implementer-round2.codex.meta.yaml
   pastiche-reviewer.md
-  pastiche-reviewer.meta.yaml
+  pastiche-reviewer.claude-code.meta.yaml
+  pastiche-reviewer.codex.meta.yaml
 skills/
   pastiche.md       # the gating-loop orchestrator instructions
   pastiche-setup.md
@@ -122,7 +126,9 @@ skills/
   pastiche-write-wisdom.md
 ```
 
-Each canonical file is platform-agnostic markdown: a system-prompt body for agents, an orchestrator-instruction body for skills. No frontmatter. No platform-specific syntax. Tool references use a neutral vocabulary that adapter templates translate.
+Each canonical body is platform-agnostic markdown: a system-prompt body for agents, an orchestrator-instruction body for skills. No frontmatter. Tool references inside agent bodies use whatever the consumer's runtime exposes (both Claude Code and Codex expose Read/Write/Edit/Bash/Glob primitives).
+
+Per-platform sidecars carry envelope inputs that *are* platform-specific (model name, tool allowlist, sandbox mode). The adapter layer does no translation — it reads the platform's own sidecar and wraps the canonical body in the platform's required format. Adding a new platform = add a new sidecar per agent + a new adapter template. No central mapping table.
 
 ### 4.3 Adapter templates
 
@@ -186,13 +192,16 @@ pastiche/
 ├── .claude-plugin/
 │   ├── plugin.json           # for installation via Claude Code plugin mechanism
 │   └── marketplace.json      # if listed in a marketplace
-├── agents/                   # canonical agent prompts (markdown body + .meta.yaml sidecar)
+├── agents/                   # canonical agent prompts (markdown body + per-platform sidecars)
 │   ├── pastiche-implementer-round1.md
-│   ├── pastiche-implementer-round1.meta.yaml
+│   ├── pastiche-implementer-round1.claude-code.meta.yaml
+│   ├── pastiche-implementer-round1.codex.meta.yaml
 │   ├── pastiche-implementer-round2.md
-│   ├── pastiche-implementer-round2.meta.yaml
+│   ├── pastiche-implementer-round2.claude-code.meta.yaml
+│   ├── pastiche-implementer-round2.codex.meta.yaml
 │   ├── pastiche-reviewer.md
-│   └── pastiche-reviewer.meta.yaml
+│   ├── pastiche-reviewer.claude-code.meta.yaml
+│   └── pastiche-reviewer.codex.meta.yaml
 ├── skills/                   # canonical skill orchestrator bodies
 │   ├── pastiche.md
 │   ├── pastiche-setup.md
@@ -622,15 +631,15 @@ Post-publish, umichkisa-ds migrates from its in-repo pastiche installation to co
 
 ## 15. Acceptance Criteria for v1 Release
 
-The OSS extract is ready to publish when:
+The OSS extract is ready to publish when all eight gates pass against **Claude Code** as the primary platform. Codex artifacts ship as a placeholder (§2.2) and are not validated for v1.
 
-1. A new (non-KISA) repository can run `npx pastiche init` and arrive at a working pastiche installation in one command, on both Claude Code and Codex CLI.
+1. A new (non-KISA) repository can run `npx pastiche init` and arrive at a working pastiche installation in one command on Claude Code. The same command emits Codex artifacts when `--platforms codex` is selected, but their runtime correctness is not part of this acceptance gate.
 2. `/pastiche-setup` walks the 12 KNOWLEDGE sections + `[GENERAL]` WISDOM questions interactively, with optional DESIGN.md reference.
-3. The `pastiche` skill runs the three-agent loop end-to-end against the `examples/primer-react/` fixture, producing the expected report shape.
+3. The `pastiche` skill runs the three-agent loop end-to-end against the `examples/primer-react/` fixture on Claude Code, producing the expected report shape.
 4. `/pastiche-write-knowledge` and `/pastiche-write-wisdom` can add entries that round-trip through `pastiche lint`.
 5. `pastiche lint` fails closed on tag/section/reference violations with clear errors.
 6. `pastiche sync` is idempotent across two consecutive runs.
 7. The Primer fixture has a non-affiliation banner; KISA is linked in the README as a production adopter.
-8. Documentation covers: README (positioning + quickstart), this spec, the philosophical spec, per-document format docs, adapter overview, contributing guide.
+8. Documentation covers: README (positioning + quickstart, with Codex placeholder status called out), this spec, the philosophical spec, per-document format docs, adapter overview, contributing guide.
 
-When all eight are true, v1 ships.
+When all eight are true, v1 ships. Codex runtime validation is tracked separately as a v1.x community-driven milestone.

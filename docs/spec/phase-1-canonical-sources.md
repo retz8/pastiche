@@ -13,12 +13,22 @@ Generalize the material under `_dev/` into canonical, project-agnostic sources a
 
 ## Locked decisions
 
-### 1. Agent metadata lives in sidecar manifests; skills keep universal SKILL.md frontmatter
+### 1. Agent metadata lives in per-platform sidecar manifests; skills keep universal SKILL.md frontmatter
 
-- Canonical agent bodies are pure markdown with no frontmatter. Each is paired with a `<name>.meta.yaml` sidecar carrying `name`, `description`, `model`, and `tools`. Field names match Claude Code's frontmatter shape verbatim (`tools: [Read, Edit, Write, Bash, Glob]`); Codex has no per-tool allowlist, so its adapter derives `sandbox_mode` from this list (read-only if only read tools, workspace-write otherwise — see `docs/adapters/codex.md` §6).
-- Canonical filename = installed agent name. Files are `agents/pastiche-implementer-round1.md` etc., **not** `agents/round1.md`. One name end-to-end; the sidecar's `name:` field matches the filename stem.
+- Canonical agent bodies are pure markdown with no frontmatter. Each is paired with **one sidecar per target platform**: `<name>.claude-code.meta.yaml` and `<name>.codex.meta.yaml`. Each sidecar carries the envelope inputs its platform consumes directly — no translation in the adapter.
+  - Claude Code sidecar fields: `name`, `description`, `model` (Claude model — e.g., `opus`), `tools` (Claude-Code-style allowlist, e.g., `[Read, Edit, Write, Bash, Glob]`).
+  - Codex sidecar fields: `name`, `description`, `model` (Codex model — e.g., `gpt-5-codex`), `sandbox_mode` (`read-only` | `workspace-write`).
+- `name` and `description` are duplicated across both sidecars per agent. Lint must verify they match for each agent (drift guard).
+- Canonical filename = installed agent name. Files are `agents/pastiche-implementer-round1.md` etc., **not** `agents/round1.md`. One name end-to-end; both sidecars' `name:` fields match the filename stem.
 - Description field omits the agent's own name (no "Pastiche round-1 implementer." preamble — the filename + `name:` already convey that). Description is purely the trigger/role prose.
+- Adding a new platform = add one sidecar per agent + one adapter template. No central mapping table.
 - Canonical skill files are SKILL.md-shaped (YAML frontmatter + markdown body). The SKILL.md format is identical across Claude Code and Codex, so the adapter step for skills is path routing only — no envelope transformation, no sidecar.
+
+### 1f. Codex sidecars + adapter ship as placeholder in v1
+
+The author lacks Codex CLI access. v1 ships per-agent `.codex.meta.yaml` sidecars and a Codex adapter template based on Phase 0 research, but their runtime correctness is unverified. The `pastiche init` flow emits Codex artifacts only when explicitly opted in (`--platforms codex`); the §15 acceptance checklist scopes to Claude Code only. Each Codex sidecar includes a banner comment marking it as unverified, and a banner appears at the top of generated Codex output files at install time (when the adapter template is built in Phase 3). Codex runtime validation is a v1.x community-driven milestone.
+
+This decision applies to all phase-1 agent ports: each must ship both the Claude Code sidecar and the Codex sidecar. The Codex sidecar is best-effort complete, not blank.
 
 ### 1a. Canonical bodies are consumer-runtime self-contained
 

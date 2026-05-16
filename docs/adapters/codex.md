@@ -2,6 +2,8 @@
 
 _Last verified against Codex CLI documentation: 2026-05-16._
 
+> **Status in v1: placeholder, unverified.** The author lacks Codex CLI access. The contents of this document, the per-agent `.codex.meta.yaml` sidecars, and the Codex adapter template ship in v1 but have not been exercised end-to-end. Community validation invited. See OSS_SPEC §2.2.
+
 This document records how pastiche's canonical sources compile into Codex CLI's native primitives. It resolves OSS_SPEC §14.4.
 
 ---
@@ -71,16 +73,16 @@ Codex reads `.codex/agents/*.toml` (project) and `~/.codex/agents/*.toml` (perso
 ```toml
 name = "pastiche-reviewer"
 description = "<one-line guidance for when Codex should spawn this agent>"
+model = "gpt-5-codex"
+sandbox_mode = "read-only"
 developer_instructions = """
 <canonical agent body from agents/pastiche-reviewer.md>
 """
-# Optional, defaulted by pastiche:
-# model = "..."
-# model_reasoning_effort = "high"
-# sandbox_mode = "read-only"
 ```
 
-Required: `name`, `description`, `developer_instructions`. The canonical agent body embeds as a triple-quoted string into `developer_instructions` — no separate file reference.
+Required: `name`, `description`, `developer_instructions`. Optional: `model`, `sandbox_mode`, `approval_policy`, `[mcp_servers.*]`. The canonical agent body embeds as a triple-quoted string into `developer_instructions` — no separate file reference.
+
+Field values are sourced from the per-agent **Codex sidecar** at `agents/<name>.codex.meta.yaml`. The adapter does no translation; the sidecar already carries Codex-native field names.
 
 ### 3.3 Output locations
 
@@ -101,7 +103,7 @@ Subagents are spawned by natural-language delegation from the orchestrator skill
 
 The adapter under `adapters/codex/` owns two templates:
 
-- **`agents.template`** — produces a `.toml` file. Wraps the canonical agent body (markdown) inside `developer_instructions = """..."""` with the platform-required `name` and `description` fields. Must escape any triple-quote sequences in the canonical body (none expected, but the generator validates).
+- **`agents.template`** — produces a `.toml` file. Reads the per-agent Codex sidecar (`agents/<name>.codex.meta.yaml`), wraps the canonical agent body inside `developer_instructions = """..."""`, and emits every sidecar field verbatim as a top-level TOML key (`name`, `description`, `model`, `sandbox_mode`, etc.). Must escape any triple-quote sequences in the canonical body (none expected, but the generator validates).
 - **`skills.template`** — produces `<name>/SKILL.md`. Prepends YAML frontmatter (`name`, `description`) to the canonical skill body. Identical envelope to the Claude Code skills template — only the output path differs (`.agents/skills/<name>/` vs `.claude/skills/<name>/`).
 
 ---
@@ -109,31 +111,24 @@ The adapter under `adapters/codex/` owns two templates:
 ## 5. What is not in the Codex adapter
 
 - **No `AGENTS.md` fragment.** Pastiche is on-demand; AGENTS.md is always-loaded. Embedding pastiche there would inflate every Codex turn's context.
-- **No tool-name translation.** Canonical agent bodies use neutral vocabulary (Read / Write / Edit / Bash / Glob); Codex exposes the same primitives.
+- **No per-tool allowlist.** Codex has no field analogous to Claude Code's `tools:` frontmatter (confirmed against `RawAgentRoleFileToml` in the Codex source — see §6). Tool restriction is sandbox-mode-only, and pastiche's Codex sidecars carry `sandbox_mode` directly.
 - **No skill `config.toml` registration.** `.agents/skills/` auto-discovery covers project skills without per-user `~/.codex/config.toml` edits.
 
 ---
 
-## 6. Tool restriction: known fidelity gap
+## 6. Codex tool-restriction reference
 
-Codex CLI subagent TOML has **no per-tool allowlist field** analogous to Claude Code's `tools: Read, Edit, Write, Bash, Glob` frontmatter. Confirmed against the Codex source: `RawAgentRoleFileToml` (`codex-rs/core/src/config/agent_roles.rs`) uses `deny_unknown_fields` and `#[serde(flatten)]`s the standard `ConfigToml`. The only `[tools]` table key is `web_search` (a single boolean). There is no `tools = [...]` allowlist for built-in tools (shell / apply_patch / read / etc.).
+This section documents what Codex's TOML schema actually exposes — recorded so future contributors don't repeat the Phase 0 lookup. It is descriptive, not a mapping table; pastiche's Codex sidecar carries Codex-native fields directly and the adapter does no translation.
 
-Tool access in Codex is governed instead by:
+**No per-tool allowlist.** Codex CLI subagent TOML has no field analogous to Claude Code's `tools: Read, Edit, Write, Bash, Glob` frontmatter. `RawAgentRoleFileToml` (`codex-rs/core/src/config/agent_roles.rs`) uses `deny_unknown_fields` and `#[serde(flatten)]`s `ConfigToml`. The only `[tools]` table key is `web_search` (a single boolean). There is no `tools = [...]` allowlist for built-in tools (shell / apply_patch / read / etc.).
+
+**Tool access in Codex is governed by:**
 - `sandbox_mode` — `"read-only"` | `"workspace-write"` | `"danger-full-access"`
 - `approval_policy` — `"never"` | `"on-failure"` | `"on-request"` | `"untrusted"`
 - `[mcp_servers.*]` — per-agent MCP server scoping
 - `model` / `model_reasoning_effort`
 
-### 6.1 Pastiche's canonical → Codex mapping
-
-Pastiche's canonical sidecar (`agents/<name>.meta.yaml`) carries a Claude-Code-style `tools:` list (the fine-grained vocabulary). The Codex adapter **derives `sandbox_mode` from the canonical list**:
-
-| Canonical `tools:` includes | Codex `sandbox_mode` |
-|---|---|
-| Only read-y tools (`Read`, `Glob`, `Grep`) | `"read-only"` |
-| Any write tool (`Edit`, `Write`, `Bash`) | `"workspace-write"` |
-
-This is a deliberate fidelity gap, not a limitation pastiche works around. Reviewer-style read-only agents map cleanly; implementers map to the looser `workspace-write` sandbox. Pastiche does not attempt to fake per-tool gating via MCP scoping or other indirection — that path is not honest and adds maintenance surface for no win.
+**Pastiche's choice.** Each agent's Codex sidecar (`agents/<name>.codex.meta.yaml`) carries `sandbox_mode` directly. Read-only agents like `pastiche-reviewer` get `"read-only"`; implementer agents that write code get `"workspace-write"`. Pastiche does not attempt to fake per-tool gating via MCP scoping or other indirection — that path is not honest and adds maintenance surface for no win. The fidelity gap relative to Claude Code's per-tool allowlist is acknowledged and lives at the sidecar layer.
 
 **Sources (verified 2026-05-16):**
 - https://github.com/openai/codex/blob/main/codex-rs/core/src/config/agent_roles.rs (`RawAgentRoleFileToml`)

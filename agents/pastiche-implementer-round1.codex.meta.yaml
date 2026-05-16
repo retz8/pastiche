@@ -1,0 +1,7 @@
+# Codex sidecar — UNVERIFIED in v1. Pastiche's author lacks Codex CLI access; the
+# values below are derived from Phase 0 research (docs/adapters/codex.md) but have
+# not been exercised end-to-end. Community validation invited.
+name: pastiche-implementer-round1
+description: Faithful frontend execution of a task against the project's KNOWLEDGE.md and WISDOM.md.
+model: gpt-5-codex
+sandbox_mode: workspace-write

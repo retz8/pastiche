@@ -14,8 +14,8 @@ Sequenced delivery plan for shipping v1 of pastiche, derived from `OSS_SPEC.md`.
 
 - [x] **1.1** Port `_dev/spec.md` → `spec.md` (de-KISA pass).
 - [x] **1.2** `_dev/agents/pastiche-implementer-round1.md` → `agents/pastiche-implementer-round1.md` + `.meta.yaml` sidecar (strip frontmatter, KISA atoms/paths, Claude-Code-specific tool names).
-- [ ] [WIP] **1.3** `_dev/agents/pastiche-implementer-round2.md` → `agents/pastiche-implementer-round2.md` + `.meta.yaml` sidecar (same).
-- [ ] **1.4** `_dev/agents/pastiche-reviewer.md` → `agents/pastiche-reviewer.md` + `.meta.yaml` sidecar (same).
+- [ ] **1.3** `_dev/agents/pastiche-implementer-round2.md` → `agents/pastiche-implementer-round2.md` + `.claude-code.meta.yaml` + `.codex.meta.yaml` sidecars (same).
+- [ ] **1.4** `_dev/agents/pastiche-reviewer.md` → `agents/pastiche-reviewer.md` + `.claude-code.meta.yaml` + `.codex.meta.yaml` sidecars (same).
 - [x] **1.5** `_dev/skills/pastiche/SKILL.md` → `skills/pastiche.md` (canonical orchestrator body; strip Claude-Code framing).
 - [ ] **1.6** Author `skills/pastiche-setup.md` (OSS_SPEC §7.2, §11).
 - [ ] **1.7** Author `skills/pastiche-write-knowledge.md` (§7.3).
@@ -85,6 +85,6 @@ Sequenced delivery plan for shipping v1 of pastiche, derived from `OSS_SPEC.md`.
 ## Phase 8 — Release gate
 
 - [ ] **8.1** Dedicated `spec.md` editing pass — accumulate changes discovered during phases 1–7 and revise the philosophical spec in a single focused session. The Phase 1 port is a mechanical de-KISA only; substantive revisions happen here.
-- [ ] **8.2** Run OSS_SPEC §15 eight-point acceptance checklist end-to-end against `examples/primer-react/`.
+- [ ] **8.2** Run OSS_SPEC §15 eight-point acceptance checklist end-to-end against `examples/primer-react/` **on Claude Code only**. Codex is shipped as placeholder per OSS_SPEC §2.2; runtime validation deferred to a v1.x community milestone.
 - [ ] **8.3** Verify `_dev/` is empty (sources are deleted per Rule 5 as they're ported) and remove the tree, once §15 is green.
 - [ ] **8.4** Ship v1.

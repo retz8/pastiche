@@ -11,16 +11,25 @@ Per-task spec for TODO item **1.2**: port `_dev/agents/pastiche-implementer-roun
 
 ## Locked decisions
 
-### 1. Sidecar manifest fields
+### 1. Per-platform sidecar manifests (Claude Code + Codex placeholder)
 
-The sidecar carries exactly four fields:
+Two sidecars ship per agent.
+
+**`agents/pastiche-implementer-round1.claude-code.meta.yaml`:**
 
 - `name: pastiche-implementer-round1`
 - `description: Faithful frontend execution of a task against the project's KNOWLEDGE.md and WISDOM.md.`
 - `model: opus`
 - `tools: [Read, Edit, Write, Bash, Glob]`
 
-The description omits any "Pastiche round-1 implementer." preamble — the agent's role is conveyed by the filename and `name:` field. No `capabilities` field; tool names are Claude-Code-shape verbatim (Codex adapter derives `sandbox_mode` from this list).
+**`agents/pastiche-implementer-round1.codex.meta.yaml`** (placeholder — Codex untested in v1 per phase-1 decision 1f):
+
+- `name: pastiche-implementer-round1`
+- `description: Faithful frontend execution of a task against the project's KNOWLEDGE.md and WISDOM.md.`
+- `model: gpt-5-codex`
+- `sandbox_mode: workspace-write`
+
+`name` and `description` are identical across both sidecars (drift-prevention). The description omits any "Pastiche round-1 implementer." preamble — the agent's role is conveyed by the filename and `name:` field. Codex sidecar carries a banner comment marking it unverified.
 
 ### 2. Workflow step 2 — section enumeration
 
