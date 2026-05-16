@@ -1,0 +1,4 @@
+name: pastiche-implementer-round1
+description: Faithful frontend execution of a task against the project's KNOWLEDGE.md and WISDOM.md.
+model: opus
+tools: [Read, Edit, Write, Bash, Glob]

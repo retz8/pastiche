@@ -109,9 +109,12 @@ This was the decision over Shape 2 (commit pre-built per-platform files and copy
 
 ```
 agents/
-  round1.md         # pure markdown prompt body, no frontmatter
-  round2.md
-  reviewer.md
+  pastiche-implementer-round1.md       # pure markdown prompt body, no frontmatter
+  pastiche-implementer-round1.meta.yaml # sidecar manifest (name, description, model, capabilities)
+  pastiche-implementer-round2.md
+  pastiche-implementer-round2.meta.yaml
+  pastiche-reviewer.md
+  pastiche-reviewer.meta.yaml
 skills/
   pastiche.md       # the gating-loop orchestrator instructions
   pastiche-setup.md
@@ -183,10 +186,13 @@ pastiche/
 ├── .claude-plugin/
 │   ├── plugin.json           # for installation via Claude Code plugin mechanism
 │   └── marketplace.json      # if listed in a marketplace
-├── agents/                   # canonical agent prompts (markdown, no frontmatter)
-│   ├── round1.md
-│   ├── round2.md
-│   └── reviewer.md
+├── agents/                   # canonical agent prompts (markdown body + .meta.yaml sidecar)
+│   ├── pastiche-implementer-round1.md
+│   ├── pastiche-implementer-round1.meta.yaml
+│   ├── pastiche-implementer-round2.md
+│   ├── pastiche-implementer-round2.meta.yaml
+│   ├── pastiche-reviewer.md
+│   └── pastiche-reviewer.meta.yaml
 ├── skills/                   # canonical skill orchestrator bodies
 │   ├── pastiche.md
 │   ├── pastiche-setup.md
@@ -290,7 +296,7 @@ Four user-facing skills. Three execute work; one orchestrates subagents.
 2. Dispatch `pastiche-implementer-round1` → capture `{r1_report}`.
 3. Dispatch `pastiche-reviewer` → capture `{doubts}` (strict YAML).
 4. If `{doubts}` is `[]`, emit final report. Otherwise dispatch `pastiche-implementer-round2` with `{doubts}` and `{r1_report}`.
-5. Failsafe: write `// pastiche-unresolved-doubt:` comments for any doubt round 2 omitted from its disposition list.
+5. Failsafe: write `// pastiche-unresolved-doubt:` comments for any doubt `pastiche-implementer-round2` omitted from its disposition list.
 6. Emit Summary + Follow-ups (philosophical spec §7.5.1).
 
 **Implementation note:** The skill body is the canonical `skills/pastiche.md`. Adapter generation wraps it for Claude Code (`SKILL.md` with frontmatter) and Codex (skill format / AGENTS.md fragment).
@@ -369,12 +375,12 @@ Three subagents, dispatched only by the `pastiche` skill. Not user-invocable dir
 
 - **Persona:** Senior frontend engineer working inside the design system. Faithful executor.
 - **Context:** KNOWLEDGE.md (lazy by canonical section, plus always-load Brand Identity) + WISDOM.md (`[GENERAL]` always; remaining lazy by atom tag) + FACT.md (grep-only, after KNOWLEDGE has selected atoms).
-- **Output:** Round-1 report (philosophical spec §7.5.1) — files changed, brief summary, optional `knowledge-gap` notes.
+- **Output:** `pastiche-implementer-round1` report (philosophical spec §7.5.1) — files changed, brief summary, optional `knowledge-gap` notes.
 
 ### 8.2 `pastiche-implementer-round2`
 
-- **Persona:** Same as round 1, tilted toward correction over defense.
-- **Context:** Round-1's full report + the reviewer's doubt list. Re-greps WISDOM/FACT only for atoms newly introduced by corrections.
+- **Persona:** Same as `pastiche-implementer-round1`, tilted toward correction over defense.
+- **Context:** `pastiche-implementer-round1`'s full report + `pastiche-reviewer`'s doubt list. Re-greps WISDOM/FACT only for atoms newly introduced by corrections.
 - **Output:** Per-doubt disposition (`corrected` / `defended` with optional gap-tag) + round-2 report.
 
 ### 8.3 `pastiche-reviewer`
@@ -397,21 +403,6 @@ Header + extractor banner. The extractor populates entries on `init`/`sync`. Ado
 ```markdown
 # KNOWLEDGE
 
-## Index
-
-- Action buttons
-- Forms & input collection
-- Feedback & status
-- Overlays
-- Navigation & wayfinding
-- Content display
-- Layout & page structure
-- Date & time selection
-- Iconography
-- Visual hierarchy
-- Domain-specific patterns
-- Brand Identity
-
 ## Action buttons
 
 _(empty — fill via `/pastiche-setup --section action-buttons`)_
@@ -420,7 +411,7 @@ _(empty — fill via `/pastiche-setup --section action-buttons`)_
 
 _(empty)_
 
-... (remaining 9 sections as empty H2 stubs) ...
+... (remaining 10 sections as empty H2 stubs, ending with `## Brand Identity`) ...
 
 ## Brand Identity
 
@@ -475,6 +466,7 @@ setup_progress:
   brand_identity: stub
   general_wisdom: stub
 fact_extractor: ts-types     # v1 supports `ts-types` only
+typecheck_command: null         # optional; e.g. "npm run typecheck". null = implementer agents skip the typecheck step.
 ```
 
 The adopter may edit this file. `pastiche sync` honors edits — adding a path to `ds_module_paths` causes the next sync to re-extract from the new path; adding `gemini` to `platforms` would generate Gemini adapter files (post-v1).
@@ -573,7 +565,7 @@ Post-v1: additional fixtures (shadcn/ui-flavored, brand-specific, multi-package)
 | Aesthetic review skill | Separate, on-demand skill outside the gating loop (philosophical spec §15). | v2 |
 | Reverse KNOWLEDGE (auto-generated reverse-knowledge in WISDOM) | Philosophical spec §16 — deferred until speculative doubt proves insufficient. | Conditional |
 | Three-round loop with exit ritual | Philosophical spec §7.5 — bump path if two rounds prove insufficient. | Conditional |
-| Strong-no abuse mitigation reviewer re-flag | Philosophical spec §7.7 — conditional on empirical signal. | Conditional |
+| Strong-no abuse mitigation `pastiche-reviewer` re-flag | Philosophical spec §7.7 — conditional on empirical signal. | Conditional |
 
 ---
 
