@@ -26,7 +26,7 @@ All work tracked in `_dev/docs/TODO.md` flows through this harness. Do not skip 
 
 **Rule 2 — "Author …" tasks → spec + dedicated skill.**
 1. `grill-me` to lock decisions.
-2. Write the locked decisions as a spec at `docs/spec/<task-name>.md` (kebab-case, e.g. `docs/spec/skills-pastiche-setup.md`).
+2. Write the locked decisions as a spec at `docs/spec/<task-name>.md` with `grill-to-spec` skill (kebab-case, e.g. `docs/spec/skills-pastiche-setup.md`).
 3. Execute with the dedicated skill matched to the artifact type ( `write-a-skill` for skills). The spec is the input.
 
 **Rule 3 — "Implement …" tasks → plan + execute.**
@@ -35,6 +35,8 @@ All work tracked in `_dev/docs/TODO.md` flows through this harness. Do not skip 
 3. `executing-plans` (superpowers) to execute it. No freehand implementation.
 
 **Rule 4 — Per-phase kickoff.** Before starting any phase in TODO.md, run a phase-level `grill-me` and write a phase spec at `docs/spec/phase-<n>-<short-name>.md` locking decisions shared across the phase's tasks. Per-task grillings inherit from it.
+
+**Rule 5 — Delete the source after a successful port.** When a "Port `_dev/<x>` → `<y>`" task completes, delete `_dev/<x>` (and any newly-empty parent dirs) in the same commit. Do not leave staging files as tombstones — git history is the audit trail. TODO 8.3 then only removes whatever non-ported leftovers remain.
 
 ### Invariants
 

@@ -13,9 +13,9 @@ Sequenced delivery plan for shipping v1 of pastiche, derived from `OSS_SPEC.md`.
 ## Phase 1 — Canonical sources (generalize from `_dev/`)
 
 - [x] **1.1** Port `_dev/spec.md` → `spec.md` (de-KISA pass).
-- [ ] [WIP] **1.2** `_dev/agents/pastiche-implementer-round1.md` → `agents/round1.md` (strip frontmatter, KISA atoms/paths, Claude-Code-specific tool names).
-- [ ] **1.3** `_dev/agents/pastiche-implementer-round2.md` → `agents/round2.md` (same).
-- [ ] **1.4** `_dev/agents/pastiche-reviewer.md` → `agents/reviewer.md` (same).
+- [ ] [WIP] **1.2** `_dev/agents/pastiche-implementer-round1.md` → `agents/pastiche-implementer-round1.md` + `.meta.yaml` sidecar (strip frontmatter, KISA atoms/paths, Claude-Code-specific tool names).
+- [ ] [WIP] **1.3** `_dev/agents/pastiche-implementer-round2.md` → `agents/pastiche-implementer-round2.md` + `.meta.yaml` sidecar (same).
+- [ ] **1.4** `_dev/agents/pastiche-reviewer.md` → `agents/pastiche-reviewer.md` + `.meta.yaml` sidecar (same).
 - [x] **1.5** `_dev/skills/pastiche/SKILL.md` → `skills/pastiche.md` (canonical orchestrator body; strip Claude-Code framing).
 - [ ] **1.6** Author `skills/pastiche-setup.md` (OSS_SPEC §7.2, §11).
 - [ ] **1.7** Author `skills/pastiche-write-knowledge.md` (§7.3).
@@ -67,6 +67,7 @@ Sequenced delivery plan for shipping v1 of pastiche, derived from `OSS_SPEC.md`.
 - [ ] **6.4** Hand-curate illustrative `WISDOM.md` (5–8 atom-tagged + 2–3 `[GENERAL]`).
 - [ ] **6.5** Commit one task artifact per failure mode (component omission, token omission, wrong choice) — input → loop output → final diff.
 - [ ] **6.6** Add non-affiliation banners (fixture README + KNOWLEDGE/WISDOM headers).
+- [ ] **6.7** Extractor field-testing — run `scripts/extract-fact-ts.ts` against ≥3 varied real-world FE codebases (different DS shapes, generics, re-exports, namespaced components). Document gaps; iterate the extractor until coverage is acceptable. Defers the question of a manual FACT-overrides surface until empirical evidence justifies it.
 
 ---
 
@@ -85,5 +86,5 @@ Sequenced delivery plan for shipping v1 of pastiche, derived from `OSS_SPEC.md`.
 
 - [ ] **8.1** Dedicated `spec.md` editing pass — accumulate changes discovered during phases 1–7 and revise the philosophical spec in a single focused session. The Phase 1 port is a mechanical de-KISA only; substantive revisions happen here.
 - [ ] **8.2** Run OSS_SPEC §15 eight-point acceptance checklist end-to-end against `examples/primer-react/`.
-- [ ] **8.3** Clean up `_dev/` (delete staging area) once all canonical files are promoted and the §15 gate is green.
+- [ ] **8.3** Verify `_dev/` is empty (sources are deleted per Rule 5 as they're ported) and remove the tree, once §15 is green.
 - [ ] **8.4** Ship v1.
