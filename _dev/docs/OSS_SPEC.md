@@ -153,14 +153,18 @@ Each template declares the platform-specific envelope (frontmatter keys, file fo
 
 **Codex CLI:**
 ```
-.codex/
-  agents/
-    pastiche-implementer-round1.toml
-    pastiche-implementer-round2.toml
-    pastiche-reviewer.toml
-  skills/   (or equivalent, pending Codex skill format finalization — see §14)
-    ...
+.codex/agents/
+  pastiche-implementer-round1.toml
+  pastiche-implementer-round2.toml
+  pastiche-reviewer.toml
+.agents/skills/
+  pastiche/SKILL.md
+  pastiche-setup/SKILL.md
+  pastiche-write-knowledge/SKILL.md
+  pastiche-write-wisdom/SKILL.md
 ```
+
+Note the path asymmetry: Codex skills live under `.agents/skills/` (cross-tool convention), while subagents live under `.codex/agents/`. See `docs/adapters/codex.md` for the full Codex adapter contract.
 
 If the adopter targets both platforms, both trees are written. `pastiche.config.yaml` records which platforms are installed (§9).
 
@@ -602,14 +606,9 @@ How the canonical-source-+-template build is actually implemented:
 
 Recommendation: defer. TypeScript functions are likely the right call given the variety across YAML / TOML / different envelopes, but this is an implementation taste call.
 
-### 14.4 Codex skill format
+### 14.4 Codex skill format — RESOLVED (2026-05-16)
 
-Research confirmed Codex CLI has subagents at `.codex/agents/*.toml`. Codex skills are a distinct concept from subagents and the exact file format for skills is less clearly documented in public sources. v1 may need to:
-
-- Verify the current Codex skill convention against the latest Codex CLI release.
-- Decide whether the pastiche orchestrator on Codex lives as a skill, an `AGENTS.md` fragment, or both.
-
-Defer to implementation; the canonical orchestrator body is platform-agnostic, so this is a wrapper question, not a content question.
+Codex skills are directories under `.agents/skills/<name>/` containing a `SKILL.md` with YAML frontmatter (`name`, `description`) and a markdown body — shape-identical to Claude Code skills, only the output path differs. Pastiche ships its four user-facing skills as Codex Skills (not as an `AGENTS.md` fragment, since AGENTS.md is always-loaded and pastiche is on-demand). Subagents remain `.codex/agents/*.toml` with the canonical agent body embedded in `developer_instructions = """..."""`. See `docs/adapters/codex.md` for the full contract.
 
 ### 14.5 Licensing
 

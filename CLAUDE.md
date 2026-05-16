@@ -10,90 +10,42 @@ The skill operates over three documents that form an epistemological hierarchy:
 - **KNOWLEDGE.md** — curated scenario→atom mappings (the "absent designer") + brand-identity prose.
 - **WISDOM.md** — atom-tagged rules. Atom-intrinsic only; scenario-conditional rules live in KNOWLEDGE.
 
-The runtime mechanism is a **bounded doubt-defense loop**: a `pastiche-implementer-round1` agent produces code → a `pastiche-reviewer` agent raises strict-YAML doubts → a `pastiche-implementer-round2` agent corrects or defends. The loop is intentionally light; depth comes from the dialogue, not from a heavy reviewer.
+The runtime mechanism is a **bounded doubt-defense loop**: `pastiche-implementer-round1` produces code → `pastiche-reviewer` raises strict-YAML doubts → `pastiche-implementer-round2` corrects or defends. Depth comes from the dialogue, not from a heavy reviewer.
 
-Read `_dev/spec.md` for the full philosophical spec. Read `_dev/docs/OSS_SPEC.md` for the v1 OSS delivery spec.
+This repo is the **OSS extract** of pastiche, validated internally against the KISA design system. Everything currently lives under `_dev/` as a KISA-flavored staging area — nothing there is canonical yet. The v1 surface (CLI, skills, agents, templates, adapters) is defined in `_dev/docs/OSS_SPEC.md`. Sequenced delivery lives in `_dev/docs/TODO.md`.
 
-## Current status
-
-This repo is the **OSS extract** of pastiche, validated as an internal installation against the KISA design system (`umichkisa-ds`). Everything currently lives under `_dev/` as a staging area — copied from the working KISA installation but **not yet finalized** for the OSS surface.
-
-The shape of the OSS v1 (per `_dev/docs/OSS_SPEC.md`):
-
-- **CLI:** `pastiche init` · `pastiche sync` · `pastiche lint`
-- **User-facing skills:** `pastiche` · `pastiche-setup` · `pastiche-write-knowledge` · `pastiche-write-wisdom`
-- **Internal agents:** `pastiche-implementer-round1` · `pastiche-implementer-round2` · `pastiche-reviewer`
-- **Templates:** `FACT.md` · `KNOWLEDGE.md` · `WISDOM.md` · `pastiche.config.yaml`
-- **Supported platforms:** Claude Code + Codex CLI (Gemini/Cursor/Aider deferred)
-- **Adapter model:** canonical sources + per-platform build (no committed per-platform outputs)
-
-## What `_dev/` contains right now
-
-```
-_dev/
-├── spec.md                          # philosophical spec (ported from KISA)
-├── docs/
-│   └── OSS_SPEC.md                  # v1 delivery spec (what we're building toward)
-├── skills/pastiche/SKILL.md         # the gating-loop skill, copied from KISA's .claude/
-├── agents/                          # three subagents, copied from KISA's .claude/agents/
-│   ├── pastiche-implementer-round1.md
-│   ├── pastiche-implementer-round2.md
-│   └── pastiche-reviewer.md
-├── scripts/                         # FACT extractor + tag-sanity lint, copied from KISA
-│   ├── extract-fact.ts
-│   ├── lint-tags.ts
-│   └── lint-tags.test.ts
-└── templates/                       # FACT / KNOWLEDGE / WISDOM document templates
-    ├── FACT.md
-    ├── KNOWLEDGE.md
-    └── WISDOM.md
-```
-
-**Important:** the files in `_dev/` are KISA-flavored copies. They contain KISA paths, KISA atoms, and KISA-specific phrasing in places. The OSS extract requires reviewing each file and generalizing it. Nothing in `_dev/` is canonical yet.
+**Required reading:** `_dev/spec.md` (philosophy), `_dev/docs/OSS_SPEC.md` (v1 delivery spec), `_dev/docs/TODO.md` (sequenced plan).
 
 ## How to work in this repo
 
-### The review-and-finalize loop
+### Daily work harness (TODO.md execution)
 
-The current task is **reviewing `_dev/` files one by one and promoting them to their final location** at the repo root (per the structure in `_dev/docs/OSS_SPEC.md` §5).
+All work tracked in `_dev/docs/TODO.md` flows through this harness. Do not skip steps even if a task feels small.
 
-For each file:
+**Rule 1 — Grill before every task.** Before touching any TODO item (port, author, implement, scaffold, etc.), run the `grill-me` skill to lock in scope and decisions. No file moves or writes until grilling is resolved.
 
-1. Read it in `_dev/`.
-2. Identify KISA-specific content (paths, atom names, project assumptions, phrasing that presumes the KISA context).
-3. Decide: keep, generalize, drop, or split.
-4. Write the generalized version to its final location at the repo root (e.g., `_dev/agents/pastiche-reviewer.md` → `agents/pastiche-reviewer.md`; `_dev/skills/pastiche/SKILL.md` → canonical body at `skills/pastiche.md`).
-5. Cross-reference against `_dev/docs/OSS_SPEC.md` to ensure the finalized file matches the spec'd v1 shape.
-6. Leave the `_dev/` original in place until the OSS extract is complete; clean up `_dev/` as a final step.
+**Rule 2 — "Author …" tasks → spec + dedicated skill.**
+1. `grill-me` to lock decisions.
+2. Write the locked decisions as a spec at `docs/spec/<task-name>.md` (kebab-case, e.g. `docs/spec/skills-pastiche-setup.md`).
+3. Execute with the dedicated skill matched to the artifact type (e.g. `skill-creator` for skills). The spec is the input.
 
-### Canonical-source vs adapter-output discipline
+**Rule 3 — "Implement …" tasks → plan + execute.**
+1. `grill-me` to lock decisions.
+2. `writing-plans` (superpowers) to produce an implementation plan.
+3. `executing-plans` (superpowers) to execute it. No freehand implementation.
 
-Per OSS_SPEC §4: the OSS repo holds **canonical sources** (platform-agnostic markdown bodies — no frontmatter, no platform syntax) plus **adapter templates** that wrap canonical bodies in per-platform envelopes (Claude Code SKILL.md frontmatter; Codex TOML). Pre-built per-platform output files are **not committed** to this repo.
+**Rule 4 — Per-phase kickoff.** Before starting any phase in TODO.md, run a phase-level `grill-me` and write a phase spec at `docs/spec/phase-<n>-<short-name>.md` locking decisions shared across the phase's tasks. Per-task grillings inherit from it.
 
-When promoting `_dev/skills/pastiche/SKILL.md` (which has Claude-Code-specific framing today) to the final `skills/pastiche.md`:
-- Strip Claude-Code-specific tool names where possible.
-- Keep the orchestration logic (round1 → reviewer → round2 → failsafe → emit).
-- Move platform-specific concerns into `adapters/claude-code/skills.template`.
+### Invariants
 
-Same discipline for `_dev/agents/*.md` → `agents/*.md`: strip frontmatter and Claude-Code-specific scaffolding; promote the prompt body to canonical; let `adapters/<platform>/agents.template` re-wrap.
+- **OSS_SPEC is the source of truth.** If a decision isn't in OSS_SPEC, surface it in grilling — don't infer. Open items are enumerated in OSS_SPEC §14.
+- **Project-agnostic.** No canonical or adapter file embeds KISA atom names, paths, or phrasing. KISA atoms only appear in `examples/primer-react/` (the reference adoption — not yet built, see OSS_SPEC §12).
+- **Canonical vs adapter discipline** (OSS_SPEC §4): canonical sources are platform-agnostic markdown bodies; per-platform envelopes live in `adapters/<platform>/*.template`; built outputs are not committed.
 
-### Don't invent decisions
+### What this repo is not
 
-The OSS_SPEC is the source of truth for v1 scope, surface, and architecture. If a decision isn't in OSS_SPEC, raise it before implementing — don't infer.
-
-Open implementation decisions are enumerated in OSS_SPEC §14 (extractor pluggability, CLI language, adapter generator implementation, Codex skill format, licensing, package distribution).
-
-### Project-agnostic invariant
-
-Pastiche v1 is **project-agnostic**. KISA is the testbed, not the audience. No file in this repo (canonical or adapter) should embed KISA atom names, KISA file paths, or KISA-specific phrasing. The reference adoption lives at `examples/primer-react/` (not yet built — see OSS_SPEC §12) and is the only place where a real DS's atom names appear in this repo.
-
-## What this repo is not
-
-- **Not a design system.** Pastiche is consumed by an existing design system + component library.
-- **Not a general code reviewer.** DS-faithful execution only. Code quality, type checking, and functional correctness belong to other tools.
-- **Not a runtime UI generation protocol.** Pastiche operates at build time, producing source code.
-- **Not a Claude-Code-only tool.** v1 targets Claude Code + Codex; the architecture explicitly avoids platform lock.
+Not a design system, not a general code reviewer, not a runtime UI protocol, not Claude-Code-only. v1 targets Claude Code + Codex.
 
 ## Reference
 
-- **Origin:** `umichkisa-ds` (the KISA Design System, /Users/jiohin/desktop/kisa/devteam/dev/umichkisa-ds) — the validation testbed. The KISA installation under `umichkisa-ds/pastiche/` and `umichkisa-ds/.claude/{skills,agents}/pastiche*` is the source material for this OSS extract.
+**Origin:** `umichkisa-ds` (KISA Design System, `/Users/jiohin/desktop/kisa/devteam/dev/umichkisa-ds`) — validation testbed. Source material for this extract lives under `umichkisa-ds/pastiche/` and `umichkisa-ds/.claude/{skills,agents}/pastiche*`.
