@@ -27,7 +27,7 @@ All work tracked in `_dev/docs/TODO.md` flows through this harness. Do not skip 
 **Rule 2 — "Author …" tasks → spec + dedicated skill.**
 1. `grill-me` to lock decisions.
 2. Write the locked decisions as a spec at `docs/spec/<task-name>.md` (kebab-case, e.g. `docs/spec/skills-pastiche-setup.md`).
-3. Execute with the dedicated skill matched to the artifact type (e.g. `skill-creator` for skills). The spec is the input.
+3. Execute with the dedicated skill matched to the artifact type ( `write-a-skill` for skills). The spec is the input.
 
 **Rule 3 — "Implement …" tasks → plan + execute.**
 1. `grill-me` to lock decisions.
@@ -40,7 +40,7 @@ All work tracked in `_dev/docs/TODO.md` flows through this harness. Do not skip 
 
 - **OSS_SPEC is the source of truth.** If a decision isn't in OSS_SPEC, surface it in grilling — don't infer. Open items are enumerated in OSS_SPEC §14.
 - **Project-agnostic.** No canonical or adapter file embeds KISA atom names, paths, or phrasing. KISA atoms only appear in `examples/primer-react/` (the reference adoption — not yet built, see OSS_SPEC §12).
-- **Canonical vs adapter discipline** (OSS_SPEC §4): canonical sources are platform-agnostic markdown bodies; per-platform envelopes live in `adapters/<platform>/*.template`; built outputs are not committed.
+- **Canonical vs adapter discipline**: canonical sources are platform-agnostic markdown bodies; per-platform envelopes live in `adapters/<platform>/*.template`; built outputs are not committed.
 
 ### What this repo is not
 

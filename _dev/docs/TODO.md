@@ -83,6 +83,7 @@ Sequenced delivery plan for shipping v1 of pastiche, derived from `OSS_SPEC.md`.
 
 ## Phase 8 — Release gate
 
+- [ ] Dedicated `spec.md` editing pass — accumulate changes discovered during phases 1–7 and revise the philosophical spec in a single focused session. The Phase 1 port is a mechanical de-KISA only; substantive revisions happen here.
 - [ ] Run OSS_SPEC §15 eight-point acceptance checklist end-to-end against `examples/primer-react/`.
 - [ ] Clean up `_dev/` (delete staging area) once all canonical files are promoted and the §15 gate is green.
 - [ ] Ship v1.
