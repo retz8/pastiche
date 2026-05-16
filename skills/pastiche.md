@@ -39,7 +39,6 @@ Combine `{r1_report}` and `{r2_report}` `## Files changed` lists. Use the doc na
 
 - Entries from `{r2_report}`'s `## Defended` tagged `knowledge-gap` — a missing scenario→atom mapping in KNOWLEDGE.md.
 - Entries from `{r2_report}`'s `## Defended` tagged `wisdom-gap` — a missing atom-intrinsic rule in WISDOM.md.
-- Entries from `{r2_report}`'s `## Defended` tagged `fact-gap`, or `## FACT gaps` in `{r1_report}` — a missing prop on an existing FACT atom.
 - Any failsafe comment written in step 5 — surface as `file:line`.
 
 Each follow-up bullet must be self-describing; readers shouldn't need to know about rounds, dispositions, or the loop.
