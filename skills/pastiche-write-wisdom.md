@@ -5,7 +5,7 @@ description: Use when adding or revising an atom-intrinsic rule in WISDOM.md —
 
 # Pastiche — write WISDOM
 
-Inserts one atom-intrinsic rule into `pastiche/WISDOM.md`. One rule per invocation. WISDOM is a flat bulleted list where each bullet is `[Atom1][Atom2] rule text` (brackets concatenated, no commas). `[GENERAL]` is itself a tag, reserved for system-wide rules.
+Inserts one atom-intrinsic rule into `pastiche/WISDOM.md` per invocation. See WISDOM.md's header for the bullet format. `[GENERAL]` is the lone non-FACT tag, reserved for system-wide rules.
 
 ## Workflow
 
@@ -15,14 +15,13 @@ Inserts one atom-intrinsic rule into `pastiche/WISDOM.md`. One rule per invocati
 
    > This rule is scenario-conditional (qualifier: `<phrase>`). It belongs in KNOWLEDGE as a scenario→atom mapping. Re-invoke `/pastiche-write-knowledge` with this rule.
 
-   Counter-examples that fail the test (these are KNOWLEDGE, not WISDOM):
+   Counter-example that fails the test (this is KNOWLEDGE, not WISDOM):
    - *"Destructive actions must use ConfirmDialog rather than a generic Modal."* — qualifier: "destructive actions".
-   - *"Do not use Toast for errors in payment flows; use InlineError instead."* — qualifier: "payment flows".
 
 3. **Pick tags.**
    - If the user proposed `[GENERAL]` upfront, skip to step 4.
    - Otherwise lock the primary atom tag. If the user gave a tag, verify it appears in FACT verbatim. If not, retry case-insensitively / for near-matches and surface the closest match for confirmation. If still no match, stop and report:
-     > Tag `<X>` is not in FACT.md. Possible causes: (1) misspelling — check FACT for the canonical form; (2) FACT is stale — run `pastiche sync` to re-extract; (3) the atom doesn't exist in your design system, in which case this rule can't be atom-tagged — reconsider whether it belongs in KNOWLEDGE (scenario-conditional) or as `[GENERAL]` (system-wide).
+     > Tag `<X>` is not in FACT.md. Either it's misspelled, FACT is stale (run `pastiche sync`), or the atom doesn't exist — in which case reconsider as KNOWLEDGE (scenario-conditional) or `[GENERAL]` (system-wide).
    - If the user did not give a tag, suggest candidate atoms from FACT that the rule plausibly tags. User picks the primary tag.
    - **Multi-tag.** Scan FACT and propose additional atoms the rule applies to identically. User picks any (zero or more). Verify each picked tag against FACT spelling as above.
    - **5+ tags → re-route.** Prompt: *"This applies to many atoms — consider `[GENERAL]` instead?"* If yes, go to step 4.
@@ -33,11 +32,11 @@ Inserts one atom-intrinsic rule into `pastiche/WISDOM.md`. One rule per invocati
 
    Only proceed when both tests pass and the user explicitly confirms `[GENERAL]`.
 
-5. **Show existing neighbors.** For each chosen tag, `grep -nF '[<Tag>]' pastiche/WISDOM.md`. Show the matching entries to the user so they can self-detect duplication or refinement opportunities before drafting.
+5. **Show existing neighbors.** For each chosen tag, `grep -nE '\[([^]]*,)?<Tag>(,[^]]*)?\]' pastiche/WISDOM.md | grep -vE '^[0-9]+:[[:space:]]*<!--'` (escape any regex meta-characters in `<Tag>` — e.g. `.` in `Form.Select`, leading `--` in `--color-*`). Show the matching entries to the user so they can self-detect duplication or refinement opportunities before drafting.
 
-6. **Draft and confirm.** Compose the bullet in canonical form: `- [Atom1][Atom2] rule text.` Show the exact line and ask: `yes / edit text`. Loop on edits until confirmed.
+6. **Draft and confirm.** Compose the bullet in canonical form: `- [Atom1,Atom2] rule text.` Show the exact line and ask: `yes / edit text`. Loop on edits until confirmed.
 
-7. **Insert.** For each tag in the new entry, `grep -nF '[<Tag>]' pastiche/WISDOM.md`. Insert the bullet immediately after the last matching line across all the entry's tags. If no tag has any existing match, append to end of file.
+7. **Insert.** For each tag in the new entry, `grep -nE '\[([^]]*,)?<Tag>(,[^]]*)?\]' pastiche/WISDOM.md | grep -vE '^[0-9]+:[[:space:]]*<!--'` (escape regex meta-characters in `<Tag>` as in step 5). Insert the bullet immediately after the last matching line across all the entry's tags. If no tag has any existing match, append to end of file.
 
 8. **Lint.** Run `pastiche lint`. On failure, print the lint output verbatim and stop — do not revert the insertion. On success, report:
 
