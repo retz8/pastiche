@@ -48,7 +48,7 @@ Anything beyond that — additional platform adapters, mechanical DESIGN.md impo
 | CLI | `pastiche init`, `pastiche sync`, `pastiche lint` |
 | User-facing skills | `pastiche`, `pastiche-setup`, `pastiche-write-knowledge`, `pastiche-write-wisdom` |
 | Internal agents | `pastiche-implementer-round1`, `pastiche-implementer-round2`, `pastiche-reviewer` |
-| Templates | `FACT.md`, `KNOWLEDGE.md`, `WISDOM.md`, `pastiche.config.yaml` |
+| Templates | `FACT.md`, `KNOWLEDGE.md`, `WISDOM.md`, `config.yaml` |
 | Platform adapters | Claude Code (validated end-to-end), Codex CLI (placeholder — files shipped, runtime unverified by author; community validation invited) |
 | Reference adoption | `examples/primer-react/` — small Next.js + `@primer/react` app with populated docs |
 | External adopter | KISA design system (linked from README; not in-tree) |
@@ -175,7 +175,7 @@ Each template declares the platform-specific envelope (frontmatter keys, file fo
 
 Note the path asymmetry: Codex skills live under `.agents/skills/` (cross-tool convention), while subagents live under `.codex/agents/`. See `docs/adapters/codex.md` for the full Codex adapter contract.
 
-If the adopter targets both platforms, both trees are written. `pastiche.config.yaml` records which platforms are installed (§9).
+The adopter selects a single target platform at `init` (`platform` field in `pastiche/config.yaml`; §9.4); switching platforms means re-running `init`. v1 generates one adapter tree per install.
 
 ### 4.5 Adapter regeneration discipline
 
@@ -214,7 +214,7 @@ pastiche/
 │   ├── FACT.md
 │   ├── KNOWLEDGE.md
 │   ├── WISDOM.md
-│   └── pastiche.config.yaml
+│   └── config.yaml
 ├── cli/                      # CLI implementation
 │   └── src/
 │       └── (init / sync / lint / extract-fact / generate-adapters)
@@ -250,16 +250,16 @@ Three verbs. Each is idempotent.
 
 **Behavior:**
 
-1. Prompt for target platforms (Claude Code, Codex, or both). Default: detect existing `.claude/` and `.codex/` directories; offer to install for what's present.
+1. Prompt for the target platform (Claude Code or Codex). Default: detect existing `.claude/` or `.codex/` directory; offer to install for what's present. Single-select; switching platforms means re-running `init`.
 2. Scaffold `pastiche/` folder at repo root with empty `FACT.md`, `KNOWLEDGE.md` (with the canonical 12 H2 stubs from philosophical spec §3.2), and `WISDOM.md` (with header + tag-format reminder + commented-out `[GENERAL]` suggestions).
-3. Scaffold `pastiche.config.yaml` at repo root with reasonable defaults (§9).
+3. Scaffold `pastiche/config.yaml` (colocated with the three docs) with empty/null sentinels (§9.4); auto-detect `typecheck_command` from `package.json` scripts and prompt to confirm; auto-detect package manager from lockfile for the invocation prefix.
 4. Run the FACT extractor against the adopter's codebase. If it can't locate the DS module, prompt for path, write to config, retry.
 5. Generate adapter files (§4.4) for the selected platforms.
 6. Print next-step guidance: run `/pastiche-setup` to start the interactive KNOWLEDGE bootstrap.
 
 **Critical:** `init` does **not** detect or touch `DESIGN.md`. That logic lives in the setup skill (§7.2, §11).
 
-**Flags:** `--platforms claude-code,codex`, `--ds-path <path>`, `--dry-run`.
+**Flags:** `--platform claude-code|codex`, `--ds-path <path>`, `--dry-run`.
 
 ### 6.2 `pastiche sync`
 
@@ -269,11 +269,11 @@ Three verbs. Each is idempotent.
 
 1. Re-run the FACT extractor (picks up codebase changes since last run).
 2. Regenerate adapter files from canonical sources (picks up pastiche-version upgrades).
-3. Respects user edits to `pastiche.config.yaml` — if the adopter changed `ds_module_paths` or added a platform, sync acts on the new config.
+3. Respects user edits to `pastiche/config.yaml` — if the adopter changed `packages` or `tokens` entries, or switched `platform`, sync acts on the new config.
 
-**Adopter expectation:** Run `sync` after upgrading the pastiche package, after a significant DS code change, or after editing `pastiche.config.yaml`. Safe to run on every commit; idempotent if nothing changed.
+**Adopter expectation:** Run `sync` after upgrading the pastiche package, after a significant DS code change, or after editing `pastiche/config.yaml`. Safe to run on every commit; idempotent if nothing changed.
 
-**Flags:** `--dry-run`, `--platforms <list>` (override config).
+**Flags:** `--dry-run`, `--platform <name>` (override config).
 
 ### 6.3 `pastiche lint`
 
@@ -318,7 +318,7 @@ Four user-facing skills. Three execute work; one orchestrates subagents.
 
 **Behavior:**
 
-1. Read `pastiche.config.yaml`.
+1. Read `pastiche/config.yaml`.
 2. **DESIGN.md detection** — if `design_md_reference` is unset in config, scan repo root for a `DESIGN.md` file. If found, ask the adopter to opt in: *"DESIGN.md detected. Use it as a reference for the setup grill? (Tokens / brand prose / patterns will be cross-referenced.)"*
    - If yes: write `design_md_reference: ./DESIGN.md` to config. **Auto-copy DESIGN.md's brand-identity prose section** into KNOWLEDGE.md's Brand Identity stub. This is the one mechanical port from DESIGN.md; it touches no other section.
    - If no: skip.
@@ -335,7 +335,7 @@ Four user-facing skills. Three execute work; one orchestrates subagents.
    - "Respect documented breakpoints (no arbitrary media queries)?"
    - "Accessibility floors — any DS-wide invariants?"
    - "Landmark requirements — any DS-wide rules?"
-   For each "yes," draft a `[GENERAL]` WISDOM entry. Update `setup_progress.general_wisdom: filled`.
+   For each "yes," draft a `[GENERAL]` WISDOM entry. Update `setup_progress.general-wisdom: filled`.
 6. **Stop.** Atom-tagged WISDOM is not seeded by setup — it grows via the living-document loop (philosophical spec §10), serviced by `pastiche-write-wisdom` (§7.4).
 
 **Flags:** `--section <name>`, `--all`, `--resume` (resume the last incomplete section).
@@ -449,36 +449,112 @@ The canonical 12 H2 sections are mandatory. The lint enforces presence; stubs ar
 
 Atom-tagged entries are not seeded. WISDOM grows over time via `pastiche-write-wisdom`.
 
-### 9.4 `pastiche.config.yaml`
+### 9.4 `pastiche/config.yaml`
+
+Colocated with the three docs under `pastiche/`. Adopter-owned; `pastiche sync` honors edits. The template ships as empty/null sentinels — `pastiche init` populates required fields via prompts and detection.
 
 ```yaml
-pastiche_version: "1.0.0"
-platforms:
-  - claude-code
-  - codex
-ds_module_paths:
-  - src/components
-  - src/tokens
-design_md_reference: null    # set by `/pastiche-setup` if adopter opts in
+platform: null
+packages: []
+tokens: []
+design_md_reference: null
+typecheck_command: null
 setup_progress:
-  action_buttons: stub
-  forms_input_collection: stub
-  feedback_status: stub
+  action-buttons: stub
+  forms-input-collection: stub
+  feedback-status: stub
   overlays: stub
-  navigation_wayfinding: stub
-  content_display: stub
-  layout_page_structure: stub
-  date_time_selection: stub
+  navigation-wayfinding: stub
+  content-display: stub
+  layout-page-structure: stub
+  date-time-selection: stub
   iconography: stub
-  visual_hierarchy: stub
-  domain_specific_patterns: stub
-  brand_identity: stub
-  general_wisdom: stub
-fact_extractor: ts-types     # v1 supports `ts-types` only
-typecheck_command: null         # optional; e.g. "npm run typecheck". null = implementer agents skip the typecheck step.
+  visual-hierarchy: stub
+  domain-specific-patterns: stub
+  brand-identity: stub
+  general-wisdom: stub
 ```
 
-The adopter may edit this file. `pastiche sync` honors edits — adding a path to `ds_module_paths` causes the next sync to re-extract from the new path; adding `gemini` to `platforms` would generate Gemini adapter files (post-v1).
+Field semantics:
+
+- **`platform`** — single string (`claude-code` or `codex`). v1 generates one adapter tree per `init`; switching platforms means re-running `init`.
+- **`packages`** — list of `{name, types | source_dir, ...}` entries. `name` is required and unique. Exactly one of `types` (aggregate `.d.ts`) or `source_dir` (source-walk) per entry. Optional `extensions` (on `source_dir`; default `[".tsx", ".ts"]`). See §9.4.1 for shapes.
+- **`tokens`** — list of `{format, source, ...}` entries. `format` ∈ {`tailwind-v4-theme`, `css-vars`}. Optional `selectors` (on `css-vars`; default `[":root"]`). See §9.4.1 for shapes.
+- **`design_md_reference`** — path string (or `null`); not a boolean. Allows non-root locations. `/pastiche-setup` writes the discovered path during opt-in. Path-safety checks (resolve, in-repo, readable) apply at both read and write time.
+- **`typecheck_command`** — full shell command (e.g. `"pnpm typecheck"`). `null` means implementer agents skip the typecheck step.
+- **`setup_progress`** — 13 kebab-case section slugs (12 KNOWLEDGE sections + `general-wisdom`). Same slugs accepted as `/pastiche-setup --section <slug>`. State flips from `stub` → `done` as setup walks each section.
+
+Removed from v1 (vs. earlier drafts): `pastiche_version` (no v0/v2 to compare against), `fact_extractor` (only one extractor in v1; see §14.1). Both return in v1.x when a real comparison target exists.
+
+`pastiche sync` re-reads this file — adding a `packages` or `tokens` entry causes the next sync to re-extract from the new source; switching `platform` regenerates adapters for the new platform.
+
+Per-field reference for the release docs lives in `docs/config.md`, which hydrates from §9.4.1 plus the field semantics above.
+
+### 9.4.1 Stack scenarios
+
+v1 supports four combinations of component-source mode (`types` or `source_dir`) × token format (`tailwind-v4-theme` or `css-vars`). Other shapes (`types_glob` per-file `.d.ts`, `tailwind-v3-config`, `dtcg-json`, `js-export`, `classes`-as-format, per-entry `exclude`/`prefix`) are deferred to v1.x and fail-closed at lint time with clear error messages.
+
+**Scenario 1 — monorepo with aggregate `.d.ts` + Tailwind v4 theme** (e.g. KISA-style internal DS)
+
+```yaml
+platform: claude-code
+packages:
+  - name: "@umichkisa-ds/web"
+    types: packages/web/dist/index.d.ts
+  - name: "@umichkisa-ds/form"
+    types: packages/form/dist/index.d.ts
+tokens:
+  - format: tailwind-v4-theme
+    source: src/styles/theme.css
+```
+
+**Scenario 2 — npm aggregate `.d.ts` + CSS-vars token files** (e.g. Primer; MUI with custom CSS vars)
+
+```yaml
+platform: claude-code
+packages:
+  - name: "@primer/react"
+    types: node_modules/@primer/react/dist/index.d.ts
+tokens:
+  - format: css-vars
+    source: node_modules/@primer/primitives/dist/css/colors/light.css
+  - format: css-vars
+    source: node_modules/@primer/primitives/dist/css/base/size.css
+```
+
+**Scenario 3 — shadcn-style source-walk + Tailwind v4** (the canonical 2026 React/Tailwind setup)
+
+```yaml
+platform: claude-code
+packages:
+  - name: ui
+    source_dir: src/components/ui
+tokens:
+  - format: tailwind-v4-theme
+    source: src/app/globals.css
+```
+
+**Scenario 4 — shadcn source-walk + multiple token files**
+
+```yaml
+platform: claude-code
+packages:
+  - name: ui
+    source_dir: src/components/ui
+  - name: brand
+    source_dir: src/components/brand
+tokens:
+  - format: tailwind-v4-theme
+    source: src/app/globals.css
+  - format: css-vars
+    source: src/styles/brand-tokens.css
+```
+
+Cross-scenario notes:
+
+- Ordering in `packages` is preserved; on duplicate component-name exports, the first-listed entry wins (deterministic for FACT output and reviewer reads).
+- For `css-vars`, both `--*` custom properties and class selectors (`.btn-primary`, `.text-h1`) declared in the same file are harvested as token-atoms. The same is true for `tailwind-v4-theme`. There is no separate `classes` format in v1.
+- Multiple `tokens` entries layer freely (Tailwind theme + brand overrides + dark-mode stylesheet).
 
 ---
 
@@ -487,7 +563,7 @@ The adopter may edit this file. `pastiche sync` honors edits — adding a path t
 The happy path from clean repo to first gating loop:
 
 1. **Install pastiche** — `npm install -D pastiche` (or `pnpm add -D pastiche`).
-2. **`npx pastiche init`** — prompts for platforms, scaffolds `pastiche/` + `pastiche.config.yaml`, runs FACT extractor, generates adapter files.
+2. **`npx pastiche init`** — prompts for platform (single-select), scaffolds `pastiche/{FACT,KNOWLEDGE,WISDOM,config}.{md,yaml}`, runs FACT extractor, generates adapter files.
 3. **`/pastiche-setup` in the agent of choice (Claude Code or Codex)** — detects DESIGN.md and asks opt-in; walks the canonical 12 KNOWLEDGE sections progressively; asks `[GENERAL]` WISDOM questions. Adopter can run section-by-section across multiple sessions.
 4. **Use** — frontend tasks invoke the `pastiche` skill (manually or via skill triggering); the loop runs; output ships with optional Follow-ups.
 5. **Maintain** — Follow-ups tagged `knowledge-gap` route to `/pastiche-write-knowledge`; `wisdom-gap` to `/pastiche-write-wisdom`. Free-form additions use the same skills.
@@ -521,7 +597,7 @@ DESIGN.md is the lineage pastiche descends from (philosophical spec §1). Adopte
 
 ### 11.3 Config flag
 
-The opt-in writes `design_md_reference: ./DESIGN.md` (path relative to repo root) into `pastiche.config.yaml`. Future invocations of `pastiche-setup` read the flag and continue using DESIGN.md as reference without re-asking. Adopters can remove the flag manually to opt back out.
+The opt-in writes `design_md_reference: ./DESIGN.md` (or another in-repo path) into `pastiche/config.yaml`. Write-time path safety: `pastiche-setup` resolves the path to absolute, verifies the file exists and is readable, and asserts it lives inside the consumer repo (rejects `..` traversal). Read-time checks apply symmetrically — on failure, the skill warns and proceeds as if `null`, rather than crashing. Future invocations of `pastiche-setup` read the flag and continue using DESIGN.md as reference without re-asking. Adopters can remove the flag manually to opt back out.
 
 ---
 
@@ -584,12 +660,11 @@ These were not resolved during the grill and are deliberately left open for the 
 
 ### 14.1 FACT extractor pluggability
 
-v1 ships a TypeScript-types extractor only. Two implementation paths:
+v1 ships a TypeScript-types extractor only, hard-coded in `scripts/extract-fact-ts.ts`. The `fact_extractor` config field was **dropped from the v1 schema** (task 2.4 decision): a field with one legal value is theatrical until a second extractor exists.
 
-- **(a)** Hard-coded `ts-types` extractor in `scripts/extract-fact-ts.ts`, with `fact_extractor: ts-types` in config as a forward-compatible field but no plugin contract yet.
-- **(b)** Plugin contract from day one — `fact_extractor: ts-types` resolves to a module path; the contract is documented in `docs/contributing/adding-an-extractor.md`; v1 ships `ts-types` as the only built-in but the door is open.
+The plugin contract stays on the v1.x roadmap. When a second extractor lands (Storybook-derived, Vue SFC, CSS-only, etc.), the `fact_extractor` field returns with two legal values *and* a documented plugin-resolution contract at `docs/contributing/adding-an-extractor.md`. Schema-additive change at that time, non-breaking for v1 adopters.
 
-Recommendation: **(b)** — the contract is cheap to specify and signals to potential contributors that the extractor is a swappable component. Defer the decision to implementation.
+Until then, the CLI invokes `scripts/extract-fact-ts.ts` unconditionally.
 
 ### 14.2 CLI implementation language
 

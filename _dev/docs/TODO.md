@@ -33,7 +33,7 @@ Sequenced delivery plan for shipping v1 of pastiche, derived from `OSS_SPEC.md`.
 - [x] **2.1** Generalize `templates/FACT.md` (extractor banner only; §9.1).
 - [x] **2.2** Generalize `templates/KNOWLEDGE.md` with the canonical 12 H2 stubs (§9.2).
 - [x] **2.3** Generalize `templates/WISDOM.md` (header + commented `[GENERAL]` suggestions; §9.3).
-- [ ] [WIP] **2.4** Author `templates/pastiche.config.yaml` per §9.4.
+- [x] **2.4** Author `templates/config.yaml` per §9.4 (consumer path `pastiche/config.yaml`; schema rewritten — see `docs/spec/task-2.4-config-template.md`).
 - [ ] **2.5** Author `skills/pastiche-write-knowledge.md` (§7.3). *Depends on 2.2.*
 - [x] **2.6** Author `skills/pastiche-write-wisdom.md` (§7.4). *Depends on 2.3; revisit via 2.8.*
 - [ ] **2.7** Author `skills/pastiche-setup.md` (OSS_SPEC §7.2, §11). *Formerly task 1.6. Depends on 2.1–2.4.*
@@ -52,7 +52,7 @@ Sequenced delivery plan for shipping v1 of pastiche, derived from `OSS_SPEC.md`.
 
 ## Phase 4 — Scripts
 
-- [ ] **4.1** Promote extractor → `scripts/extract-fact-ts.ts`; drive paths from `ds_module_paths` in config; remove KISA-specific assumptions.
+- [ ] **4.1** Promote extractor → `scripts/extract-fact-ts.ts`; drive inputs from `packages` (with `types` + `source_dir` modes) and `tokens` (with `tailwind-v4-theme` + `css-vars` formats) per §9.4 / §9.4.1; add source-directory walking and plain `:root` CSS-vars parsing; remove KISA-specific assumptions.
 - [ ] **4.2** Promote lint → `scripts/lint.ts` (+ port test); add KNOWLEDGE canonical-section-presence enforcement (§6.3 step 4).
 
 ---
@@ -61,7 +61,7 @@ Sequenced delivery plan for shipping v1 of pastiche, derived from `OSS_SPEC.md`.
 
 - [ ] **5.1** Bootstrap CLI package with `bin: pastiche`.
 - [ ] **5.2** Adapter generator module — canonical body + template → emit final file (§14.3 implementation TBD; lean toward TS functions).
-- [ ] **5.3** Pluggable FACT extractor contract — `fact_extractor: ts-types` resolves via documented contract (§14.1 option b).
+- [ ] **5.3** Pluggable FACT extractor contract — design and document at `docs/contributing/adding-an-extractor.md`. The `fact_extractor` config field was dropped from v1 (task 2.4); reintroduce alongside this contract when a second extractor lands. v1 CLI hard-codes `scripts/extract-fact-ts.ts`. See §14.1.
 - [ ] **5.4** Implement `pastiche init` (§6.1): platform prompt, scaffold `pastiche/` + config, run extractor, generate adapter files.
 - [ ] **5.5** Implement `pastiche sync` (§6.2): re-extract + regenerate adapters; idempotent; honors config edits.
 - [ ] **5.6** Implement `pastiche lint` (§6.3): wraps Phase 4 lint; fail-closed with clear errors.
@@ -84,7 +84,7 @@ Sequenced delivery plan for shipping v1 of pastiche, derived from `OSS_SPEC.md`.
 
 - [ ] **7.1** `package.json` (npm) + `.claude-plugin/{plugin.json,marketplace.json}` — ship both (§14.6).
 - [ ] **7.2** `README.md`: positioning, quickstart, KISA linked as production adopter.
-- [ ] **7.3** Per-document format docs: `docs/fact.md`, `docs/knowledge.md`, `docs/wisdom.md`.
+- [ ] **7.3** Per-document format docs: `docs/fact.md`, `docs/knowledge.md`, `docs/wisdom.md`, `docs/config.md` (hydrates from OSS_SPEC §9.4 + §9.4.1 — four stack scenarios + field semantics).
 - [ ] **7.4** `docs/adapters/claude-code.md`; finalize `docs/adapters/codex.md` (from Phase 0).
 - [ ] **7.5** `docs/contributing/adding-an-extractor.md` (extractor plugin contract).
 - [ ] **7.6** `LICENSE` — MIT (§14.5).
