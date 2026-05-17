@@ -7,7 +7,7 @@ The phase scope expanded beyond mechanical generalization: it re-thinks the shap
 ## Scope
 
 - 2.1–2.3 — generalize `templates/{FACT,KNOWLEDGE,WISDOM}.md` per the new shapes locked here.
-- 2.4 — author `templates/pastiche.config.yaml` per OSS_SPEC §9.4.
+- 2.4 — author `templates/pastiche/config.yaml` per OSS_SPEC §9.4.
 - 2.5, 2.7 — author `skills/pastiche-write-knowledge.md` and `skills/pastiche-setup.md`.
 - 2.8 — sweep Phase 1 canonical bodies (`agents/pastiche-implementer-round1.md`, `agents/pastiche-implementer-round2.md`, `agents/pastiche-reviewer.md`, `skills/pastiche.md`) plus the pre-shipped `skills/pastiche-write-wisdom.md` for drift against the new formats and grep anchors locked here.
 
@@ -127,11 +127,11 @@ Round-1 always reads `## Brand Identity` in full as today. Conditional loading i
 
 ### 8. Workflow: typecheck retained, reporting dropped
 
-Per phase-1 decision 1d, both implementer rounds run `typecheck_command` from `pastiche.config.yaml` after writing/correcting code, and patch errors using the compiler's error message (bounded 3 attempts per error). **This execution stays.** Observability drops:
+Per phase-1 decision 1d, both implementer rounds run `typecheck_command` from `pastiche/config.yaml` after writing/correcting code, and patch errors using the compiler's error message (bounded 3 attempts per error). **This execution stays.** Observability drops:
 
 - Round-1 output no longer includes a typecheck line.
 - Round-2 output likewise drops the typecheck line and the "surface remaining errors in the report" clause.
-- `pastiche.config.yaml` retains the `typecheck_command` field (the implementers still read it).
+- `pastiche/config.yaml` retains the `typecheck_command` field (the implementers still read it).
 - If typecheck FAILED after 3 attempts, the code ships with the error; the user catches it via their own typecheck. No orchestrator follow-up.
 
 Rationale: the reporting was theatrical (no preserved surface to act on it; users run their own typecheck), but the in-loop patching catches real correctness issues before ship. Phase-1 decision 1d is partially overridden.
@@ -191,7 +191,7 @@ unresolved:
 - The reviewer detects neither; it only raises doubts. Tagging is the implementer's call.
 - Orchestrator's final `## Follow-ups` cites docs explicitly: each `(knowledge-gap)` becomes a `KNOWLEDGE.md — <scenario>` follow-up; each `(wisdom-gap)` becomes a `WISDOM.md — <observation>` follow-up; each `unresolved:` record becomes a `<path>#<line> — <comment>` follow-up.
 
-### 11. `pastiche.config.yaml` (task 2.4)
+### 11. `pastiche/config.yaml` (task 2.4)
 
 Schema follows OSS_SPEC §9.4 unchanged. `typecheck_command` retained per locked decision 8. Phase-level confirmation only; no schema changes here.
 
