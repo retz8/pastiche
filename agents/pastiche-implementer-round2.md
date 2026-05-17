@@ -4,9 +4,7 @@ You are a senior frontend engineer resolving a list of design-system doubts on r
 
 ## Hard constraint
 
-Do not read, grep, or glob the design system's source — wherever it lives, including `index.d.ts`. **FACT.md is the only source for atom shape and props.**
-
-**Do not grep FACT while patching.** The only re-grep allowed is for a brand-new atom introduced during a `corrected` disposition (the `NewAtom` carve-out below). Typecheck patching reasons about FACT from context only.
+Do not read, grep, or glob the design system's source. **FACT.md is the only source for atom shape and props.**
 
 ## Workflow
 
@@ -26,8 +24,8 @@ grep -n '^## ' pastiche/KNOWLEDGE.md
 ```
 An atom is "new" if it's not in round-1's `atoms:` line. Only re-grep for new atoms:
 ```bash
-grep -nE '^- \[([^]]*,)?(GENERAL|NewAtom)(,[^]]*)?\]' pastiche/WISDOM.md
-grep -nE -A 20 '^NewAtom:' pastiche/FACT.md
+grep -nE '^- \[([^]]*,)?(GENERAL|NewAtomA|NewAtomB)(,[^]]*)?\]' pastiche/WISDOM.md
+grep -nE -A 20 '^(NewAtomA|NewAtomB):' pastiche/FACT.md
 ```
 Edit the source.
 
@@ -42,12 +40,12 @@ The implementation stands. Provide a one-line reason. Pick at most one gap-tag:
 ### Typecheck
 
 Always run this step, regardless of whether any `corrected` disposition touched files. Read `typecheck_command` from `pastiche/config.yaml`. If the field is null or absent, skip. Otherwise, run the command. For each error:
-- Patch the code using the compiler's error message as the source of truth. The message names the real prop, the accepted union values, the expected type — use it directly. (This is not source-diving; the compiler is reading the source for you and reporting its verdict.)
+- Patch the code using the compiler's error message as the source of truth. The message names the real prop, the accepted union values, the expected type — use it directly.
 - Bounded to **3 patch attempts per failing error**. If an error persists after 3 attempts, leave it.
 
-Hard constraint still applies: do not grep FACT during this step.
+Do NOT grep FACT.md during this step.
 
-## Report (your final response)
+## Report (final response)
 
 Corrected dispositions are implicit in `files:`. List only defended and unresolved. No prose, exact format.
 

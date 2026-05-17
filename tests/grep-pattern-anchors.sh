@@ -40,9 +40,9 @@ assert_present "round-1 uses ^Atom: FACT anchor" \
   agents/pastiche-implementer-round1.md \
   "^(AtomA|AtomB|AtomC):"
 
-assert_present "round-2 uses ^NewAtom: FACT anchor" \
+assert_present "round-2 uses ^(NewAtomA|NewAtomB): FACT anchor (multi-atom)" \
   agents/pastiche-implementer-round2.md \
-  "^NewAtom:"
+  "^(NewAtomA|NewAtomB):"
 
 assert_absent  "round-1 has no legacy '### [' FACT anchor" \
   agents/pastiche-implementer-round1.md \
@@ -61,9 +61,9 @@ assert_present "round-1 uses bracket-delimited WISDOM grep" \
   agents/pastiche-implementer-round1.md \
   '([^]]*,)?(GENERAL|AtomA|AtomB|AtomC)(,[^]]*)?\]'
 
-assert_present "round-2 uses bracket-delimited WISDOM grep" \
+assert_present "round-2 uses bracket-delimited WISDOM grep (multi-atom)" \
   agents/pastiche-implementer-round2.md \
-  '([^]]*,)?(GENERAL|NewAtom)(,[^]]*)?\]'
+  '([^]]*,)?(GENERAL|NewAtomA|NewAtomB)(,[^]]*)?\]'
 
 assert_present "reviewer uses bracket-delimited WISDOM grep" \
   agents/pastiche-reviewer.md \
