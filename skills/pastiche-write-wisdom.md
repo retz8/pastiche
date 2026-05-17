@@ -5,7 +5,7 @@ description: Use when adding or revising an atom-intrinsic rule in WISDOM.md —
 
 # Pastiche — write WISDOM
 
-Inserts one atom-intrinsic rule into `pastiche/WISDOM.md` per invocation. See WISDOM.md's header for the bullet format. `[GENERAL]` is the lone non-FACT tag, reserved for system-wide rules.
+Inserts one atom-intrinsic rule into `pastiche/WISDOM.md` per invocation. See WISDOM.md's header for the bullet format. Tags are **FACT entries verbatim** — components (`Button`), CSS-var tokens (`--color-foreground`), dotted-class tokens (`.type-h1`); never derived utility forms (`text-foreground`). `[GENERAL]` is the lone non-FACT tag, reserved for system-wide rules.
 
 ## Workflow
 

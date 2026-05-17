@@ -18,7 +18,7 @@ The task description and the round-1 implementer report are in your dispatch pro
 
 4. Identify the set of FACT atoms used in the changed code. Grep WISDOM.md once for `[GENERAL]` plus all atoms used:
    ```bash
-   grep -nE '^- \[[^]]*\b(GENERAL|AtomA|AtomB|AtomC)\b' pastiche/WISDOM.md
+   grep -nE '^- \[([^]]*,)?(GENERAL|AtomA|AtomB|AtomC)(,[^]]*)?\]' pastiche/WISDOM.md
    ```
 
 5. **WISDOM pass.** For each rule whose conditions the code violates, raise a doubt at the offending line.

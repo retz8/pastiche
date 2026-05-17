@@ -79,7 +79,7 @@ The extractor (Phase 4.1) emits the new shape. ~25% token reduction validated on
   - One or more `→ <atom expression>` lines.
 - **Multi-`→` scenarios allowed.** No required blank-line separator between scenarios; the LLM parses boundaries semantically.
 - **No H3 anchors per scenario.** The implementer reads the whole section by line range; H3 served no agent contract.
-- **Atom names backticked (D1-lite); prop expressions bare.** Example: `` → `Button` variant="primary" ``. Lint extracts identifiers inside backticks on `→` lines and validates them against FACT (naming-convention agnostic — works for PascalCase components like `` `Button` ``, kebab-case tokens like `` `gap-4` ``, namespaced like `` `Form.Input` ``). Lint behavior is implemented in Phase 4.2.
+- **Atom names backticked (D1-lite); prop expressions bare.** Example: `` → `Button` variant="primary" ``. Backticked identifiers are FACT entries **verbatim** — PascalCase components (`` `Button` ``), namespaced components (`` `Form.Input` ``), CSS-var tokens (`` `--color-foreground` ``), dotted-class tokens (`` `.type-h1` ``). Derived utility names (e.g. `text-foreground`, `bg-surface`) are **not** valid backtick contents — the implementer derives those at code-write time from the underlying var. Untracked Tailwind utilities (`gap-4`, `rounded-md`) are not FACT entries and must not appear in KNOWLEDGE; their conventions belong in WISDOM as `[GENERAL]` rules. Lint extracts identifiers inside backticks on `→` lines and validates them against FACT; behavior is implemented in Phase 4.2.
 - Empty sections ship with a marker line: `_(empty — run /pastiche-setup --section <kebab-name>)_`.
 - Brand Identity is the final H2; prose, not bullets; always-loaded (see locked decision 7).
 
@@ -111,9 +111,10 @@ Grep contract unchanged (only the scenario sub-structure changed):
 
 Grep contract changes (consumed by 2.8):
 
-- Round-1 / reviewer alternation grep: `grep -nE '^- \[[^]]*\b(GENERAL|Atom1|Atom2)\b' pastiche/WISDOM.md`.
+- Round-1 / reviewer alternation grep: `grep -nE '^- \[([^]]*,)?(GENERAL|Atom1|Atom2)(,[^]]*)?\]' pastiche/WISDOM.md`.
 - Round-2 new-atom delta grep: same shape with new atom set.
-- `pastiche-write-wisdom`'s neighbor scan: `grep -nE '^- \[[^]]*\bAtom\b' pastiche/WISDOM.md`.
+- `pastiche-write-wisdom`'s neighbor scan: `grep -nE '^- \[([^]]*,)?Atom(,[^]]*)?\]' pastiche/WISDOM.md`.
+- Bracket+comma delimiters (replacing `\b`) so the pattern matches every FACT-identifier shape — `--`-prefix vars and `.`-prefix dotted classes both have no word boundary at the bracket start. Regex metacharacters in FACT identifiers (notably `.` in `.type-h1`, `Form.Input`) are escaped at substitution time.
 
 ### 6. Workflow: reviewer's FACT read stays full
 

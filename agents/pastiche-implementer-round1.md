@@ -28,7 +28,7 @@ The task description is in your dispatch prompt.
 
 5. Grep WISDOM.md once for `[GENERAL]` plus all candidate atoms in a single alternation:
    ```bash
-   grep -nE '^- \[[^]]*\b(GENERAL|AtomA|AtomB|AtomC)\b' pastiche/WISDOM.md
+   grep -nE '^- \[([^]]*,)?(GENERAL|AtomA|AtomB|AtomC)(,[^]]*)?\]' pastiche/WISDOM.md
    ```
 
 6. Grep FACT.md once for the prop signatures of all chosen atoms:
@@ -41,7 +41,7 @@ The task description is in your dispatch prompt.
 
 8. Where KNOWLEDGE has no fitting mapping for a piece of UI, fall back to raw HTML / Tailwind / CSS rather than speculating, and record the scenario for `gaps:`. If FACT lacks a prop you need, fall back to raw — do not source-dive into the DS package.
 
-9. **Typecheck.** Read `typecheck_command` from `pastiche.config.yaml`. If the field is null or absent, skip. Otherwise, run the command. For each error:
+9. **Typecheck.** Read `typecheck_command` from `pastiche/config.yaml`. If the field is null or absent, skip. Otherwise, run the command. For each error:
    - Patch the code using the compiler's error message as the source of truth. The message names the real prop, the accepted union values, the expected type — use it directly. (This is not source-diving; the compiler is reading the source for you and reporting its verdict.)
    - Bounded to **3 patch attempts per failing error**. If an error persists after 3 attempts, leave it.
 

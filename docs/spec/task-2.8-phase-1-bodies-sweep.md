@@ -27,6 +27,24 @@ The third sentence of round-1's hard-constraint paragraph ("Re-grep is allowed o
 
 Agent and skill bodies sweep-edited under this task must stay concise. Each agent is independently dispatched; its body must not explain other agents' workflows, narrate the full pipeline, or duplicate orchestrator context. Trim redundant or over-explicit sentences during the sweep wherever they appear. This rule applies in addition to the specific retrofit moves in phase-2 spec §13.
 
+### 4. FACT-rooted tags (Option A) — phase-2 §3/§4/§5 amendment
+
+Discovered during 2.8 verification: the locked phase-2 §4 admitted derived Tailwind utility names (e.g. `text-foreground`, `gap-4`) as valid KNOWLEDGE backtick contents, while phase-2 §5 tagged WISDOM rules with the underlying CSS-var (`[--color-foreground]`). Round-1 read KNOWLEDGE utility-form atoms and greped WISDOM by those — silently missing every var-tagged rule. The KNOWLEDGE↔WISDOM bridge was broken end-to-end.
+
+Locked solution: **FACT identifiers are the single canonical atom namespace.** KNOWLEDGE backticks and WISDOM tags use FACT entries verbatim — components (`Button`), namespaced components (`Form.Input`), CSS-var tokens (`--color-foreground`), dotted-class tokens (`.type-h1`). Derived Tailwind utility names (`text-foreground`, `bg-surface`) are not valid identifiers in either doc; the implementer derives them at code-write time from the underlying var. Untracked Tailwind utilities (`gap-*`, `rounded-*`) are not FACT entries and never appear in KNOWLEDGE; their conventions belong in WISDOM as `[GENERAL]` rules.
+
+Phase-2 spec amended inline: §4 example reworded, §5 grep example replaced with bracket-delimited form (`^- \[([^]]*,)?(Tag)(,[^]]*)?\]`) to handle `--`-prefix and `.`-prefix tags that have no `\b` word boundary at the bracket start.
+
+### 5. Propagation scope
+
+The Option A enforcement sweep covers, in addition to the four bodies in §1's scope:
+
+- `templates/KNOWLEDGE.md` — header format-hint rewritten.
+- `skills/pastiche-write-knowledge.md` — one-liner addition; `gap-4` example dropped.
+- `skills/pastiche-write-wisdom.md` — one-liner addition; grep already in bracket-delimited form (no further change).
+- `_dev/templates/KNOWLEDGE_umichkisa.example.md` — all utility-form backticks rewritten to FACT IDs; `gap-*` and `rounded-*` scenarios deleted (their conventions move to WISDOM).
+- `_dev/templates/WISDOM_umichkisa.example.md` — `[GENERAL]` rounded-* convention rule added (`gap-*` rule already present).
+
 ## Invariants
 
 - All retrofit moves enumerated in `docs/spec/phase-2-templates-and-skills.md` §13 for the four files in scope apply. This spec adds three resolutions on top; it does not override §13.

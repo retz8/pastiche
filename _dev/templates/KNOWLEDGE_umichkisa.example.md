@@ -1,6 +1,6 @@
 <!-- KNOWLEDGE — scenario → atom mappings. Hand-curated. -->
 <!-- Per scenario: prose framing line(s), then one or more `→ <atom expression>` lines. -->
-<!-- Atom names backticked (e.g. `Button`, `gap-4`, `Form.Input`); prop expressions bare. -->
+<!-- Atom names backticked — FACT entries verbatim (e.g. `Button`, `Form.Input`, `--color-foreground`, `.type-h1`). Never derived utility forms (`text-foreground`) or untracked Tailwind (`gap-4` → WISDOM `[GENERAL]`). Prop expressions bare. -->
 <!-- Multi-arrow scenarios allowed; LLM parses scenario boundaries semantically. -->
 <!-- All 12 H2 sections required (lint enforces). Empty stubs are OK. -->
 
@@ -141,11 +141,6 @@ The outermost wrapper enforcing page width, gutter, and responsive padding.
 Side-by-side content that collapses on narrow viewports — card grids, two-column form sections, dashboard tiles.
 → `Grid`
 
-Stacking siblings with consistent spacing.
-→ `gap-2` (Element / 8px — icon+text, button+icon, inline groups)
-→ `gap-4` (Component / 16px — sibling components inside a feature, form fields, list items)
-→ `gap-6` (Section / 24px — boundaries between major page sections)
-
 ## Date & time selection
 
 A date trigger that opens a calendar — filter control, ad-hoc date selection.
@@ -165,64 +160,55 @@ Any iconographic mark — leading/trailing in a label, inline with text, decorat
 ## Visual hierarchy
 
 Body paragraphs, card values, list labels, form labels, headings — anything the user is meant to read.
-→ `text-foreground`
+→ `--color-foreground`
 
 Captions, helper text, metadata, timestamps, placeholder hints. Test: at 40% opacity, would the screen still be usable? If no, it's primary, not secondary.
-→ `text-muted-foreground`
+→ `--color-muted-foreground`
 
 Text inside a disabled control or unavailable affordance.
-→ `text-disabled-foreground`
+→ `--color-disabled-foreground`
 
 Inline link inside a paragraph or label.
-→ `text-link`
+→ `--color-link`
 
 Inline error messages, validation feedback, destructive-action labels in body content.
-→ `text-error`
+→ `--color-error`
 
 Bounded surface holding grouped content.
-→ `bg-surface`
+→ `--color-surface`
 
 A backgrounded region that should sit quieter than the default surface — info block, sidebar tile.
-→ `bg-surface-subtle`
+→ `--color-surface-subtle`
 
 A surface marked with brand presence — selected list item, brand callout.
-→ `bg-brand-accent-subtle` with `border-brand-primary` (full ring, not a left-border accent)
+→ `--color-brand-accent-subtle` with `--color-brand-primary` border (full ring, not a left-border accent)
 
 Heavy brand presence — CTA backgrounds, hero blocks, brand banner.
-→ `bg-brand-primary` or `bg-brand-accent`
+→ `--color-brand-primary` or `--color-brand-accent`
 
 Standard separation between surfaces, inputs, cards.
-→ `border-border`
+→ `--color-border`
 
 Border that should read more present — focused state, important separation.
-→ `border-border-strong`
+→ `--color-border-strong`
 
 Page hero, marketing display lines.
-→ `type-display`
+→ `.type-display`
 
 Standard kisa-web page hero pattern — English display title with a Korean subtitle line beneath. Both lines render at full foreground intensity (the KR line is a co-equal brand label, not de-emphasized metadata).
-→ <header className="flex flex-col gap-2"> containing <h1 className="type-h1">{en}</h1> + <p className="type-body text-foreground">{kr}</p>. Reference: InfoOverviewTemplate, /info/checklist.
+→ `.type-h1` for the English display line, `.type-body` with `--color-foreground` for the Korean subtitle, stacked with default component spacing. Reference: InfoOverviewTemplate, /info/checklist.
 
 Section headings in descending hierarchy.
-→ `type-h1` / `type-h2` / `type-h3`
+→ `.type-h1` / `.type-h2` / `.type-h3`
 
 Default reading text. Use compact variant in dense surfaces (table cells, side panels).
-→ `type-body` (default) / `type-body-sm` (compact)
+→ `.type-body` (default) / `.type-body-sm` (compact)
 
 Labels on form fields, button captions, small UI labels.
-→ `type-label`
+→ `.type-label`
 
 Metadata, timestamps, footnotes.
-→ `type-caption`
-
-Buttons, inputs, cards.
-→ `rounded-md`
-
-Modals, larger panels.
-→ `rounded-lg`
-
-Avatars, pills, fully-rounded chips.
-→ `rounded-full`
+→ `.type-caption`
 
 ## Domain-specific patterns
 

@@ -26,7 +26,7 @@ grep -n '^## ' pastiche/KNOWLEDGE.md
 ```
 An atom is "new" if it's not in round-1's `atoms:` line. Only re-grep for new atoms:
 ```bash
-grep -nE '^- \[[^]]*\b(GENERAL|NewAtom)\b' pastiche/WISDOM.md
+grep -nE '^- \[([^]]*,)?(GENERAL|NewAtom)(,[^]]*)?\]' pastiche/WISDOM.md
 grep -nE -A 20 '^NewAtom:' pastiche/FACT.md
 ```
 Edit the source.
@@ -41,7 +41,7 @@ The implementation stands. Provide a one-line reason. Pick at most one gap-tag:
 
 ### Typecheck
 
-Always run this step, regardless of whether any `corrected` disposition touched files. Read `typecheck_command` from `pastiche.config.yaml`. If the field is null or absent, skip. Otherwise, run the command. For each error:
+Always run this step, regardless of whether any `corrected` disposition touched files. Read `typecheck_command` from `pastiche/config.yaml`. If the field is null or absent, skip. Otherwise, run the command. For each error:
 - Patch the code using the compiler's error message as the source of truth. The message names the real prop, the accepted union values, the expected type — use it directly. (This is not source-diving; the compiler is reading the source for you and reporting its verdict.)
 - Bounded to **3 patch attempts per failing error**. If an error persists after 3 attempts, leave it.
 

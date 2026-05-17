@@ -1,6 +1,6 @@
 <!-- KNOWLEDGE — scenario → atom mappings. Hand-curated. -->
 <!-- Per scenario: prose framing line(s), then one or more `→ <atom expression>` lines. -->
-<!-- Atom names backticked (e.g. `Button`, `gap-4`, `Form.Input`); prop expressions bare. -->
+<!-- Atom names backticked — FACT entries verbatim. Never derived utility forms or untracked Tailwind (those belong as WISDOM `[GENERAL]` rules). Prop expressions bare. -->
 <!-- Multi-arrow scenarios allowed; LLM parses scenario boundaries semantically. -->
 <!-- All 12 H2 sections required (lint enforces). Empty stubs are OK. -->
 

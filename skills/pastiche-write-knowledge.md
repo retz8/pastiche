@@ -24,7 +24,7 @@ Multi-`→` scenarios are allowed within a single invocation; multiple scenarios
 
 3. **Show existing neighbors.** Read the chosen section by line range (from `## <Section>` to the next `## `) and display it to the user so they can self-detect duplication or refinement opportunities. If the section's only content is `_(empty — run /pastiche-setup --section <name>)_`, show that line and note there are no neighbors yet.
 
-4. **Draft and confirm.** Compose the scenario as it will appear in the file: one or more prose framing lines, followed by one or more `→` lines. Atom names backticked (`` `Button` ``, `` `gap-4` ``, `` `Form.Input` ``); prop expressions bare (`` → `Button` variant="primary" ``).
+4. **Draft and confirm.** Compose the scenario as it will appear in the file: one or more prose framing lines, followed by one or more `→` lines. Atom names backticked — **FACT entries verbatim** (`` `Button` ``, `` `Form.Input` ``, `` `--color-foreground` ``, `` `.type-h1` ``); never derived utility forms (`text-foreground`) or untracked Tailwind (`gap-4` → that's a WISDOM `[GENERAL]` rule). Prop expressions bare (`` → `Button` variant="primary" ``).
 
    If the available context is missing either the framing or the atom expression(s), ask only for the missing piece. Surface candidate atoms from FACT when helpful.
 

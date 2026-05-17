@@ -20,6 +20,7 @@
 - [GENERAL] Pages use semantic landmark elements: `<header>`, `<nav>` (with `aria-label` if multiple), `<main id="main-content">`, `<footer>`.
 - [GENERAL] Every page must include a skip link — visually hidden by default, becomes visible on `:focus-visible`, targeting `#main-content`.
 - [GENERAL] The `-subtle` token suffix marks container/background roles; the `-muted` suffix marks deprioritized roles (lower-contrast text, elevated inner surfaces).
+- [GENERAL] Default border radius — `rounded-md` for buttons, inputs, and cards; `rounded-lg` for modals and larger panels; `rounded-full` for avatars, pills, and fully-rounded chips.
 
 <!-- ─── Color tokens ─── -->
 
