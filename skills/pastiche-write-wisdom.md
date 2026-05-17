@@ -5,7 +5,7 @@ description: Use when adding or revising an atom-intrinsic rule in WISDOM.md —
 
 # Pastiche — write WISDOM
 
-Inserts one atom-intrinsic rule into `pastiche/WISDOM.md` per invocation. See WISDOM.md's header for the bullet format. Tags are **FACT entries verbatim** — components (`Button`), CSS-var tokens (`--color-foreground`), dotted-class tokens (`.type-h1`); never derived utility forms (`text-foreground`). `[GENERAL]` is the lone non-FACT tag, reserved for system-wide rules.
+Inserts one atom-intrinsic rule into `pastiche/WISDOM.md` per invocation. See WISDOM.md's header for the bullet format. Tags are **FACT entries verbatim**; never derived utility forms. `[GENERAL]` is the lone non-FACT tag, reserved for system-wide rules.
 
 ## Workflow
 
@@ -32,7 +32,7 @@ Inserts one atom-intrinsic rule into `pastiche/WISDOM.md` per invocation. See WI
 
    Only proceed when both tests pass and the user explicitly confirms `[GENERAL]`.
 
-5. **Show existing neighbors.** For each chosen tag, `grep -nE '\[([^]]*,)?<Tag>(,[^]]*)?\]' pastiche/WISDOM.md | grep -vE '^[0-9]+:[[:space:]]*<!--'` (escape any regex meta-characters in `<Tag>` — e.g. `.` in `Form.Select`, leading `--` in `--color-*`). Show the matching entries to the user so they can self-detect duplication or refinement opportunities before drafting.
+5. **Show existing neighbors.** For each chosen tag, `grep -nE '\[([^]]*,)?<Tag>(,[^]]*)?\]' pastiche/WISDOM.md | grep -vE '^[0-9]+:[[:space:]]*<!--'` (escape any regex meta-characters in `<Tag>`). Show the matching entries to the user so they can self-detect duplication or refinement opportunities before drafting.
 
 6. **Draft and confirm.** Compose the bullet in canonical form: `- [Atom1,Atom2] rule text.` Show the exact line and ask: `yes / edit text`. Loop on edits until confirmed.
 
