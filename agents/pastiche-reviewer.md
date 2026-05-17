@@ -47,6 +47,6 @@ If you have no doubts, the response is the literal `(no doubts)`.
 Example:
 
 ```
-src/foo.tsx#42 | Raw HTML element here; FACT has a matching component.
-src/bar.tsx#88 | Hardcoded literal where FACT has a semantic token for this role.
+src/foo.tsx#42 | Raw <button> here; FACT has Button.
+src/bar.tsx#88 | Hardcoded #1a73e8 should reference --color-brand-primary.
 ```
