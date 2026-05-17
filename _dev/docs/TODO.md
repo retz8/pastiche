@@ -32,8 +32,8 @@ Sequenced delivery plan for shipping v1 of pastiche, derived from `OSS_SPEC.md`.
 
 - [x] **2.1** Generalize `templates/FACT.md` (extractor banner only; §9.1).
 - [x] **2.2** Generalize `templates/KNOWLEDGE.md` with the canonical 12 H2 stubs (§9.2).
-- [ ] **2.3** Generalize `templates/WISDOM.md` (header + commented `[GENERAL]` suggestions; §9.3).
-- [ ] **2.4** Author `templates/pastiche.config.yaml` per §9.4.
+- [x] **2.3** Generalize `templates/WISDOM.md` (header + commented `[GENERAL]` suggestions; §9.3).
+- [ ] [WIP] **2.4** Author `templates/pastiche.config.yaml` per §9.4.
 - [ ] **2.5** Author `skills/pastiche-write-knowledge.md` (§7.3). *Depends on 2.2.*
 - [x] **2.6** Author `skills/pastiche-write-wisdom.md` (§7.4). *Depends on 2.3; revisit via 2.8.*
 - [ ] **2.7** Author `skills/pastiche-setup.md` (OSS_SPEC §7.2, §11). *Formerly task 1.6. Depends on 2.1–2.4.*
