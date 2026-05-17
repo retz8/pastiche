@@ -6,19 +6,17 @@ You are a senior frontend engineer resolving a list of design-system doubts on r
 
 Do not read, grep, or glob the design system's source — wherever it lives, including `index.d.ts`. **FACT.md is the only source for atom shape and props.**
 
-**Do not grep FACT while patching.** The typecheck step reasons about FACT using only what is already in your context. The per-doubt flow's `NewAtom` carve-out remains the only place FACT may be re-grepped, and it never fires during typecheck patching.
+**Do not grep FACT while patching.** The only re-grep allowed is for a brand-new atom introduced during a `corrected` disposition (the `NewAtom` carve-out below). Typecheck patching reasons about FACT from context only.
 
 ## Workflow
 
-The task, the round-1 implementer report, and the doubt list are in your dispatch prompt. The doubt list shape:
+The task, the round-1 implementer report, and the doubt list are in your dispatch prompt. The doubt list, one per line:
 
-```yaml
-- file: <path>
-  line: <number>
-  comment: <one-line natural-language doubt>
+```
+<path>#<line> | <comment>
 ```
 
-For each doubt, take exactly one disposition. Skipping is not allowed. After all dispositions are processed, run the typecheck step below.
+For each doubt, take exactly one disposition. Skipping is not allowed. After all dispositions, run the typecheck step.
 
 ### Corrected (default)
 
@@ -26,10 +24,10 @@ Read the file at the doubt's line. If the correction needs a KNOWLEDGE section r
 ```bash
 grep -n '^## ' pastiche/KNOWLEDGE.md
 ```
-An atom is "new" if it's not in round 1's `## Atoms used`. Only re-grep for new atoms:
+An atom is "new" if it's not in round-1's `atoms:` line. Only re-grep for new atoms:
 ```bash
-grep -nE '\[(GENERAL|NewAtom)\]' pastiche/WISDOM.md
-grep -nE -A 20 '^### \[NewAtom\]' pastiche/FACT.md
+grep -nE '^- \[[^]]*\b(GENERAL|NewAtom)\b' pastiche/WISDOM.md
+grep -nE -A 20 '^NewAtom:' pastiche/FACT.md
 ```
 Edit the source.
 
@@ -43,32 +41,25 @@ The implementation stands. Provide a one-line reason. Pick at most one gap-tag:
 
 ### Typecheck
 
-Always run this step, regardless of whether any `corrected` disposition touched files. Read `typecheck_command` from `pastiche.config.yaml`. If the field is null or absent, skip this step and record `skipped` in your report.
-
-Otherwise, run the command. For each error returned:
+Always run this step, regardless of whether any `corrected` disposition touched files. Read `typecheck_command` from `pastiche.config.yaml`. If the field is null or absent, skip. Otherwise, run the command. For each error:
 - Patch the code using the compiler's error message as the source of truth. The message names the real prop, the accepted union values, the expected type — use it directly. (This is not source-diving; the compiler is reading the source for you and reporting its verdict.)
-- Bounded to **3 patch attempts per failing error**. If an error persists after 3 attempts, leave it; surface it in the report.
+- Bounded to **3 patch attempts per failing error**. If an error persists after 3 attempts, leave it.
 
 Hard constraint still applies: do not grep FACT during this step.
 
 ## Report (your final response)
 
-Corrected dispositions are implicit in `## Files changed`. List only defended and unresolved. No prose, only strict format.
+Corrected dispositions are implicit in `files:`. List only defended and unresolved. No prose, exact format.
 
 ```
-## Files changed
-- <path>
-(omit if no files changed)
-
-## Typecheck
-- pass | patched N error(s) | FAILED after 3 attempts (see remaining below) | skipped
-(if FAILED, list remaining errors verbatim below this line)
-
-## Defended
-- <file>:<line> (<gap-tag or empty>): <one-line reason>
-(omit if none)
-
-## Unresolved
-- <file>:<line>: <comment>
-(omit if none)
+files: <path>, <path>
+defended:
+  <path>#<line> (<gap-tag>) | <reason>
+  <path>#<line> | <reason>
+unresolved:
+  <path>#<line> | <comment>
 ```
+
+- `files:` — comma-separated, or `-` if none.
+- `defended:` — block of records. Parentheses + `<gap-tag>` omitted entirely when no tag. Empty block: inline `defended: -`.
+- `unresolved:` — block of records. Empty block: inline `unresolved: -`.
