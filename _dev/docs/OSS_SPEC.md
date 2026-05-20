@@ -251,7 +251,7 @@ Three verbs. Each is idempotent.
 **Behavior:**
 
 1. Prompt for the target platform (Claude Code or Codex). Default: detect existing `.claude/` or `.codex/` directory; offer to install for what's present. Single-select; switching platforms means re-running `init`.
-2. Scaffold `pastiche/` folder at repo root with empty `FACT.md`, `KNOWLEDGE.md` (with the canonical 12 H2 stubs from philosophical spec §3.2), and `WISDOM.md` (with header + tag-format reminder + commented-out `[GENERAL]` suggestions).
+2. Scaffold `pastiche/` folder at repo root with empty `FACT.md`, `KNOWLEDGE.md` (with the canonical 12 H2 stubs from philosophical spec §3.2), and `WISDOM.md` (with header + tag-format reminder).
 3. Scaffold `pastiche/config.yaml` (colocated with the three docs) with empty/null sentinels (§9.4); auto-detect `typecheck_command` from `package.json` scripts and prompt to confirm; auto-detect package manager from lockfile for the invocation prefix.
 4. Run the FACT extractor against the adopter's codebase. If it can't locate the DS module, prompt for path, write to config, retry.
 5. Generate adapter files (§4.4) for the selected platforms.
@@ -437,17 +437,9 @@ The canonical 12 H2 sections are mandatory. The lint enforces presence; stubs ar
 > Each entry is tagged with the atom names it pertains to. Tags must match FACT.md verbatim.
 > `[GENERAL]` is the lone allowed non-FACT tag (system-wide invariants).
 > See `docs/wisdom.md` for the tag discipline.
-
-<!-- Optional [GENERAL] rules — uncomment what applies, or use /pastiche-setup to be walked through them:
-- [GENERAL] Use design tokens for all colors; never raw hex.
-- [GENERAL] Stick to the documented spacing scale; no arbitrary spacing values.
-- [GENERAL] Respect documented breakpoints; no arbitrary media queries.
-- [GENERAL] All interactive elements meet WCAG AA contrast.
-- [GENERAL] Every page declares semantic landmarks.
--->
 ```
 
-Atom-tagged entries are not seeded. WISDOM grows over time via `pastiche-write-wisdom`.
+`[GENERAL]` entries are seeded interactively by `pastiche-setup` (which owns the canonical 4 candidate rules). Atom-tagged entries are not seeded — WISDOM grows over time via `pastiche-write-wisdom`.
 
 ### 9.4 `pastiche/config.yaml`
 

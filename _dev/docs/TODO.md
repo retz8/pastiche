@@ -36,7 +36,7 @@ Sequenced delivery plan for shipping v1 of pastiche, derived from `OSS_SPEC.md`.
 - [x] **2.4** Author `templates/config.yaml` per §9.4 (consumer path `pastiche/config.yaml`; schema rewritten — see `docs/spec/task-2.4-config-template.md`).
 - [x] **2.5** Author `skills/pastiche-write-knowledge.md` (§7.3). *Depends on 2.2.*
 - [x] **2.6** Author `skills/pastiche-write-wisdom.md` (§7.4). *Depends on 2.3; revisit via 2.8.*
-- [ ] **2.7** Author `skills/pastiche-setup.md` (OSS_SPEC §7.2, §11). *Formerly task 1.6. Depends on 2.1–2.4.*
+- [x] **2.7** Author `skills/pastiche-setup.md` (OSS_SPEC §7.2, §11). *Formerly task 1.6. Depends on 2.1–2.4.*
 - [x] **2.8** Revisit Phase 1 canonical bodies against finalized templates — sweep `agents/pastiche-implementer-round1.md`, `agents/pastiche-implementer-round2.md`, `agents/pastiche-reviewer.md`, `skills/pastiche.md`, and `skills/pastiche-write-wisdom.md` (2.6) for template-shape drift introduced by 2.1–2.3.
 
 ---

@@ -104,7 +104,6 @@ Grep contract unchanged (only the scenario sub-structure changed):
 `templates/WISDOM.md` structure:
 
 - Header HTML comment block.
-- Commented-out `[GENERAL]` suggestions per OSS_SPEC §9.3.
 - Flat bullet list. Each bullet: `- [Tag1,Tag2,Tag3] rule text.`
 - **Comma-in-bracket tag list** (replaces phase-1's `[A][B][C]` concatenated brackets). `[GENERAL]` is itself a tag.
 - **Loose cluster ordering** preserved: writer inserts after the last line matching any of the new entry's tags; if no tag matches, append to end of file.
