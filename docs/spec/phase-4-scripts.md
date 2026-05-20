@@ -39,6 +39,48 @@ Under plugin-first distribution, the plugin already provides skills and agents g
 
 The ported `_dev/scripts/` sources are deleted in the same commit as their respective ports. `_dev/scripts/extract-fact.ts` is removed by 4.1. `_dev/scripts/lint-tags.ts` and `_dev/scripts/lint-tags.test.ts` are removed by 4.2. The `_dev/scripts/` directory is removed once empty.
 
+## Plugin layout (reference)
+
+This is the consumer-side shape Phase 4 scripts target — not a Phase 4 deliverable itself (the plugin envelope is Phase 7), but included here because decisions 1, 2, and 6 above only make sense against this picture.
+
+**After `/plugin install pastiche` in Claude Code, the adopter's machine has:**
+
+```
+~/.claude/plugins/pastiche/
+├── .claude-plugin/
+│   ├── plugin.json
+│   └── marketplace.json
+├── skills/
+│   ├── pastiche.md                  # the main implementer ↔ reviewer loop (the headline)
+│   ├── pastiche-init.md             # bootstrap (replaces `pastiche init` CLI)
+│   ├── pastiche-setup.md            # KNOWLEDGE/WISDOM interview
+│   ├── pastiche-sync.md             # re-extract FACT (replaces `pastiche sync` CLI)
+│   ├── pastiche-lint.md             # interactive tag-sanity check (replaces `pastiche lint` CLI)
+│   ├── pastiche-write-knowledge.md
+│   └── pastiche-write-wisdom.md
+├── agents/
+│   ├── pastiche-implementer-round1.md
+│   ├── pastiche-implementer-round2.md
+│   └── pastiche-reviewer.md
+├── templates/
+│   ├── FACT.md
+│   ├── KNOWLEDGE.md
+│   ├── WISDOM.md
+│   └── config.yaml
+└── dist/
+    ├── extract-fact.js              # Phase 4.1 output, bundled (~3 MB w/ ts-morph)
+    └── lint.js                      # Phase 4.2 output, bundled (~50 KB)
+```
+
+**Adopter install + init flow:**
+
+1. **One-time install.** Adopter runs `/plugin install pastiche` in Claude Code. The entire plugin directory above lands at `~/.claude/plugins/pastiche/` in one atomic operation. Skills and subagents become globally available across all projects.
+2. **Per-project bootstrap.** Adopter `cd`s into their FE repo and runs `/pastiche-init` in Claude Code. The skill body prompts interactively (platform, packages, tokens, typecheck command, optional DESIGN.md), writes `pastiche/config.yaml` and the KNOWLEDGE/WISDOM templates into the adopter's repo, then spawns `node $CLAUDE_PLUGIN_ROOT/dist/extract-fact.js` to produce `pastiche/FACT.md`. **No `.claude/skills/...` or `.claude/agents/...` files are written into the adopter's repo** — those live in the plugin (decision 6).
+3. **KNOWLEDGE/WISDOM curation.** Adopter runs `/pastiche-setup` to walk the canonical 12 sections + `[GENERAL]` WISDOM, section-by-section across sessions.
+4. **Use.** Frontend tasks invoke the `pastiche` skill; the bounded doubt-defense loop runs against the populated docs.
+
+The only artifacts that land in the adopter's repo are under `pastiche/` — the three documents and `config.yaml`. Skills and agents stay in the plugin; updates ship via plugin update, not per-project resync.
+
 ## Invariants
 
 - Canonical sources stay platform-agnostic. Neither script embeds KISA atom names, paths, or phrasing.
