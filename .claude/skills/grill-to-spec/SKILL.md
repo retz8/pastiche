@@ -9,13 +9,11 @@ Convert a just-completed `grill-me` session into a spec file under `docs/spec/`.
 
 ## File naming
 
-Number first. Filename comes from the TODO number, not the task description.
+Number first. Filename comes from the TODO number when available, otherwise name only. Do not ask the user about the path — derive it and proceed.
 
 - Task (`**N.M**` in TODO): `docs/spec/task-<N.M>-<short-name>.md`
 - Phase: `docs/spec/phase-<N>-<short-name>.md`
-- Off-TODO: `docs/spec/<task-name>.md`
-
-Confirm with the user before writing.
+- No task number available: `docs/spec/<short-name>.md`
 
 ## Hard rules
 
@@ -56,11 +54,10 @@ Confirm with the user before writing.
 
 ## Process
 
-1. Confirm with the user: target file path, and the scope of the grill session being converted (which task/phase).
-2. Re-read the grilling conversation in context. Identify every decision the user explicitly accepted, rejected, or modified.
-3. Draft the spec using the required structure above.
-4. Show the draft to the user. Ask: *"Anything in here you did not lock during the grill? Anything missing that you did lock?"*
-5. Revise on feedback. Write the final file.
+1. Re-read the grilling conversation in context. Identify every decision the user explicitly accepted, rejected, or modified.
+2. Derive the target path per the File naming rules above. Do not ask, do not confirm.
+3. Write the spec directly to that path using the required structure. Do not display the draft to the user beforehand — just write it.
+4. Report the written path in one line. The user will redirect if revisions are needed.
 
 ## What this skill never does
 
