@@ -1,0 +1,8 @@
+<!-- pastiche-template
+output_path: .claude/agents/{{name}}.md
+-->
+---
+{{sidecar}}
+---
+
+{{body}}

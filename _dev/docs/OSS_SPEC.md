@@ -178,7 +178,7 @@ The adopter selects a single target platform at `init` (`platform` field in `pas
 
 ### 4.5 Adapter regeneration discipline
 
-`pastiche sync` regenerates adapter outputs idempotently. **It does not preserve adopter edits to generated files** — generated files are owned by pastiche. Adopters who want to override behavior do so by editing canonical sources in their own fork, not by editing generated outputs. This is documented in the README. Generated agent files additionally carry a banner comment at the top noting their generated status; skill files do not, matching the modern cross-tool convention that skill packages ship without in-file banners.
+`pastiche sync` regenerates adapter outputs idempotently. **It does not preserve adopter edits to generated files** — generated files are owned by pastiche. Adopters who want to override behavior do so by editing canonical sources in their own fork, not by editing generated outputs. This is documented in the README. Neither agent nor skill files carry in-file generated-status banners, matching modern cross-tool convention — adopter expectations around ownership live in the README, not in every emitted file.
 
 ---
 
