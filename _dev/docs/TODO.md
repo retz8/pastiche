@@ -2,6 +2,8 @@
 
 Sequenced delivery plan for shipping v1 of pastiche, derived from `OSS_SPEC.md`. Phases run in order; tasks within a phase can parallelize unless noted.
 
+> **Plugin-first pivot (2026-05-20, locked in Phase 4 grill — see `docs/spec/phase-4-scripts.md`):** v1 ships as a Claude Code plugin only. No npm package, no standalone CLI binary, no Rust. `pastiche init`/`sync`/`lint` become slash-command skills inside the plugin; bundled JS (extractor, lint) is invoked from skill bodies via `node $CLAUDE_PLUGIN_ROOT/dist/*.js`. Phases 5, 7, and 8 contain pre-pivot wording — flagged inline below; they will be restructured by their own phase grills. OSS_SPEC sweep happens in Phase 8.1.
+
 ---
 
 ## Phase 0 — Research (blocker)
@@ -54,10 +56,13 @@ Sequenced delivery plan for shipping v1 of pastiche, derived from `OSS_SPEC.md`.
 
 - [ ] **4.1** Promote extractor → `scripts/extract-fact-ts.ts`; drive inputs from `packages` (with `types` + `source_dir` modes) and `tokens` (with `tailwind-v4-theme` + `css-vars` formats) per §9.4 / §9.4.1; add source-directory walking and plain `:root` CSS-vars parsing; remove KISA-specific assumptions.
 - [ ] **4.2** Promote lint → `scripts/lint.ts` (+ port test); add KNOWLEDGE canonical-section-presence enforcement (§6.3 step 4).
+- [ ] **4.3** Pivot-alignment sweep of Phase 1–3 artifacts. Audit `skills/*.md`, `agents/*.md`, `templates/*`, and `adapters/**/*.template` for pre-pivot wording per `docs/spec/phase-4-scripts.md`: references to `pastiche init`/`sync`/`lint` as CLI commands → slash-command skills (`/pastiche-init`, etc.); references to npm install / `npx pastiche` → Claude plugin install; any phrasing that assumes a standalone CLI binary exists. Patch in place; this is a wording sweep, not a re-design. Per-task grill scope-only (no spec needed). Must complete before Phase 5/7 grills so they inherit clean phrasing.
 
 ---
 
 ## Phase 5 — CLI (`cli/src/`, Node + TS per §14.2)
+
+> **⚠ Pre-pivot wording.** Under the plugin-first model locked in Phase 4, there is no standalone CLI. `pastiche init`/`sync`/`lint` become slash-command skills (`/pastiche-init`, `/pastiche-sync`, `/pastiche-lint`) that orchestrate the bundled scripts from Phase 4. The adapter generator (5.2) is no longer needed for Claude Code (canonical skill/agent bodies are copied directly into the plugin tree); whether it survives for Codex depends on open item (1) in the Phase 4 spec. This phase needs its own grill before any task here is picked up.
 
 - [ ] **5.1** Bootstrap CLI package with `bin: pastiche`.
 - [ ] **5.2** Adapter generator module — canonical body + template → emit final file (§14.3 implementation TBD; lean toward TS functions).
@@ -82,6 +87,8 @@ Sequenced delivery plan for shipping v1 of pastiche, derived from `OSS_SPEC.md`.
 
 ## Phase 7 — Packaging & docs
 
+> **⚠ Pre-pivot wording.** Plugin-only distribution per Phase 4 spec. 7.1 collapses to plugin packaging only (no npm `package.json`); a bundling step (`bun build --target=node` over `scripts/*.ts` → `dist/*.js`) joins this phase. Per-phase grill required.
+
 - [ ] **7.1** `package.json` (npm) + `.claude-plugin/{plugin.json,marketplace.json}` — ship both (§14.6).
 - [ ] **7.2** `README.md`: positioning, quickstart, KISA linked as production adopter.
 - [ ] **7.3** Per-document format docs: `docs/fact.md`, `docs/knowledge.md`, `docs/wisdom.md`, `docs/config.md` (hydrates from OSS_SPEC §9.4 + §9.4.1 — four stack scenarios + field semantics).
@@ -94,6 +101,6 @@ Sequenced delivery plan for shipping v1 of pastiche, derived from `OSS_SPEC.md`.
 ## Phase 8 — Release gate
 
 - [ ] **8.1** Dedicated `spec.md` editing pass — accumulate changes discovered during phases 1–7 and revise the philosophical spec in a single focused session. The Phase 1 port is a mechanical de-KISA only; substantive revisions happen here.
-- [ ] **8.2** Run OSS_SPEC §15 eight-point acceptance checklist end-to-end against `examples/primer-react/` **on Claude Code only**. Codex is shipped as placeholder per OSS_SPEC §2.2; runtime validation deferred to a v1.x community milestone.
+- [ ] **8.2** Run OSS_SPEC §15 eight-point acceptance checklist end-to-end against `examples/primer-react/` **on Claude Code only**. Codex is shipped as placeholder per OSS_SPEC §2.2; runtime validation deferred to a v1.x community milestone. Per Phase 4 spec open item (2), acceptance criterion #5 (CI lint) softens to adopter-side hook-based enforcement; the 8.1 spec-editing pass updates §15 accordingly.
 - [ ] **8.3** Verify `_dev/` is empty (sources are deleted per Rule 5 as they're ported) and remove the tree, once §15 is green.
 - [ ] **8.4** Ship v1.
