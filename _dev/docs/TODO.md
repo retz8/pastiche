@@ -44,9 +44,9 @@ Sequenced delivery plan for shipping v1 of pastiche, derived from `OSS_SPEC.md`.
 ## Phase 3 — Adapters (canonical + build, §4)
 
 - [ ] **3.1** `adapters/claude-code/agents.template` — YAML frontmatter wrapper.
-- [ ] **3.2** `adapters/claude-code/skills.template` — `SKILL.md` wrapper.
+- [x] **3.2** ~~`adapters/claude-code/skills.template`~~ — resolved as **no skills adapter needed**; OSS_SPEC §4.3/§4.4/§4.5 amended. See `docs/spec/task-3.2-skills-no-adapter.md`.
 - [ ] **3.3** `adapters/codex/agents.template` — TOML wrapper. *Depends on Phase 0.*
-- [ ] **3.4** `adapters/codex/skills.template`. *Depends on Phase 0.*
+- [x] **3.4** ~~`adapters/codex/skills.template`~~ — closed by 3.2; skills ship without per-platform adapters. See `docs/spec/task-3.2-skills-no-adapter.md`.
 
 ---
 

@@ -136,28 +136,27 @@ Per-platform sidecars carry envelope inputs that *are* platform-specific (model 
 adapters/
   claude-code/
     agents.template     # YAML frontmatter wrapper for agent bodies
-    skills.template     # SKILL.md wrapper for skill bodies
   codex/
     agents.template     # TOML wrapper for agent bodies
-    skills.template     # Codex skill or AGENTS.md fragment wrapper
 ```
 
-Each template declares the platform-specific envelope (frontmatter keys, file format, output path) and references the canonical body by name. The CLI resolves a template + canonical body → emit final file.
+Each agent template declares the platform-specific envelope (frontmatter keys, file format, output path) and references the canonical body by name. The CLI resolves an agent template + canonical body + sidecar → emit final file.
+
+Skills ship without an adapter template. Skill envelopes (YAML frontmatter carrying `name` and `description`) are identical across supported platforms, and the install location (`.agents/skills/<name>/SKILL.md`; §4.4) is a universal cross-tool convention. Skill install is a direct file copy from `skills/<name>.md`; no per-platform template, no envelope substitution, no banner injection.
 
 ### 4.4 Output locations in the adopter's repo
 
 **Claude Code:**
 ```
-.claude/
-  skills/
-    pastiche/SKILL.md
-    pastiche-setup/SKILL.md
-    pastiche-write-knowledge/SKILL.md
-    pastiche-write-wisdom/SKILL.md
-  agents/
-    pastiche-implementer-round1.md
-    pastiche-implementer-round2.md
-    pastiche-reviewer.md
+.claude/agents/
+  pastiche-implementer-round1.md
+  pastiche-implementer-round2.md
+  pastiche-reviewer.md
+.agents/skills/
+  pastiche/SKILL.md
+  pastiche-setup/SKILL.md
+  pastiche-write-knowledge/SKILL.md
+  pastiche-write-wisdom/SKILL.md
 ```
 
 **Codex CLI:**
@@ -173,13 +172,13 @@ Each template declares the platform-specific envelope (frontmatter keys, file fo
   pastiche-write-wisdom/SKILL.md
 ```
 
-Note the path asymmetry: Codex skills live under `.agents/skills/` (cross-tool convention), while subagents live under `.codex/agents/`. See `docs/adapters/codex.md` for the full Codex adapter contract.
+Skills land at the universal `.agents/skills/<name>/SKILL.md` location on both platforms — modern Claude Code and Codex both read from there, and that location is the cross-tool convention modern skill packages ship to. Subagents diverge per-platform (`.claude/agents/` vs `.codex/agents/`) because the subagent envelope and file format genuinely differ. See `docs/adapters/codex.md` for the full Codex adapter contract.
 
 The adopter selects a single target platform at `init` (`platform` field in `pastiche/config.yaml`; §9.4); switching platforms means re-running `init`. v1 generates one adapter tree per install.
 
 ### 4.5 Adapter regeneration discipline
 
-`pastiche sync` regenerates adapter outputs idempotently. **It does not preserve adopter edits to generated files** — generated files are owned by pastiche. Adopters who want to override behavior do so by editing canonical sources in their own fork, not by editing generated outputs. This is documented in the README and surfaced in a generated-file banner comment at the top of every adapter output.
+`pastiche sync` regenerates adapter outputs idempotently. **It does not preserve adopter edits to generated files** — generated files are owned by pastiche. Adopters who want to override behavior do so by editing canonical sources in their own fork, not by editing generated outputs. This is documented in the README. Generated agent files additionally carry a banner comment at the top noting their generated status; skill files do not, matching the modern cross-tool convention that skill packages ship without in-file banners.
 
 ---
 
