@@ -60,6 +60,8 @@ Pastiche skill descriptions are written as trigger conditions (not titles) per C
 └── pastiche-write-wisdom/SKILL.md
 ```
 
+Skill files are emitted by direct copy from pastiche's canonical skill bodies — no Codex-specific template processing, no envelope substitution. Skills are a universal cross-tool primitive (per OSS_SPEC §4.3); Claude Code reads from the same `.agents/skills/<name>/SKILL.md` location.
+
 ---
 
 ## 3. Subagents
@@ -101,10 +103,11 @@ Subagents are spawned by natural-language delegation from the orchestrator skill
 
 ## 4. Adapter template responsibilities
 
-The adapter under `adapters/codex/` owns two templates:
+The adapter under `adapters/codex/` owns one template:
 
-- **`agents.template`** — produces a `.toml` file. Reads the per-agent Codex sidecar (`agents/<name>.codex.meta.yaml`), wraps the canonical agent body inside `developer_instructions = """..."""`, and emits every sidecar field verbatim as a top-level TOML key (`name`, `description`, `model`, `sandbox_mode`, etc.). Must escape any triple-quote sequences in the canonical body (none expected, but the generator validates).
-- **`skills.template`** — produces `<name>/SKILL.md`. Prepends YAML frontmatter (`name`, `description`) to the canonical skill body. Identical envelope to the Claude Code skills template — only the output path differs (`.agents/skills/<name>/` vs `.claude/skills/<name>/`).
+- **`agents.template`** — produces a `.toml` file. Reads the per-agent Codex sidecar (`agents/<name>.codex.meta.yaml`), structurally converts each sidecar YAML field to a top-level TOML key=value line (`name`, `description`, `model`, `sandbox_mode`, etc.; no value translation), and wraps the canonical agent body inside `developer_instructions = '''…'''` (TOML literal multi-line string — preserves backslashes and quotes verbatim). The adapter generator fails the run if a canonical body contains the forbidden `'''` sequence; no auto-escape.
+
+Skills do not have a Codex-specific template; pastiche's canonical skill bodies are emitted by direct file copy to `.agents/skills/<name>/SKILL.md` (see OSS_SPEC §4.3 and §2.4 above).
 
 ---
 

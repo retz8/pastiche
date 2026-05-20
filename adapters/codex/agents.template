@@ -1,0 +1,8 @@
+<!-- pastiche-template
+output_path: .codex/agents/{{name}}.toml
+-->
+{{sidecar_toml}}
+
+developer_instructions = '''
+{{body}}
+'''
