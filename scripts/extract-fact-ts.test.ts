@@ -121,3 +121,87 @@ test('loadConfig surfaces YAML parse errors clearly', async () => {
   });
   assert.throws(() => extractor.loadConfig(cwd), /pastiche\/config\.yaml/);
 });
+
+test('extractTokens harvests --* from @theme block', async () => {
+  const cwd = await mktempCwd({
+    'theme.css': `@theme { --color-primary: red; --color-bg: white; }`,
+  });
+  const tokens = extractor.extractTokens(['theme.css'], cwd);
+  assert.deepEqual(tokens.filter(t => t.startsWith('--')), ['--color-primary', '--color-bg']);
+});
+
+test('extractTokens harvests --* from :root block', async () => {
+  const cwd = await mktempCwd({
+    'tokens.css': `:root { --fg: #000; --bg: #fff; }`,
+  });
+  const tokens = extractor.extractTokens(['tokens.css'], cwd);
+  assert.deepEqual(tokens, ['--fg', '--bg']);
+});
+
+test('extractTokens harvests --* from arbitrary selectors and nested blocks', async () => {
+  const cwd = await mktempCwd({
+    'theme.css': `
+      :root { --light-bg: white; }
+      [data-theme="dark"] { --dark-bg: black; }
+      .dark { --override: gray; }
+    `,
+  });
+  const tokens = extractor.extractTokens(['theme.css'], cwd);
+  assert.ok(tokens.includes('--light-bg'));
+  assert.ok(tokens.includes('--dark-bg'));
+  assert.ok(tokens.includes('--override'));
+});
+
+test('extractTokens harvests class selectors', async () => {
+  const cwd = await mktempCwd({
+    'utilities.css': `.text-h1 { font-size: 2rem; } .btn-primary { color: white; }`,
+  });
+  const tokens = extractor.extractTokens(['utilities.css'], cwd);
+  assert.ok(tokens.includes('.text-h1'));
+  assert.ok(tokens.includes('.btn-primary'));
+});
+
+test('extractTokens strips /* */ comments', async () => {
+  const cwd = await mktempCwd({
+    'theme.css': `
+      /* :root { --commented-out: hide; } */
+      :root { --real: show; }
+    `,
+  });
+  const tokens = extractor.extractTokens(['theme.css'], cwd);
+  assert.ok(tokens.includes('--real'));
+  assert.ok(!tokens.includes('--commented-out'));
+});
+
+test('extractTokens dedupes across multiple files first-encountered-wins (silent)', async () => {
+  const cwd = await mktempCwd({
+    'a.css': `:root { --shared: red; --only-a: 1; }`,
+    'b.css': `:root { --shared: blue; --only-b: 2; }`,
+  });
+  const tokens = extractor.extractTokens(['a.css', 'b.css'], cwd);
+  const seen = new Set(tokens);
+  assert.equal(seen.size, tokens.length); // no dupes
+  assert.ok(tokens.includes('--shared'));
+  assert.ok(tokens.includes('--only-a'));
+  assert.ok(tokens.includes('--only-b'));
+  assert.equal(tokens.indexOf('--shared'), tokens.indexOf('--shared'));
+});
+
+test('extractTokens does not match var() usages as declarations', async () => {
+  const cwd = await mktempCwd({
+    'theme.css': `:root { --real: red; } .btn { color: var(--real); background: var(--unused-elsewhere); }`,
+  });
+  const tokens = extractor.extractTokens(['theme.css'], cwd);
+  assert.ok(tokens.includes('--real'));
+  assert.ok(!tokens.includes('--unused-elsewhere'));
+});
+
+test('extractTokens does not match keyframe selectors as classes', async () => {
+  const cwd = await mktempCwd({
+    'anim.css': `@keyframes spin { from { transform: rotate(0); } to { transform: rotate(360deg); } } .spinner { animation: spin 1s; }`,
+  });
+  const tokens = extractor.extractTokens(['anim.css'], cwd);
+  assert.ok(tokens.includes('.spinner'));
+  assert.ok(!tokens.includes('.from'));
+  assert.ok(!tokens.includes('.to'));
+});

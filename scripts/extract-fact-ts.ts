@@ -135,8 +135,52 @@ export function loadConfig(cwd: string): Config {
   return { platform, packages, tokens };
 }
 
-export function extractTokens(_cssPaths: string[], _cwd: string): string[] {
-  throw new Error('extractTokens: not implemented yet (Task 4)');
+export function extractTokens(cssPaths: string[], cwd: string): string[] {
+  const out: string[] = [];
+  const seen = new Set<string>();
+  const emit = (n: string) => {
+    if (!seen.has(n)) {
+      seen.add(n);
+      out.push(n);
+    }
+  };
+
+  for (const rel of cssPaths) {
+    const abs = path.resolve(cwd, rel);
+    const raw = fs.readFileSync(abs, 'utf8');
+    const css = raw.replace(/\/\*[\s\S]*?\*\//g, '');
+
+    // (1) Harvest CSS custom property declarations regardless of containing
+    // selector. Regex matches "--name:" in declaration position — `var(--x)`
+    // usages lack the colon and don't match.
+    const propRe = /(--[a-zA-Z0-9_-]+)\s*:/g;
+    let pm: RegExpExecArray | null;
+    while ((pm = propRe.exec(css))) {
+      emit(pm[1]);
+    }
+
+    // (2) Harvest class selectors. Char-walk: each `{` closes the current
+    // selector text; `}` or `;` reset the selector start. Skip selectors
+    // starting with `@` (at-rules) and skip selectors that are keyframe
+    // markers (`from`, `to`, percentage) — those have no leading `.`, so the
+    // `.classname` regex below filters them out naturally.
+    let selStart = 0;
+    for (let i = 0; i < css.length; i++) {
+      const ch = css[i];
+      if (ch === '{') {
+        const selector = css.slice(selStart, i).trim();
+        if (selector && !selector.startsWith('@')) {
+          const cls = selector.match(/\.[a-zA-Z_-][a-zA-Z0-9_-]*/g);
+          if (cls) for (const c of cls) emit(c);
+        }
+        selStart = i + 1;
+      } else if (ch === '}' || ch === ';') {
+        selStart = i + 1;
+      }
+    }
+  }
+
+  return out;
 }
 
 export function collectSourceFiles(_dir: string, _cwd: string): string[] {
