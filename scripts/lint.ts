@@ -689,6 +689,100 @@ export function lintKnowledgeSections(text: string): LintKnowledgeSectionsResult
 }
 
 // ---------------------------------------------------------------------------
+// Orchestrator
+// ---------------------------------------------------------------------------
+
+export interface LintReport {
+  violations: Violation[];
+  counts: {
+    factComponents: number;
+    factTokens: number;
+    wisdomTagsChecked: number;
+    wisdomGeneralTags: number;
+    wisdomFactBoundTags: number;
+    knowledgeCodeSpansChecked: number;
+    knowledgeComponentRefs: number;
+    knowledgeTokenRefs: number;
+    knowledgeIgnored: number;
+    canonicalSectionsFound: number;
+  };
+  skipped: Array<'wisdom' | 'knowledge-refs'>;
+}
+
+export function runLint(cwd: string = process.cwd()): LintReport {
+  const violations: Violation[] = [];
+  const skipped: LintReport['skipped'] = [];
+  const counts: LintReport['counts'] = {
+    factComponents: 0,
+    factTokens: 0,
+    wisdomTagsChecked: 0,
+    wisdomGeneralTags: 0,
+    wisdomFactBoundTags: 0,
+    knowledgeCodeSpansChecked: 0,
+    knowledgeComponentRefs: 0,
+    knowledgeTokenRefs: 0,
+    knowledgeIgnored: 0,
+    canonicalSectionsFound: 0,
+  };
+
+  const docs = readDocs(cwd);
+  violations.push(...docs.sentinels);
+
+  if (docs.configRaw !== null) {
+    const c = validateConfig(docs.configRaw);
+    violations.push(...c.violations);
+  }
+
+  let atomsArg: FactAtoms | null = null;
+  let factOk = false;
+  if (docs.factRaw !== null) {
+    const f = parseAndValidateFact(docs.factRaw);
+    violations.push(...f.violations);
+    atomsArg = f.atoms;
+    counts.factComponents = f.atoms.components.size;
+    counts.factTokens = f.atoms.tokens.size;
+    const noSchemaErrors = f.violations.length === 0;
+    const hasAtoms = f.atoms.components.size + f.atoms.tokens.size > 0;
+    if (noSchemaErrors && !hasAtoms) {
+      violations.push(
+        violation('sentinel', FACT, 1, 'FACT.md has no atoms — run /pastiche-sync to extract.'),
+      );
+    }
+    factOk = noSchemaErrors && hasAtoms;
+  }
+
+  if (docs.wisdomRaw !== null) {
+    if (factOk && atomsArg) {
+      const w = lintWisdom(docs.wisdomRaw, atomsArg);
+      violations.push(...w.violations);
+      counts.wisdomTagsChecked = w.counts.tagsChecked;
+      counts.wisdomGeneralTags = w.counts.generalTags;
+      counts.wisdomFactBoundTags = w.counts.factBoundTags;
+    } else {
+      skipped.push('wisdom');
+    }
+  }
+
+  if (docs.knowledgeRaw !== null) {
+    if (factOk && atomsArg) {
+      const k = lintKnowledgeRefs(docs.knowledgeRaw, atomsArg);
+      violations.push(...k.violations);
+      counts.knowledgeCodeSpansChecked = k.counts.codeSpansChecked;
+      counts.knowledgeComponentRefs = k.counts.componentRefs;
+      counts.knowledgeTokenRefs = k.counts.tokenRefs;
+      counts.knowledgeIgnored = k.counts.ignored;
+    } else {
+      skipped.push('knowledge-refs');
+    }
+    const s = lintKnowledgeSections(docs.knowledgeRaw);
+    violations.push(...s.violations);
+    counts.canonicalSectionsFound = s.found;
+  }
+
+  return { violations, counts, skipped };
+}
+
+// ---------------------------------------------------------------------------
 // main() — composes the pipeline; filled in by Task 9.
 // ---------------------------------------------------------------------------
 

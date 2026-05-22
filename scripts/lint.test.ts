@@ -602,3 +602,84 @@ test('lintKnowledgeSections: section names matched exactly (case + spacing)', ()
   assert.equal(r.violations.length, 1);
   assert.match(r.violations[0].message, /Brand Identity/);
 });
+
+import { runLint, type LintReport } from './lint.ts';
+
+function writeMinimalProject(cwd: string, overrides: Partial<{config: string; fact: string; knowledge: string; wisdom: string}> = {}): void {
+  const sections = CANONICAL_SECTIONS.map((s) => `## ${s.name}\n\n_(empty)_\n`).join('\n');
+  const defaults = {
+    config: VALID_CONFIG,
+    fact: VALID_FACT,
+    knowledge: sections,
+    wisdom: '',
+  };
+  const merged = { ...defaults, ...overrides };
+  write(cwd, 'pastiche/config.yaml', merged.config);
+  write(cwd, 'pastiche/FACT.md', merged.fact);
+  write(cwd, 'pastiche/KNOWLEDGE.md', merged.knowledge);
+  write(cwd, 'pastiche/WISDOM.md', merged.wisdom);
+}
+
+test('runLint: minimal valid project → zero violations, nothing skipped', () => {
+  const cwd = mkTempProject();
+  writeMinimalProject(cwd);
+  const r: LintReport = runLint(cwd);
+  assert.deepEqual(r.violations, []);
+  assert.deepEqual(r.skipped, []);
+});
+
+test('runLint: empty FACT atom set → sentinel + WISDOM/KNOWLEDGE-refs skipped', () => {
+  const cwd = mkTempProject();
+  const emptyFact = `## Components\n\n\`\`\`yaml\n\`\`\`\n\n## Tokens\n`;
+  writeMinimalProject(cwd, { fact: emptyFact, wisdom: '- [Button] should be silenced.\n' });
+  const r = runLint(cwd);
+  const sentinels = r.violations.filter((v) => v.family === 'sentinel');
+  assert.ok(sentinels.some((v) => /FACT\.md has no atoms/.test(v.message)));
+  assert.ok(r.skipped.includes('wisdom'));
+  assert.ok(r.skipped.includes('knowledge-refs'));
+  // No "unknown tag [Button]" cascade in WISDOM since wisdom was skipped.
+  const wisdomViolations = r.violations.filter((v) => v.family === 'wisdom');
+  assert.equal(wisdomViolations.length, 0);
+});
+
+test('runLint: FACT schema broken → WISDOM/KNOWLEDGE-refs skipped, sections still run', () => {
+  const cwd = mkTempProject();
+  const brokenFact = `## Components\n\n(no fence)\n\n## Tokens\n--foo\n`;
+  // KNOWLEDGE missing a canonical section so sections check still produces a violation.
+  const incompleteKnowledge = CANONICAL_SECTIONS.slice(0, 11)
+    .map((s) => `## ${s.name}\n\n_(empty)_\n`)
+    .join('\n');
+  writeMinimalProject(cwd, {
+    fact: brokenFact,
+    knowledge: incompleteKnowledge,
+    wisdom: '- [Button] noise that must be suppressed.\n',
+  });
+  const r = runLint(cwd);
+  assert.ok(r.violations.some((v) => v.family === 'fact'));
+  assert.ok(r.skipped.includes('wisdom'));
+  assert.ok(r.skipped.includes('knowledge-refs'));
+  // Sections check still produced its violation.
+  assert.ok(r.violations.some((v) => v.family === 'knowledge' && /Brand Identity/.test(v.message)));
+});
+
+test('runLint: config sentinel + FACT schema failure both reported in one pass', () => {
+  const cwd = mkTempProject();
+  const nullPlatform = VALID_CONFIG.replace('platform: claude-code', 'platform: null');
+  const brokenFact = `## Components\n\n(no fence)\n\n## Tokens\n`;
+  writeMinimalProject(cwd, { config: nullPlatform, fact: brokenFact });
+  const r = runLint(cwd);
+  assert.ok(r.violations.some((v) => v.family === 'sentinel' && /platform not set/.test(v.message)));
+  assert.ok(r.violations.some((v) => v.family === 'fact'));
+});
+
+test('runLint: missing file sentinels still emit downstream skip for dependent families', () => {
+  const cwd = mkTempProject();
+  // No FACT.md at all.
+  write(cwd, 'pastiche/config.yaml', VALID_CONFIG);
+  write(cwd, 'pastiche/KNOWLEDGE.md', CANONICAL_SECTIONS.map((s) => `## ${s.name}\n`).join('\n'));
+  write(cwd, 'pastiche/WISDOM.md', '- [Button] noise.\n');
+  const r = runLint(cwd);
+  assert.ok(r.violations.some((v) => v.family === 'sentinel' && /FACT\.md not found/.test(v.message)));
+  assert.ok(r.skipped.includes('wisdom'));
+  assert.ok(r.skipped.includes('knowledge-refs'));
+});
