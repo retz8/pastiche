@@ -603,7 +603,7 @@ test('lintKnowledgeSections: section names matched exactly (case + spacing)', ()
   assert.match(r.violations[0].message, /Brand Identity/);
 });
 
-import { runLint, type LintReport } from './lint.ts';
+import { runLint, formatReport, type LintReport } from './lint.ts';
 
 function writeMinimalProject(cwd: string, overrides: Partial<{config: string; fact: string; knowledge: string; wisdom: string}> = {}): void {
   const sections = CANONICAL_SECTIONS.map((s) => `## ${s.name}\n\n_(empty)_\n`).join('\n');
@@ -682,4 +682,35 @@ test('runLint: missing file sentinels still emit downstream skip for dependent f
   assert.ok(r.violations.some((v) => v.family === 'sentinel' && /FACT\.md not found/.test(v.message)));
   assert.ok(r.skipped.includes('wisdom'));
   assert.ok(r.skipped.includes('knowledge-refs'));
+});
+
+test('formatReport: clean report renders OK summary, no violation block', () => {
+  const cwd = mkTempProject();
+  writeMinimalProject(cwd);
+  const report = runLint(cwd);
+  const out = formatReport(report);
+  assert.match(out.summary, /pastiche:lint — cross-doc tag-sanity \+ schema/);
+  assert.match(out.summary, /4 components, 3 tokens/);
+  assert.match(out.summary, /12\/12 canonical section\(s\) present/);
+  assert.match(out.summary, /pastiche:lint OK — 0 violations\./);
+  assert.equal(out.violations, '');
+});
+
+test('formatReport: failing report renders FAILED summary + violation block', () => {
+  const cwd = mkTempProject();
+  writeMinimalProject(cwd, { wisdom: '- [NotAnAtom] bad.\n' });
+  const report = runLint(cwd);
+  const out = formatReport(report);
+  assert.match(out.summary, /pastiche:lint FAILED — \d+ violation\(s\)\./);
+  assert.match(out.violations, /pastiche\/WISDOM\.md:1.*unknown tag \[NotAnAtom\]/);
+});
+
+test('formatReport: skipped families annotated in summary', () => {
+  const cwd = mkTempProject();
+  const emptyFact = `## Components\n\n\`\`\`yaml\n\`\`\`\n\n## Tokens\n`;
+  writeMinimalProject(cwd, { fact: emptyFact, wisdom: '- [Button] rule.\n' });
+  const report = runLint(cwd);
+  const out = formatReport(report);
+  assert.match(out.summary, /WISDOM\.md\s+SKIPPED/);
+  assert.match(out.summary, /KNOWLEDGE\.md.*SKIPPED/);
 });

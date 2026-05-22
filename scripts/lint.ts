@@ -783,11 +783,90 @@ export function runLint(cwd: string = process.cwd()): LintReport {
 }
 
 // ---------------------------------------------------------------------------
-// main() — composes the pipeline; filled in by Task 9.
+// Report formatting
+// ---------------------------------------------------------------------------
+
+export interface FormattedReport {
+  summary: string;
+  violations: string;
+}
+
+export function formatReport(report: LintReport): FormattedReport {
+  const c = report.counts;
+  const v = report.violations;
+  const wisdomSkipped = report.skipped.includes('wisdom');
+  const knowledgeRefsSkipped = report.skipped.includes('knowledge-refs');
+
+  const sentinelCount = v.filter((x) => x.family === 'sentinel').length;
+  const configCount = v.filter((x) => x.family === 'config').length;
+  const factCount = v.filter((x) => x.family === 'fact').length;
+  const wisdomCount = v.filter((x) => x.family === 'wisdom').length;
+  const knowledgeCount = v.filter((x) => x.family === 'knowledge').length;
+
+  const lines: string[] = [];
+  lines.push('pastiche:lint — cross-doc tag-sanity + schema');
+  lines.push('');
+  lines.push(
+    `  FACT.md         ${c.factComponents} components, ${c.factTokens} tokens (source of truth)`,
+  );
+  lines.push(
+    `  config.yaml     ${sentinelCount} sentinel(s), ${configCount} schema violation(s)`,
+  );
+  lines.push(`  FACT.md         ${factCount} schema violation(s)`);
+  if (wisdomSkipped) {
+    lines.push(`  WISDOM.md       SKIPPED (FACT schema failed or empty atom set)`);
+  } else {
+    lines.push(
+      `  WISDOM.md       ${c.wisdomTagsChecked} tag(s) checked → ` +
+        `${c.wisdomFactBoundTags} FACT-bound, ${c.wisdomGeneralTags} [GENERAL]; ` +
+        `${wisdomCount} violation(s)`,
+    );
+  }
+  if (knowledgeRefsSkipped) {
+    lines.push(`  KNOWLEDGE.md    SKIPPED refs (FACT schema failed or empty atom set)`);
+  } else {
+    lines.push(
+      `  KNOWLEDGE.md    ${c.knowledgeCodeSpansChecked} code-span(s) scanned → ` +
+        `${c.knowledgeComponentRefs} component ref(s), ${c.knowledgeTokenRefs} token ref(s), ` +
+        `${c.knowledgeIgnored} ignored (Tailwind/prop/prose)`,
+    );
+  }
+  lines.push(
+    `  KNOWLEDGE.md    ${c.canonicalSectionsFound}/12 canonical section(s) present; ${knowledgeCount} violation(s)`,
+  );
+  lines.push('');
+  if (v.length === 0) {
+    lines.push('pastiche:lint OK — 0 violations.');
+  } else {
+    lines.push(`pastiche:lint FAILED — ${v.length} violation(s).`);
+  }
+
+  const summary = lines.join('\n') + '\n';
+
+  let violations = '';
+  if (v.length > 0) {
+    const violLines: string[] = ['Violations:'];
+    for (const it of v) {
+      violLines.push(`  ${it.file}:${it.line} ${it.message}`);
+    }
+    violations = violLines.join('\n') + '\n';
+  }
+
+  return { summary, violations };
+}
+
+// ---------------------------------------------------------------------------
+// CLI entry
 // ---------------------------------------------------------------------------
 
 function main(): void {
-  throw new Error('main: not implemented yet (Task 9)');
+  const report = runLint(process.cwd());
+  const out = formatReport(report);
+  process.stdout.write(out.summary);
+  if (out.violations.length > 0) {
+    process.stderr.write(out.violations);
+    process.exit(1);
+  }
 }
 
 if (import.meta.url === `file://${process.argv[1]}`) {
