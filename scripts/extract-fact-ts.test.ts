@@ -413,3 +413,176 @@ export declare const Card: typeof CardRoot & { Header: typeof CardHeader };
   assert.ok(names.includes('Card.Header'));
   assert.ok(!names.includes('CardHeader'));
 });
+
+test('renderFact emits a components header and tokens header', () => {
+  const out = extractor.renderFact([], []);
+  assert.ok(out.startsWith('<!-- AUTO-GENERATED'));
+  assert.ok(out.includes('## Components'));
+  assert.ok(out.includes('## Tokens'));
+});
+
+test('renderFact emits a no-props atom as one-line flow', async () => {
+  const cwd = await mktempCwd({
+    'pastiche/config.yaml': `
+platform: claude-code
+packages:
+  - name: "@org/web"
+    types: dist/index.d.ts
+tokens: []
+`,
+    'dist/index.d.ts': `
+export interface SpinnerProps {}
+export declare const Spinner: React.FC<SpinnerProps>;
+`,
+  });
+  const cfg = extractor.loadConfig(cwd);
+  const { packageSources } = extractor.buildProject(cfg, cwd);
+  const comps = extractor.discoverComponentsForPackage(cfg.packages[0], packageSources.get('@org/web')!);
+  const out = extractor.renderFact(comps, []);
+  assert.ok(out.includes('Spinner: { pkg: "@org/web" }'));
+});
+
+test('renderFact emits literal-union props as YAML flow arrays of barewords', async () => {
+  const cwd = await mktempCwd({
+    'pastiche/config.yaml': `
+platform: claude-code
+packages:
+  - name: "@org/web"
+    types: dist/index.d.ts
+tokens: []
+`,
+    'dist/index.d.ts': `
+export interface ButtonProps { size?: 'sm' | 'md' | 'lg'; }
+export declare const Button: React.FC<ButtonProps>;
+`,
+  });
+  const cfg = extractor.loadConfig(cwd);
+  const { packageSources } = extractor.buildProject(cfg, cwd);
+  const comps = extractor.discoverComponentsForPackage(cfg.packages[0], packageSources.get('@org/web')!);
+  const out = extractor.renderFact(comps, []);
+  assert.match(out, /size\?: \[sm, md, lg\]/);
+});
+
+test('renderFact emits function-type props as quoted strings', async () => {
+  const cwd = await mktempCwd({
+    'pastiche/config.yaml': `
+platform: claude-code
+packages:
+  - name: "@org/web"
+    types: dist/index.d.ts
+tokens: []
+`,
+    'dist/index.d.ts': `
+export interface InputProps { onChange?: (v: string) => void; }
+export declare const Input: React.FC<InputProps>;
+`,
+  });
+  const cfg = extractor.loadConfig(cwd);
+  const { packageSources } = extractor.buildProject(cfg, cwd);
+  const comps = extractor.discoverComponentsForPackage(cfg.packages[0], packageSources.get('@org/web')!);
+  const out = extractor.renderFact(comps, []);
+  assert.match(out, /onChange\?: "\(v: string\) => void"/);
+});
+
+test('renderFact normalizes boolean to bool and React.ReactNode to ReactNode', async () => {
+  const cwd = await mktempCwd({
+    'pastiche/config.yaml': `
+platform: claude-code
+packages:
+  - name: "@org/web"
+    types: dist/index.d.ts
+tokens: []
+`,
+    'dist/index.d.ts': `
+import * as React from 'react';
+export interface CardProps { hoverable?: boolean; children: React.ReactNode; }
+export declare const Card: React.FC<CardProps>;
+`,
+  });
+  const cfg = extractor.loadConfig(cwd);
+  const { packageSources } = extractor.buildProject(cfg, cwd);
+  const comps = extractor.discoverComponentsForPackage(cfg.packages[0], packageSources.get('@org/web')!);
+  const out = extractor.renderFact(comps, []);
+  assert.match(out, /hoverable\?: bool/);
+  assert.match(out, /children: ReactNode/);
+  assert.ok(!/hoverable\?: boolean/.test(out));
+  assert.ok(!/children: React\.ReactNode/.test(out));
+});
+
+test('renderFact emits spreads as a YAML list', async () => {
+  const cwd = await mktempCwd({
+    'pastiche/config.yaml': `
+platform: claude-code
+packages:
+  - name: "@org/web"
+    types: dist/index.d.ts
+tokens: []
+`,
+    'dist/index.d.ts': `
+import * as React from 'react';
+export interface BadgeProps extends React.HTMLAttributes<HTMLSpanElement> { variant?: 'info' | 'error'; }
+export declare const Badge: React.FC<BadgeProps>;
+`,
+  });
+  const cfg = extractor.loadConfig(cwd);
+  const { packageSources } = extractor.buildProject(cfg, cwd);
+  const comps = extractor.discoverComponentsForPackage(cfg.packages[0], packageSources.get('@org/web')!);
+  const out = extractor.renderFact(comps, []);
+  assert.match(out, /spreads: \[/);
+  assert.ok(!/  \.\.\.React\.HTMLAttributes/.test(out));
+});
+
+test('renderFact required prop emits with no `?` suffix', async () => {
+  const cwd = await mktempCwd({
+    'pastiche/config.yaml': `
+platform: claude-code
+packages:
+  - name: "@org/web"
+    types: dist/index.d.ts
+tokens: []
+`,
+    'dist/index.d.ts': `
+export interface ItemProps { value: string; label?: string; }
+export declare const Item: React.FC<ItemProps>;
+`,
+  });
+  const cfg = extractor.loadConfig(cwd);
+  const { packageSources } = extractor.buildProject(cfg, cwd);
+  const comps = extractor.discoverComponentsForPackage(cfg.packages[0], packageSources.get('@org/web')!);
+  const out = extractor.renderFact(comps, []);
+  assert.match(out, /  value: string/);
+  assert.match(out, /  label\?: string/);
+});
+
+test('renderFact emits tokens without bullet prefix', () => {
+  const out = extractor.renderFact([], ['--color-primary', '--color-bg', '.text-h1']);
+  assert.match(out, /^--color-primary$/m);
+  assert.match(out, /^\.text-h1$/m);
+  assert.ok(!/^- --color-primary/m.test(out));
+});
+
+test('renderFact wraps components in a fenced yaml block', async () => {
+  const cwd = await mktempCwd({
+    'pastiche/config.yaml': `
+platform: claude-code
+packages:
+  - name: "@org/web"
+    types: dist/index.d.ts
+tokens: []
+`,
+    'dist/index.d.ts': `
+export interface AvatarProps { size?: 'sm' | 'md'; }
+export declare const Avatar: React.FC<AvatarProps>;
+`,
+  });
+  const cfg = extractor.loadConfig(cwd);
+  const { packageSources } = extractor.buildProject(cfg, cwd);
+  const comps = extractor.discoverComponentsForPackage(cfg.packages[0], packageSources.get('@org/web')!);
+  const out = extractor.renderFact(comps, []);
+  const fenceOpen = out.indexOf('```yaml');
+  const fenceClose = out.indexOf('```', fenceOpen + 1);
+  assert.ok(fenceOpen >= 0, 'expected ```yaml fence open');
+  assert.ok(fenceClose > fenceOpen, 'expected matching ``` close');
+  assert.ok(out.indexOf('Avatar:') > fenceOpen);
+  assert.ok(out.indexOf('Avatar:') < fenceClose);
+});

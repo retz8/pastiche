@@ -360,7 +360,7 @@ function classifyBranch(node: TypeNode, ctx: ResolveCtx): Classification {
 interface RenderedProp {
   name: string;
   optional: boolean;
-  typeText: string;
+  type: ResolvedType;
 }
 type RenderedSegment =
   | { kind: 'spread'; text: string }
@@ -392,42 +392,60 @@ function unquoteName(n: string): string {
  * `keyof CSSStyleDeclaration`) don't bloat FACT.md — above the cap the
  * caller falls back to the alias name.
  */
+type InlinedType =
+  | { kind: 'union'; values: string[] }
+  | { kind: 'text'; text: string };
+
 const MAX_UNION_INLINE = 100;
-function maybeInlineLiteralUnion(tn: TypeNode, ctx: ResolveCtx): string | null {
+function maybeInlineLiteralUnion(tn: TypeNode, ctx: ResolveCtx): InlinedType | null {
   if (!Node.isTypeReference(tn)) return null;
   const refName = tn.getTypeName().getText();
   const alias = ctx.localTypeAliases.get(refName);
   if (alias) {
-    const isLitNode = (n: TypeNode) => Node.isLiteralTypeNode(n);
-    if (isLitNode(alias)) return cleanTypeText(alias.getText());
-    if (Node.isUnionTypeNode(alias) && alias.getTypeNodes().every(isLitNode)) {
-      return cleanTypeText(alias.getText());
+    if (Node.isLiteralTypeNode(alias)) {
+      const lit = alias.getLiteral();
+      if (Node.isStringLiteral(lit)) return { kind: 'union', values: [lit.getLiteralValue()] };
+    }
+    if (Node.isUnionTypeNode(alias) && alias.getTypeNodes().every(n => Node.isLiteralTypeNode(n))) {
+      const vals: string[] = [];
+      for (const n of alias.getTypeNodes()) {
+        const lit = (n as any).getLiteral();
+        if (!Node.isStringLiteral(lit)) return { kind: 'text', text: cleanTypeText(alias.getText()) };
+        vals.push(lit.getLiteralValue());
+      }
+      return { kind: 'union', values: vals };
     }
   }
-  // Type-checker fallback: resolve `keyof typeof X`, mapped types, enums, etc.
   const t = tn.getType();
   if (t.isUnion()) {
     const parts = t.getUnionTypes();
     if (parts.length > 0 && parts.length <= MAX_UNION_INLINE && parts.every(p => p.isLiteral())) {
-      return parts.map(p => p.getText()).join(' | ');
+      const vals = parts.map(p => p.getText().replace(/^['"]|['"]$/g, ''));
+      return { kind: 'union', values: vals };
     }
   }
-  // Mixed-shape local alias (e.g. `type GridColumns = number | { ... }`) — the
-  // alias name is invisible to the FACT reader, so inline the alias RHS text.
-  // Collapse internal whitespace so multi-line object literals render on one
-  // line and the props table stays column-aligned. One level only; nested
-  // local refs stay as names (rare, accepted).
-  if (alias) return cleanTypeText(alias.getText()).replace(/\s+/g, ' ');
+  if (alias) {
+    return { kind: 'text', text: cleanTypeText(alias.getText()).replace(/\s+/g, ' ') };
+  }
   return null;
 }
 
-function propTypeText(tn: TypeNode | undefined, fallback: string, ctx: ResolveCtx): string {
+type ResolvedType =
+  | { kind: 'union'; values: string[] }
+  | { kind: 'text'; text: string };
+
+function resolveType(tn: TypeNode | undefined, fallback: string, ctx: ResolveCtx): ResolvedType {
   if (tn) {
     const inlined = maybeInlineLiteralUnion(tn, ctx);
     if (inlined) return inlined;
-    return cleanTypeText(tn.getText());
+    // Direct string-literal-union node (e.g. `'sm' | 'md' | 'lg'`) — not a TypeReference.
+    const directKeys = extractStringLiteralKeys(tn);
+    if (directKeys && directKeys.size > 0) {
+      return { kind: 'union', values: [...directKeys] };
+    }
+    return { kind: 'text', text: cleanTypeText(tn.getText()) };
   }
-  return cleanTypeText(fallback);
+  return { kind: 'text', text: cleanTypeText(fallback) };
 }
 
 function expandTypeNode(node: TypeNode, ctx: ResolveCtx): RenderedProp[] {
@@ -438,8 +456,8 @@ function expandTypeNode(node: TypeNode, ctx: ResolveCtx): RenderedProp[] {
       const name = unquoteName(m.getName());
       const optional = m.hasQuestionToken();
       const tn = m.getTypeNode();
-      const typeText = propTypeText(tn, m.getType().getText(node), ctx);
-      out.push({ name, optional, typeText });
+      const type = resolveType(tn, m.getType().getText(node), ctx);
+      out.push({ name, optional, type });
     }
     return out;
   }
@@ -449,18 +467,18 @@ function expandTypeNode(node: TypeNode, ctx: ResolveCtx): RenderedProp[] {
     const decls = sym.getDeclarations();
     const decl = decls[0];
     let optional = (sym.getFlags() & 16777216) !== 0; // SymbolFlags.Optional
-    let typeText: string;
+    let type: ResolvedType;
     if (decl && Node.isPropertySignature(decl)) {
       optional = optional || decl.hasQuestionToken();
       const tn = decl.getTypeNode();
-      typeText = propTypeText(tn, sym.getTypeAtLocation(node).getText(node), ctx);
+      type = resolveType(tn, sym.getTypeAtLocation(node).getText(node), ctx);
     } else {
-      typeText = cleanTypeText(sym.getTypeAtLocation(node).getText(node));
+      type = { kind: 'text', text: cleanTypeText(sym.getTypeAtLocation(node).getText(node)) };
     }
     out.push({
       name: unquoteName(sym.getName()),
       optional,
-      typeText,
+      type,
     });
   }
   return out;
@@ -477,8 +495,8 @@ function expandInterface(decl: InterfaceDeclaration, ctx: ResolveCtx): RenderedS
     const name = unquoteName(m.getName());
     const optional = m.hasQuestionToken();
     const tn = m.getTypeNode();
-    const typeText = propTypeText(tn, m.getType().getText(decl), ctx);
-    props.push({ name, optional, typeText });
+    const type = resolveType(tn, m.getType().getText(decl), ctx);
+    props.push({ name, optional, type });
   }
   segments.push({ kind: 'expand', props });
   return segments;
@@ -514,7 +532,7 @@ function renderBranch(branch: TypeNode, ctx: ResolveCtx): RenderedSegment[] {
   if (cls.kind === 'recurse') {
     if (cls.aliasName) ctx.visiting.add(cls.aliasName);
     try {
-      return renderProps(cls.node, ctx);
+      return renderPropsSegments(cls.node, ctx);
     } finally {
       if (cls.aliasName) ctx.visiting.delete(cls.aliasName);
     }
@@ -525,14 +543,14 @@ function renderBranch(branch: TypeNode, ctx: ResolveCtx): RenderedSegment[] {
     const inner =
       'iface' in cls.target
         ? expandInterface(cls.target.iface, ctx)
-        : renderProps(cls.target.node, ctx);
+        : renderPropsSegments(cls.target.node, ctx);
     return applyOmit(inner, cls.omit);
   } finally {
     ctx.visiting.delete(cls.aliasName);
   }
 }
 
-function renderProps(propsTypeNode: TypeNode, ctx: ResolveCtx): RenderedSegment[] {
+function renderPropsSegments(propsTypeNode: TypeNode, ctx: ResolveCtx): RenderedSegment[] {
   if (Node.isIntersectionTypeNode(propsTypeNode)) {
     return propsTypeNode.getTypeNodes().flatMap(b => renderBranch(b, ctx));
   }
@@ -542,7 +560,7 @@ function renderProps(propsTypeNode: TypeNode, ctx: ResolveCtx): RenderedSegment[
     const out: RenderedSegment[] = [];
     members.forEach((m, i) => {
       if (i > 0) out.push({ kind: 'spread', text: '(or)' });
-      out.push(...renderProps(m, ctx));
+      out.push(...renderPropsSegments(m, ctx));
     });
     return out;
   }
@@ -738,8 +756,147 @@ export function discoverComponentsForPackage(
   return out;
 }
 
-export function renderFact(_components: Component[], _tokens: string[]): string {
-  throw new Error('renderFact: not implemented yet (Task 8)');
+interface RenderedAtom {
+  name: string;
+  pkg: string;
+  spreads: string[];
+  shape: AtomShape;
+}
+
+type AtomShape =
+  | { kind: 'no-props' }
+  | { kind: 'props'; props: RenderedProp[] }
+  | { kind: 'variants'; variants: RenderedProp[][] };
+
+function segmentsToAtom(comp: Component, segments: RenderedSegment[]): RenderedAtom {
+  const isVariants = segments.some(s => s.kind === 'spread' && s.text === '(or)');
+  if (isVariants) {
+    const variants: RenderedProp[][] = [[]];
+    const spreads: string[] = [];
+    for (const seg of segments) {
+      if (seg.kind === 'spread' && seg.text === '(or)') {
+        variants.push([]);
+        continue;
+      }
+      if (seg.kind === 'spread') {
+        spreads.push(seg.text);
+        continue;
+      }
+      variants[variants.length - 1].push(...seg.props);
+    }
+    return { name: comp.name, pkg: comp.pkg, spreads, shape: { kind: 'variants', variants } };
+  }
+  const props: RenderedProp[] = [];
+  const spreads: string[] = [];
+  for (const seg of segments) {
+    if (seg.kind === 'spread') spreads.push(seg.text);
+    else props.push(...seg.props);
+  }
+  if (props.length === 0 && spreads.length === 0) {
+    return { name: comp.name, pkg: comp.pkg, spreads: [], shape: { kind: 'no-props' } };
+  }
+  return { name: comp.name, pkg: comp.pkg, spreads, shape: { kind: 'props', props } };
+}
+
+const YAML_SAFE_BAREWORD = /^[A-Za-z_][A-Za-z0-9_]*$/;
+const TYPE_NORMALIZATIONS: Array<[RegExp, string]> = [
+  [/\bboolean\b/g, 'bool'],
+  [/\bReact\.ReactNode\b/g, 'ReactNode'],
+];
+
+function normalizeTypeText(text: string): string {
+  let out = text;
+  for (const [re, sub] of TYPE_NORMALIZATIONS) out = out.replace(re, sub);
+  return out;
+}
+
+function quoteYamlString(s: string): string {
+  return `"${s.replace(/\\/g, '\\\\').replace(/"/g, '\\"')}"`;
+}
+
+function isFunctionType(text: string): boolean {
+  return /=>/.test(text);
+}
+
+function renderResolvedType(rt: ResolvedType): string {
+  if (rt.kind === 'union') {
+    const inner = rt.values.map(v => YAML_SAFE_BAREWORD.test(v) ? v : quoteYamlString(v)).join(', ');
+    return `[${inner}]`;
+  }
+  const normalized = normalizeTypeText(rt.text);
+  if (isFunctionType(normalized)) return quoteYamlString(normalized);
+  if (YAML_SAFE_BAREWORD.test(normalized) || /^[A-Za-z_][A-Za-z0-9_<>,\s]*$/.test(normalized)) {
+    return normalized;
+  }
+  return quoteYamlString(normalized);
+}
+
+function renderSpread(text: string): string {
+  const normalized = normalizeTypeText(text);
+  if (/^[A-Za-z_][A-Za-z0-9_<>.]*$/.test(normalized)) return normalized;
+  return quoteYamlString(normalized);
+}
+
+function renderPropLines(props: RenderedProp[], indent: string): string[] {
+  return props.map(p => {
+    const key = `${p.name}${p.optional ? '?' : ''}`;
+    return `${indent}${key}: ${renderResolvedType(p.type)}`;
+  });
+}
+
+function renderAtom(atom: RenderedAtom): string {
+  if (atom.shape.kind === 'no-props' && atom.spreads.length === 0) {
+    return `${atom.name}: { pkg: ${quoteYamlString(atom.pkg)} }`;
+  }
+  const lines: string[] = [`${atom.name}:`, `  pkg: ${quoteYamlString(atom.pkg)}`];
+  if (atom.spreads.length > 0) {
+    lines.push(`  spreads: [${atom.spreads.map(renderSpread).join(', ')}]`);
+  }
+  if (atom.shape.kind === 'props') {
+    lines.push(...renderPropLines(atom.shape.props, '  '));
+  } else if (atom.shape.kind === 'variants') {
+    lines.push(`  variants:`);
+    for (const variant of atom.shape.variants) {
+      if (variant.length === 0) {
+        lines.push(`    - {}`);
+        continue;
+      }
+      const first = variant[0];
+      const firstKey = `${first.name}${first.optional ? '?' : ''}`;
+      lines.push(`    - ${firstKey}: ${renderResolvedType(first.type)}`);
+      for (let i = 1; i < variant.length; i++) {
+        const p = variant[i];
+        const key = `${p.name}${p.optional ? '?' : ''}`;
+        lines.push(`      ${key}: ${renderResolvedType(p.type)}`);
+      }
+    }
+  }
+  return lines.join('\n');
+}
+
+export function renderFact(components: Component[], tokens: string[]): string {
+  const lines: string[] = [];
+  lines.push('<!-- AUTO-GENERATED by the Pastiche FACT extractor. Do not edit by hand. -->');
+  lines.push('<!-- Components: YAML map keyed by atom name (`Atom:` at column 0); read lazily by atom-name grep. Tokens: flat lines (no bullets); read whole. -->');
+  lines.push('');
+  lines.push('## Components');
+  lines.push('');
+  lines.push('```yaml');
+  for (const comp of components) {
+    const segments = comp.propsTypeNode
+      ? renderPropsSegments(comp.propsTypeNode, comp.ctx)
+      : comp.propsInterface
+        ? expandInterface(comp.propsInterface, comp.ctx)
+        : [];
+    const atom = segmentsToAtom(comp, segments);
+    lines.push(renderAtom(atom));
+  }
+  lines.push('```');
+  lines.push('');
+  lines.push('## Tokens');
+  lines.push('');
+  for (const t of tokens) lines.push(t);
+  return lines.join('\n') + '\n';
 }
 
 // ---------------------------------------------------------------------------
