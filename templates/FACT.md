@@ -4,9 +4,9 @@
 ## Components
 
 ```yaml
-# populated by `pastiche init` / `pastiche sync`
+# populated by `/pastiche-init` / `/pastiche-sync`
 ```
 
 ## Tokens
 
-<!-- populated by `pastiche init` / `pastiche sync` -->
+<!-- populated by `/pastiche-init` / `/pastiche-sync` -->

@@ -11,7 +11,7 @@ Orchestrates `pastiche-implementer-round1`, `pastiche-reviewer`, and `pastiche-i
 
 Run `ls pastiche/FACT.md pastiche/KNOWLEDGE.md pastiche/WISDOM.md`. If any are missing, stop and report:
 
-> This project does not appear to have pastiche set up — expected `pastiche/{FACT,KNOWLEDGE,WISDOM}.md`. Run `pastiche init` to scaffold them.
+> This project does not appear to have pastiche set up — expected `pastiche/{FACT,KNOWLEDGE,WISDOM}.md`. Run `/pastiche-init` to scaffold them.
 
 ## Workflow
 

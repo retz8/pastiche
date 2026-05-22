@@ -1,5 +1,5 @@
 # pastiche config — adopter-owned. Edit freely.
-# `pastiche sync` re-reads this file and regenerates FACT/adapters accordingly.
+# `/pastiche-sync` re-reads this file and regenerates FACT/adapters accordingly.
 # Field reference: docs/config.md
 
 platform: null

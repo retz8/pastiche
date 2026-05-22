@@ -21,7 +21,7 @@ Inserts one atom-intrinsic rule into `pastiche/WISDOM.md` per invocation. See WI
 3. **Pick tags.**
    - If the user proposed `[GENERAL]` upfront, skip to step 4.
    - Otherwise lock the primary atom tag. If the user gave a tag, verify it appears in FACT verbatim. If not, retry case-insensitively / for near-matches and surface the closest match for confirmation. If still no match, stop and report:
-     > Tag `<X>` is not in FACT.md. Either it's misspelled, FACT is stale (run `pastiche sync`), or the atom doesn't exist — in which case reconsider as KNOWLEDGE (scenario-conditional) or `[GENERAL]` (system-wide).
+     > Tag `<X>` is not in FACT.md. Either it's misspelled, FACT is stale (run `/pastiche-sync`), or the atom doesn't exist — in which case reconsider as KNOWLEDGE (scenario-conditional) or `[GENERAL]` (system-wide).
    - If the user did not give a tag, suggest candidate atoms from FACT that the rule plausibly tags. User picks the primary tag.
    - **Multi-tag.** Scan FACT and propose additional atoms the rule applies to identically. User picks any (zero or more). Verify each picked tag against FACT spelling as above.
    - **5+ tags → re-route.** Prompt: *"This applies to many atoms — consider `[GENERAL]` instead?"* If yes, go to step 4.
@@ -38,6 +38,6 @@ Inserts one atom-intrinsic rule into `pastiche/WISDOM.md` per invocation. See WI
 
 7. **Insert.** For each tag in the new entry, `grep -nE '\[([^]]*,)?<Tag>(,[^]]*)?\]' pastiche/WISDOM.md | grep -vE '^[0-9]+:[[:space:]]*<!--'` (escape regex meta-characters in `<Tag>` as in step 5). Insert the bullet immediately after the last matching line across all the entry's tags. If no tag has any existing match, append to end of file.
 
-8. **Lint.** Run `pastiche lint`. On failure, print the lint output verbatim and stop — do not revert the insertion. On success, report:
+8. **Lint.** Run `/pastiche-lint`. On failure, print the lint output verbatim and stop — do not revert the insertion. On success, report:
 
    > Inserted at WISDOM.md:`<line>`. Lint passed. Re-invoke for additional rules.

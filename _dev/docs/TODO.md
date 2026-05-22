@@ -56,7 +56,7 @@ Sequenced delivery plan for shipping v1 of pastiche, derived from `OSS_SPEC.md`.
 
 - [ ] **4.1** Promote extractor → `scripts/extract-fact-ts.ts`; drive inputs from `packages` (with `types` + `source_dir` modes) and `tokens` (with `tailwind-v4-theme` + `css-vars` formats) per §9.4 / §9.4.1; add source-directory walking and plain `:root` CSS-vars parsing; remove KISA-specific assumptions.
 - [ ] **4.2** Promote lint → `scripts/lint.ts` (+ port test); add KNOWLEDGE canonical-section-presence enforcement (§6.3 step 4).
-- [ ] [WIP] **4.3** Pivot-alignment sweep of Phase 1–3 artifacts. Audit `skills/*.md`, `agents/*.md`, `templates/*`, and `adapters/**/*.template` for pre-pivot wording per `docs/spec/phase-4-scripts.md`: references to `pastiche init`/`sync`/`lint` as CLI commands → slash-command skills (`/pastiche-init`, etc.); references to npm install / `npx pastiche` → Claude plugin install; any phrasing that assumes a standalone CLI binary exists. Patch in place; this is a wording sweep, not a re-design. Per-task grill scope-only (no spec needed). Must complete before Phase 5/7 grills so they inherit clean phrasing.
+- [x] **4.3** Pivot-alignment sweep of Phase 1–3 artifacts. Audit `skills/*.md`, `agents/*.md`, `templates/*`, and `adapters/**/*.template` for pre-pivot wording per `docs/spec/phase-4-scripts.md`: references to `pastiche init`/`sync`/`lint` as CLI commands → slash-command skills (`/pastiche-init`, etc.); references to npm install / `npx pastiche` → Claude plugin install; any phrasing that assumes a standalone CLI binary exists. Patch in place; this is a wording sweep, not a re-design. Per-task grill scope-only (no spec needed). Must complete before Phase 5/7 grills so they inherit clean phrasing.
 
 ---
 

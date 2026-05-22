@@ -34,7 +34,7 @@ Multi-`→` scenarios are allowed within a single invocation; multiple scenarios
 
    If neither matches: retry case-insensitively and surface the closest match for confirmation. If still no match, stop and report:
 
-   > Identifier `<X>` is not in FACT.md. Either it's misspelled, FACT is stale (run `pastiche sync`), or the atom doesn't exist — in which case rephrase the scenario around an atom that does, or treat it as a knowledge-gap to surface to the DS owner.
+   > Identifier `<X>` is not in FACT.md. Either it's misspelled, FACT is stale (run `/pastiche-sync`), or the atom doesn't exist — in which case rephrase the scenario around an atom that does, or treat it as a knowledge-gap to surface to the DS owner.
 
    Show the exact lines as they will appear in the file and ask: `yes / edit`. Loop on edits until confirmed.
 
@@ -43,6 +43,6 @@ Multi-`→` scenarios are allowed within a single invocation; multiple scenarios
    - If that range's sole content is `_(empty — run /pastiche-setup --section <name>)_`, **replace** that marker line with the new scenario (preserve a single blank line above and below as the surrounding sections have).
    - Otherwise **append** the new scenario at the end of the section (insert before the next `## ` heading; preserve a single blank line of separation from the prior scenario).
 
-6. **Lint.** Run `pastiche lint`. On failure, print the lint output verbatim and stop — do not revert the insertion. On success, report:
+6. **Lint.** Run `/pastiche-lint`. On failure, print the lint output verbatim and stop — do not revert the insertion. On success, report:
 
    > Inserted at KNOWLEDGE.md:`<line>`. Lint passed. Re-invoke for additional scenarios.
