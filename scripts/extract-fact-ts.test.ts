@@ -275,3 +275,62 @@ test('collectSourceFiles output is deterministic regardless of filesystem order'
   const names = files.map(f => path.basename(f));
   assert.deepEqual(names, ['Alpha.tsx', 'Yankee.tsx', 'Zeta.tsx']);
 });
+
+test('buildProject loads a types-mode package', async () => {
+  const cwd = await mktempCwd({
+    'pastiche/config.yaml': `
+platform: claude-code
+packages:
+  - name: "@org/web"
+    types: dist/index.d.ts
+tokens: []
+`,
+    'dist/index.d.ts': `export interface ButtonProps { size?: 'sm' | 'md'; }`,
+  });
+  const cfg = extractor.loadConfig(cwd);
+  const { project, packageSources } = extractor.buildProject(cfg, cwd);
+  assert.equal(project.getSourceFiles().length, 1);
+  const sources = packageSources.get('@org/web');
+  assert.ok(sources);
+  assert.equal(sources.length, 1);
+  assert.ok(sources[0].getFilePath().endsWith('dist/index.d.ts'));
+});
+
+test('buildProject loads a source_dir-mode package', async () => {
+  const cwd = await mktempCwd({
+    'pastiche/config.yaml': `
+platform: claude-code
+packages:
+  - name: ui
+    source_dir: src/components/ui
+tokens: []
+`,
+    'src/components/ui/Button.tsx': `export interface ButtonProps {} export const Button = (_: ButtonProps) => null;`,
+    'src/components/ui/Card.tsx': `export interface CardProps {} export const Card = (_: CardProps) => null;`,
+  });
+  const cfg = extractor.loadConfig(cwd);
+  const { packageSources } = extractor.buildProject(cfg, cwd);
+  const sources = packageSources.get('ui');
+  assert.ok(sources);
+  assert.equal(sources.length, 2);
+});
+
+test('buildProject shares one Project across multiple packages', async () => {
+  const cwd = await mktempCwd({
+    'pastiche/config.yaml': `
+platform: claude-code
+packages:
+  - name: "@org/web"
+    types: web/index.d.ts
+  - name: "@org/form"
+    types: form/index.d.ts
+tokens: []
+`,
+    'web/index.d.ts': `export interface ButtonProps {}`,
+    'form/index.d.ts': `export interface InputProps {}`,
+  });
+  const cfg = extractor.loadConfig(cwd);
+  const { project, packageSources } = extractor.buildProject(cfg, cwd);
+  assert.equal(project.getSourceFiles().length, 2);
+  assert.equal(packageSources.size, 2);
+});

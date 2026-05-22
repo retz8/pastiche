@@ -204,10 +204,34 @@ export function collectSourceFiles(dir: string, cwd: string): string[] {
 }
 
 export function buildProject(
-  _cfg: Config,
-  _cwd: string,
+  cfg: Config,
+  cwd: string,
 ): { project: Project; packageSources: Map<string, SourceFile[]> } {
-  throw new Error('buildProject: not implemented yet (Task 6)');
+  const project = new Project({
+    skipAddingFilesFromTsConfig: true,
+    compilerOptions: {
+      allowJs: false,
+      noResolve: false,
+      target: 99, // ESNext
+      module: 99, // ESNext
+      moduleResolution: 100, // Bundler
+    },
+  });
+  const packageSources = new Map<string, SourceFile[]>();
+  for (const pkg of cfg.packages) {
+    const sources: SourceFile[] = [];
+    if (pkg.types) {
+      const abs = path.resolve(cwd, pkg.types);
+      sources.push(project.addSourceFileAtPath(abs));
+    } else if (pkg.source_dir) {
+      const files = collectSourceFiles(pkg.source_dir, cwd);
+      for (const f of files) {
+        sources.push(project.addSourceFileAtPath(f));
+      }
+    }
+    packageSources.set(pkg.name, sources);
+  }
+  return { project, packageSources };
 }
 
 export function discoverComponentsForPackage(
