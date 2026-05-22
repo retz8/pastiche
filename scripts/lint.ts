@@ -321,6 +321,155 @@ export function validateConfig(raw: string): ValidateConfigResult {
 }
 
 // ---------------------------------------------------------------------------
+// FACT parse + schema (grep-style; mirrors implementer-round1 grep contract)
+// ---------------------------------------------------------------------------
+
+export interface FactAtoms {
+  components: Set<string>;
+  tokens: Set<string>;
+}
+
+export interface ParseAndValidateFactResult {
+  atoms: FactAtoms;
+  violations: Violation[];
+}
+
+const FACT = 'pastiche/FACT.md';
+const ATOM_NAME_RE = /^([A-Za-z][\w.]*):/;
+const H2_RE = /^## (.+?)\s*$/;
+const FENCE_OPEN_RE = /^```yaml\s*$/;
+const FENCE_CLOSE_RE = /^```\s*$/;
+const COMMENT_RE = /^<!--/;
+
+export function parseAndValidateFact(text: string): ParseAndValidateFactResult {
+  const violations: Violation[] = [];
+  const components = new Set<string>();
+  const tokens = new Set<string>();
+  const lines = text.split('\n');
+
+  // Scan H2 positions.
+  let componentsH2: number = -1;
+  let tokensH2: number = -1;
+  const h2Positions: Array<{ name: string; line: number }> = [];
+  for (let i = 0; i < lines.length; i++) {
+    const m = lines[i].match(H2_RE);
+    if (!m) continue;
+    h2Positions.push({ name: m[1].trim(), line: i });
+    if (m[1].trim() === 'Components' && componentsH2 === -1) componentsH2 = i;
+    if (m[1].trim() === 'Tokens' && tokensH2 === -1) tokensH2 = i;
+  }
+
+  if (componentsH2 === -1) {
+    violations.push(violation('fact', FACT, 1, 'missing "## Components" H2 header.'));
+  }
+  if (tokensH2 === -1) {
+    violations.push(violation('fact', FACT, 1, 'missing "## Tokens" H2 header.'));
+  }
+
+  // Parse components fence (only if H2 exists).
+  if (componentsH2 !== -1) {
+    // Find next H2 after Components, to bound the search for the fence.
+    const nextH2AfterComponents = h2Positions.find((h) => h.line > componentsH2);
+    const searchEnd = nextH2AfterComponents ? nextH2AfterComponents.line : lines.length;
+
+    let fenceOpen = -1;
+    let fenceClose = -1;
+    for (let i = componentsH2 + 1; i < searchEnd; i++) {
+      if (fenceOpen === -1 && FENCE_OPEN_RE.test(lines[i])) {
+        fenceOpen = i;
+        continue;
+      }
+      if (fenceOpen !== -1 && FENCE_CLOSE_RE.test(lines[i])) {
+        fenceClose = i;
+        break;
+      }
+    }
+
+    if (fenceOpen === -1) {
+      violations.push(
+        violation(
+          'fact',
+          FACT,
+          componentsH2 + 1,
+          'missing fenced ```yaml block under "## Components".',
+        ),
+      );
+    } else if (fenceClose === -1) {
+      violations.push(
+        violation(
+          'fact',
+          FACT,
+          fenceOpen + 1,
+          'unclosed ```yaml fence under "## Components".',
+        ),
+      );
+    } else {
+      // Scan column-0 lines inside the fence for atom names + structural validity.
+      for (let i = fenceOpen + 1; i < fenceClose; i++) {
+        const raw = lines[i];
+        if (raw.length === 0) continue;
+        if (COMMENT_RE.test(raw)) continue;
+        // Indented lines are prop bodies — not validated.
+        if (/^\s/.test(raw)) continue;
+        const m = raw.match(ATOM_NAME_RE);
+        if (!m) {
+          violations.push(
+            violation(
+              'fact',
+              FACT,
+              i + 1,
+              `invalid column-0 line inside Components block (expected atom-name shape "Name:"): ${JSON.stringify(raw)}.`,
+            ),
+          );
+          continue;
+        }
+        const name = m[1];
+        if (components.has(name)) {
+          violations.push(
+            violation('fact', FACT, i + 1, `duplicate atom name "${name}".`),
+          );
+          continue;
+        }
+        components.add(name);
+      }
+    }
+  }
+
+  // Parse tokens section (only if H2 exists).
+  if (tokensH2 !== -1) {
+    const nextH2AfterTokens = h2Positions.find((h) => h.line > tokensH2);
+    const searchEnd = nextH2AfterTokens ? nextH2AfterTokens.line : lines.length;
+    for (let i = tokensH2 + 1; i < searchEnd; i++) {
+      const raw = lines[i];
+      if (raw.length === 0) continue;
+      if (COMMENT_RE.test(raw.trimStart())) continue;
+      if (/^\s/.test(raw)) {
+        violations.push(
+          violation('fact', FACT, i + 1, `token line has leading whitespace: ${JSON.stringify(raw)}.`),
+        );
+        continue;
+      }
+      if (raw.startsWith('- ')) {
+        violations.push(
+          violation('fact', FACT, i + 1, `token line has bullet prefix "- " (not allowed): ${JSON.stringify(raw)}.`),
+        );
+        continue;
+      }
+      const token = raw;
+      if (tokens.has(token)) {
+        violations.push(
+          violation('fact', FACT, i + 1, `duplicate token "${token}".`),
+        );
+        continue;
+      }
+      tokens.add(token);
+    }
+  }
+
+  return { atoms: { components, tokens }, violations };
+}
+
+// ---------------------------------------------------------------------------
 // main() — composes the pipeline; filled in by Task 9.
 // ---------------------------------------------------------------------------
 
