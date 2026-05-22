@@ -62,3 +62,154 @@ test('readDocs emits sentinel only for the missing file when others exist', () =
   assert.equal(sentinels.length, 1);
   assert.equal(sentinels[0].file, 'pastiche/FACT.md');
 });
+
+import { validateConfig } from './lint.ts';
+
+const VALID_CONFIG = `
+platform: claude-code
+packages:
+  - name: "@org/web"
+    types: "node_modules/@org/web/dist/index.d.ts"
+tokens:
+  - "src/styles/tokens.css"
+design_md_reference: null
+typecheck_command: "tsc --noEmit"
+setup_progress:
+  action-buttons: stub
+  forms-input-collection: stub
+  feedback-status: stub
+  overlays: stub
+  navigation-wayfinding: stub
+  content-display: stub
+  layout-page-structure: stub
+  date-time-selection: stub
+  iconography: stub
+  visual-hierarchy: stub
+  domain-specific-patterns: stub
+  brand-identity: stub
+  general-wisdom: stub
+`;
+
+test('validateConfig: valid config produces zero violations', () => {
+  const r = validateConfig(VALID_CONFIG);
+  assert.deepEqual(r.violations, []);
+  assert.equal(r.config?.platform, 'claude-code');
+});
+
+test('validateConfig: malformed YAML produces a single config violation, config=null', () => {
+  const r = validateConfig('platform: claude-code\n  bad: indent: here\n');
+  assert.equal(r.config, null);
+  assert.equal(r.violations.length, 1);
+  assert.equal(r.violations[0].family, 'config');
+  assert.match(r.violations[0].message, /YAML parse error/);
+});
+
+test('validateConfig: null platform → sentinel', () => {
+  const r = validateConfig(VALID_CONFIG.replace('platform: claude-code', 'platform: null'));
+  const sentinels = r.violations.filter((v) => v.family === 'sentinel');
+  assert.equal(sentinels.length, 1);
+  assert.match(sentinels[0].message, /platform not set/);
+});
+
+test('validateConfig: null typecheck_command → sentinel', () => {
+  const r = validateConfig(
+    VALID_CONFIG.replace('typecheck_command: "tsc --noEmit"', 'typecheck_command: null'),
+  );
+  const sentinels = r.violations.filter((v) => v.family === 'sentinel');
+  assert.equal(sentinels.length, 1);
+  assert.match(sentinels[0].message, /typecheck_command not set/);
+});
+
+test('validateConfig: both packages and tokens empty → sentinel', () => {
+  const r = validateConfig(`
+platform: claude-code
+packages: []
+tokens: []
+design_md_reference: null
+typecheck_command: "tsc"
+setup_progress:
+  action-buttons: stub
+  forms-input-collection: stub
+  feedback-status: stub
+  overlays: stub
+  navigation-wayfinding: stub
+  content-display: stub
+  layout-page-structure: stub
+  date-time-selection: stub
+  iconography: stub
+  visual-hierarchy: stub
+  domain-specific-patterns: stub
+  brand-identity: stub
+  general-wisdom: stub
+`);
+  const sentinels = r.violations.filter((v) => v.family === 'sentinel');
+  assert.ok(sentinels.some((v) => /declare at least one packages entry or one tokens file/.test(v.message)));
+});
+
+test('validateConfig: packages alone non-empty is fine (tokens empty)', () => {
+  const r = validateConfig(VALID_CONFIG.replace('tokens:\n  - "src/styles/tokens.css"', 'tokens: []'));
+  assert.deepEqual(r.violations, []);
+});
+
+test('validateConfig: tokens alone non-empty is fine (packages empty)', () => {
+  const r = validateConfig(VALID_CONFIG.replace(
+    'packages:\n  - name: "@org/web"\n    types: "node_modules/@org/web/dist/index.d.ts"',
+    'packages: []',
+  ));
+  assert.deepEqual(r.violations, []);
+});
+
+test('validateConfig: platform with unknown value → schema violation', () => {
+  const r = validateConfig(VALID_CONFIG.replace('platform: claude-code', 'platform: vscode'));
+  const cfg = r.violations.filter((v) => v.family === 'config');
+  assert.equal(cfg.length, 1);
+  assert.match(cfg[0].message, /platform must be one of: claude-code, codex/);
+});
+
+test('validateConfig: package missing name → schema violation', () => {
+  const r = validateConfig(VALID_CONFIG.replace(
+    '  - name: "@org/web"\n    types: "node_modules/@org/web/dist/index.d.ts"',
+    '  - types: "node_modules/@org/web/dist/index.d.ts"',
+  ));
+  const cfg = r.violations.filter((v) => v.family === 'config');
+  assert.ok(cfg.some((v) => /packages\[0\].name/.test(v.message)));
+});
+
+test('validateConfig: duplicate package names → schema violation', () => {
+  const r = validateConfig(VALID_CONFIG.replace(
+    '  - name: "@org/web"\n    types: "node_modules/@org/web/dist/index.d.ts"',
+    '  - name: "@org/web"\n    types: "a.d.ts"\n  - name: "@org/web"\n    types: "b.d.ts"',
+  ));
+  const cfg = r.violations.filter((v) => v.family === 'config');
+  assert.ok(cfg.some((v) => /duplicate package name/.test(v.message)));
+});
+
+test('validateConfig: package with both types and source_dir → schema violation', () => {
+  const r = validateConfig(VALID_CONFIG.replace(
+    '  - name: "@org/web"\n    types: "node_modules/@org/web/dist/index.d.ts"',
+    '  - name: "@org/web"\n    types: "a.d.ts"\n    source_dir: "src/components"',
+  ));
+  const cfg = r.violations.filter((v) => v.family === 'config');
+  assert.ok(cfg.some((v) => /exactly one of types or source_dir/.test(v.message)));
+});
+
+test('validateConfig: package with neither types nor source_dir → schema violation', () => {
+  const r = validateConfig(VALID_CONFIG.replace(
+    '  - name: "@org/web"\n    types: "node_modules/@org/web/dist/index.d.ts"',
+    '  - name: "@org/web"',
+  ));
+  const cfg = r.violations.filter((v) => v.family === 'config');
+  assert.ok(cfg.some((v) => /exactly one of types or source_dir/.test(v.message)));
+});
+
+test('validateConfig: setup_progress missing a required key → schema violation', () => {
+  const r = validateConfig(VALID_CONFIG.replace('  general-wisdom: stub\n', ''));
+  const cfg = r.violations.filter((v) => v.family === 'config');
+  assert.ok(cfg.some((v) => /setup_progress.*general-wisdom/.test(v.message)));
+});
+
+test('validateConfig: setup_progress value with unknown enum → schema violation', () => {
+  const r = validateConfig(VALID_CONFIG.replace('action-buttons: stub', 'action-buttons: maybe'));
+  const cfg = r.violations.filter((v) => v.family === 'config');
+  assert.ok(cfg.some((v) => /setup_progress\.action-buttons.*one of: stub, done/.test(v.message)));
+});
