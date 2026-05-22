@@ -264,12 +264,21 @@ function extractStringLiteralKeys(node: TypeNode): Set<string> | null {
   if (Node.isUnionTypeNode(node)) {
     const out = new Set<string>();
     for (const m of node.getTypeNodes()) {
-      if (!Node.isLiteralTypeNode(m)) return null;
-      const lit = m.getLiteral();
-      if (!Node.isStringLiteral(lit)) return null;
-      out.add(lit.getLiteralValue());
+      if (Node.isLiteralTypeNode(m)) {
+        const lit = m.getLiteral();
+        if (Node.isStringLiteral(lit)) {
+          out.add(lit.getLiteralValue());
+          continue;
+        }
+        // Accept `null` as a literal-type member (commonly added by cva narrowing).
+        if (lit.getKindName() === 'NullKeyword') continue;
+        return null;
+      }
+      // `undefined` is a KeywordTypeNode in unions (not a LiteralTypeNode).
+      if (m.getKindName() === 'UndefinedKeyword') continue;
+      return null;
     }
-    return out;
+    return out.size > 0 ? out : null;
   }
   return null;
 }

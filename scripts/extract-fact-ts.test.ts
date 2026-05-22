@@ -701,3 +701,31 @@ test('e2e: source_dir fixture produces correct FACT.md', () => {
   // Cleanup
   fs.rmSync(path.join(fixtureRoot, 'pastiche/FACT.md'));
 });
+
+test('renderFact emits flow arrays for unions containing null/undefined members (cva-style)', async () => {
+  const cwd = await mktempCwd({
+    'pastiche/config.yaml': `
+platform: claude-code
+packages:
+  - name: "@org/web"
+    types: dist/index.d.ts
+tokens: []
+`,
+    'dist/index.d.ts': `
+export interface BadgeProps {
+  size?: 'sm' | 'md' | null | undefined;
+  variant?: 'primary' | 'secondary' | null;
+}
+export declare const Badge: React.FC<BadgeProps>;
+`,
+  });
+  const cfg = extractor.loadConfig(cwd);
+  const { packageSources } = extractor.buildProject(cfg, cwd);
+  const comps = extractor.discoverComponentsForPackage(cfg.packages[0], packageSources.get('@org/web')!);
+  const out = extractor.renderFact(comps, []);
+  // Should be flow arrays of barewords, NOT escaped pipe-union strings.
+  assert.match(out, /size\?: \[sm, md\]/);
+  assert.match(out, /variant\?: \[primary, secondary\]/);
+  // Negative: pipe-union form must not leak through.
+  assert.ok(!/"sm" \| "md"/.test(out), 'pipe-union form leaked through');
+});
