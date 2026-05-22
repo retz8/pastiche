@@ -478,3 +478,92 @@ test('lintWisdom: GENERAL counts separately', () => {
   assert.equal(r.counts.generalTags, 2);
   assert.equal(r.counts.factBoundTags, 2);
 });
+
+import { lintKnowledgeRefs } from './lint.ts';
+
+test('lintKnowledgeRefs: known components and tokens pass', () => {
+  const a = atoms(['Button', 'IconButton', 'Form.Input'], ['--color-brand-primary', '.type-display']);
+  const k = `
+### Primary action
+→ \`Button variant="primary"\`
+
+### Icon-only action
+→ \`IconButton\` with \`aria-label\`
+
+### Single-line text input
+→ \`Form.Input\`
+
+### Brand color
+→ \`--color-brand-primary\` pairs with foreground.
+`;
+  const r = lintKnowledgeRefs(k, a);
+  assert.deepEqual(r.violations, []);
+});
+
+test('lintKnowledgeRefs: unknown component fails', () => {
+  const a = atoms(['Button'], []);
+  const k = `→ \`Modal variant="alert"\``;
+  const r = lintKnowledgeRefs(k, a);
+  assert.equal(r.violations.length, 1);
+  assert.match(r.violations[0].message, /unknown component.*Modal/);
+});
+
+test('lintKnowledgeRefs: PascalCase head with trailing prop text — head checked, rest ignored', () => {
+  const a = atoms(['Button'], []);
+  const k = `→ \`Button variant="primary" disabled\``;
+  const r = lintKnowledgeRefs(k, a);
+  assert.deepEqual(r.violations, []);
+});
+
+test('lintKnowledgeRefs: Form.X namespace resolves', () => {
+  const a = atoms(['Form.Input'], []);
+  const k = `→ \`Form.Input\` and also \`Form.Missing\``;
+  const r = lintKnowledgeRefs(k, a);
+  assert.equal(r.violations.length, 1);
+  assert.match(r.violations[0].message, /Form\.Missing/);
+});
+
+test('lintKnowledgeRefs: Tailwind utilities and prop strings ignored', () => {
+  const a = atoms(['Button'], ['--color-foreground']);
+  const k = `
+Use \`gap-2\`, \`rounded-md\`, \`flex items-center\`, \`hover:underline\` and
+\`aria-label\`, \`type="submit"\` — none are atoms.
+`;
+  const r = lintKnowledgeRefs(k, a);
+  assert.deepEqual(r.violations, []);
+});
+
+test('lintKnowledgeRefs: non-PascalCase token span not in FACT is silently ignored (FACT-membership-only)', () => {
+  const a = atoms([], ['--color-brand-primary']);
+  // misspelled token — per spec grill 1 decision (A), no shape regex, no typo catch.
+  const k = `Use \`--color-brand-typo\` here.`;
+  const r = lintKnowledgeRefs(k, a);
+  assert.deepEqual(r.violations, []);
+  assert.equal(r.counts.ignored, 1);
+});
+
+test('lintKnowledgeRefs: HTML comments are skipped', () => {
+  const a = atoms(['Button'], []);
+  const k = `<!-- example uses \`Modal\` -->\n→ \`Button\``;
+  const r = lintKnowledgeRefs(k, a);
+  assert.deepEqual(r.violations, []);
+});
+
+test('lintKnowledgeRefs: counts component/token/ignored spans', () => {
+  const a = atoms(['Button'], ['--color-foreground']);
+  const k = `
+→ \`Button variant="primary"\`, also \`gap-2\`, \`--color-foreground\`, \`flex items-center\`.
+`;
+  const r = lintKnowledgeRefs(k, a);
+  assert.equal(r.counts.codeSpansChecked, 4);
+  assert.equal(r.counts.componentRefs, 1);
+  assert.equal(r.counts.tokenRefs, 1);
+  assert.equal(r.counts.ignored, 2);
+});
+
+test('lintKnowledgeRefs: missing line numbers point at the violation', () => {
+  const a = atoms(['Button'], []);
+  const k = `\n\n→ \`Modal\`\n`;
+  const r = lintKnowledgeRefs(k, a);
+  assert.equal(r.violations[0].line, 3);
+});

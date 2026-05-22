@@ -584,6 +584,76 @@ export function lintWisdom(text: string, atomsArg: FactAtoms): LintWisdomResult 
 }
 
 // ---------------------------------------------------------------------------
+// KNOWLEDGE refs lint (FACT-membership-only per spec decision 1)
+// ---------------------------------------------------------------------------
+
+const KNOWLEDGE = 'pastiche/KNOWLEDGE.md';
+const KNOWLEDGE_CODE_SPAN_RE = /`([^`]+)`/g;
+const PASCAL_HEAD_RE = /^([A-Z][A-Za-z0-9]*(?:\.[A-Z][A-Za-z0-9]*)?)\b/;
+
+export interface LintKnowledgeRefsCounts {
+  codeSpansChecked: number;
+  componentRefs: number;
+  tokenRefs: number;
+  ignored: number;
+}
+
+export interface LintKnowledgeRefsResult {
+  violations: Violation[];
+  counts: LintKnowledgeRefsCounts;
+}
+
+export function lintKnowledgeRefs(
+  text: string,
+  atomsArg: FactAtoms,
+): LintKnowledgeRefsResult {
+  const violations: Violation[] = [];
+  let codeSpansChecked = 0;
+  let componentRefs = 0;
+  let tokenRefs = 0;
+  let ignored = 0;
+
+  const lines = text.split('\n');
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+    if (line.trimStart().startsWith('<!--')) continue;
+    let m: RegExpExecArray | null;
+    KNOWLEDGE_CODE_SPAN_RE.lastIndex = 0;
+    while ((m = KNOWLEDGE_CODE_SPAN_RE.exec(line)) !== null) {
+      const span = m[1].trim();
+      codeSpansChecked++;
+      const head = span.match(PASCAL_HEAD_RE);
+      if (head) {
+        const name = head[1];
+        if (atomsArg.components.has(name)) {
+          componentRefs++;
+        } else {
+          violations.push(
+            violation(
+              'knowledge',
+              KNOWLEDGE,
+              i + 1,
+              `unknown component \`${name}\` (in \`${span}\`) — not in FACT.md.`,
+            ),
+          );
+        }
+        continue;
+      }
+      if (atomsArg.tokens.has(span)) {
+        tokenRefs++;
+        continue;
+      }
+      ignored++;
+    }
+  }
+
+  return {
+    violations,
+    counts: { codeSpansChecked, componentRefs, tokenRefs, ignored },
+  };
+}
+
+// ---------------------------------------------------------------------------
 // main() — composes the pipeline; filled in by Task 9.
 // ---------------------------------------------------------------------------
 
