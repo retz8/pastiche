@@ -20,7 +20,7 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import * as YAML from 'yaml';
-import { SETUP_PROGRESS_KEYS } from './canonical-sections.ts';
+import { CANONICAL_SECTIONS, SETUP_PROGRESS_KEYS } from './canonical-sections.ts';
 
 // ---------------------------------------------------------------------------
 // Public types
@@ -651,6 +651,41 @@ export function lintKnowledgeRefs(
     violations,
     counts: { codeSpansChecked, componentRefs, tokenRefs, ignored },
   };
+}
+
+// ---------------------------------------------------------------------------
+// KNOWLEDGE canonical sections check
+// ---------------------------------------------------------------------------
+
+export interface LintKnowledgeSectionsResult {
+  violations: Violation[];
+  found: number;
+}
+
+export function lintKnowledgeSections(text: string): LintKnowledgeSectionsResult {
+  const violations: Violation[] = [];
+  const present = new Set<string>();
+  const lines = text.split('\n');
+  for (const line of lines) {
+    const m = line.match(H2_RE);
+    if (m) present.add(m[1].trim());
+  }
+  let found = 0;
+  for (const section of CANONICAL_SECTIONS) {
+    if (present.has(section.name)) {
+      found++;
+    } else {
+      violations.push(
+        violation(
+          'knowledge',
+          KNOWLEDGE,
+          1,
+          `missing canonical section: "## ${section.name}" (may be an empty stub).`,
+        ),
+      );
+    }
+  }
+  return { violations, found };
 }
 
 // ---------------------------------------------------------------------------

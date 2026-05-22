@@ -567,3 +567,38 @@ test('lintKnowledgeRefs: missing line numbers point at the violation', () => {
   const r = lintKnowledgeRefs(k, a);
   assert.equal(r.violations[0].line, 3);
 });
+
+import { lintKnowledgeSections } from './lint.ts';
+import { CANONICAL_SECTIONS } from './canonical-sections.ts';
+
+function knowledgeWithAllSections(): string {
+  return CANONICAL_SECTIONS.map((s) => `## ${s.name}\n\n_(empty)_\n`).join('\n');
+}
+
+test('lintKnowledgeSections: all 12 canonical sections present → no violations', () => {
+  const r = lintKnowledgeSections(knowledgeWithAllSections());
+  assert.deepEqual(r.violations, []);
+  assert.equal(r.found, 12);
+});
+
+test('lintKnowledgeSections: missing one canonical section → one violation', () => {
+  const text = knowledgeWithAllSections().replace('## Brand Identity\n\n_(empty)_\n', '');
+  const r = lintKnowledgeSections(text);
+  assert.equal(r.violations.length, 1);
+  assert.match(r.violations[0].message, /missing canonical section.*Brand Identity/);
+  assert.equal(r.found, 11);
+});
+
+test('lintKnowledgeSections: extra non-canonical H2 is allowed', () => {
+  const text = knowledgeWithAllSections() + '\n## Extra Section\n\n_(custom)_\n';
+  const r = lintKnowledgeSections(text);
+  assert.deepEqual(r.violations, []);
+  assert.equal(r.found, 12);
+});
+
+test('lintKnowledgeSections: section names matched exactly (case + spacing)', () => {
+  const text = knowledgeWithAllSections().replace('## Brand Identity', '## brand identity');
+  const r = lintKnowledgeSections(text);
+  assert.equal(r.violations.length, 1);
+  assert.match(r.violations[0].message, /Brand Identity/);
+});
