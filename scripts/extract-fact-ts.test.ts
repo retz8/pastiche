@@ -4,6 +4,22 @@ import * as extractor from './extract-fact-ts.ts';
 import * as os from 'node:os';
 import * as fsp from 'node:fs/promises';
 import * as path from 'node:path';
+import { spawnSync } from 'node:child_process';
+import { fileURLToPath } from 'node:url';
+
+const SCRIPT_PATH = fileURLToPath(new URL('./extract-fact-ts.ts', import.meta.url));
+
+const TSX_LOADER = fileURLToPath(
+  new URL('../node_modules/tsx/dist/loader.mjs', import.meta.url),
+);
+
+function runMain(cwd: string): { stdout: string; stderr: string; status: number } {
+  const res = spawnSync(process.execPath, ['--import', TSX_LOADER, SCRIPT_PATH], {
+    cwd,
+    encoding: 'utf8',
+  });
+  return { stdout: res.stdout, stderr: res.stderr, status: res.status ?? -1 };
+}
 
 test('module exports all pipeline stages', () => {
   assert.equal(typeof extractor.loadConfig, 'function');
@@ -599,4 +615,38 @@ export declare const Avatar: React.FC<AvatarProps>;
   assert.ok(fenceClose > fenceOpen, 'expected matching ``` close');
   assert.ok(out.indexOf('Avatar:') > fenceOpen);
   assert.ok(out.indexOf('Avatar:') < fenceClose);
+});
+
+test('main exits 1 with actionable message when config is missing', async () => {
+  const cwd = await mktempCwd({});
+  const { status, stderr } = runMain(cwd);
+  assert.equal(status, 1);
+  assert.match(stderr, /pastiche\/config\.yaml not found/);
+  assert.match(stderr, /\/pastiche-init/);
+});
+
+test('main writes FACT.md to pastiche/FACT.md on success', async () => {
+  const cwd = await mktempCwd({
+    'pastiche/config.yaml': `
+platform: claude-code
+packages:
+  - name: "@org/web"
+    types: dist/index.d.ts
+tokens:
+  - styles/theme.css
+`,
+    'dist/index.d.ts': `
+export interface ButtonProps { size?: 'sm' | 'md'; }
+export declare const Button: React.FC<ButtonProps>;
+`,
+    'styles/theme.css': `:root { --color-primary: red; }`,
+  });
+  const { status, stdout, stderr } = runMain(cwd);
+  assert.equal(status, 0, `expected exit 0, stderr was: ${stderr}`);
+  const fact = await fsp.readFile(path.join(cwd, 'pastiche/FACT.md'), 'utf8');
+  assert.match(fact, /^Button:/m);
+  assert.match(fact, /pkg: "@org\/web"/);
+  assert.match(fact, /size\?: \[sm, md\]/);
+  assert.match(fact, /^--color-primary$/m);
+  assert.match(stdout, /pastiche\/FACT\.md/);
 });

@@ -922,7 +922,32 @@ export function renderFact(components: Component[], tokens: string[]): string {
 // ---------------------------------------------------------------------------
 
 function main(): void {
-  throw new Error('main: not implemented yet (Task 11)');
+  const cwd = process.cwd();
+  let cfg: Config;
+  try {
+    cfg = loadConfig(cwd);
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    process.stderr.write(msg + '\n');
+    process.exit(1);
+  }
+
+  const { packageSources } = buildProject(cfg, cwd);
+  const allComps: Component[] = [];
+  for (const pkg of cfg.packages) {
+    const sources = packageSources.get(pkg.name)!;
+    allComps.push(...discoverComponentsForPackage(pkg, sources));
+  }
+  const deduped = dedupeComponents(allComps);
+  const tokens = extractTokens(cfg.tokens, cwd);
+  const fact = renderFact(deduped, tokens);
+
+  const factPath = path.join(cwd, 'pastiche', 'FACT.md');
+  fs.mkdirSync(path.dirname(factPath), { recursive: true });
+  fs.writeFileSync(factPath, fact, 'utf8');
+  process.stdout.write(
+    `Wrote pastiche/FACT.md: ${deduped.length} components, ${tokens.length} tokens.\n`,
+  );
 }
 
 if (import.meta.url === `file://${process.argv[1]}`) {
