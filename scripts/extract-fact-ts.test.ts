@@ -205,3 +205,73 @@ test('extractTokens does not match keyframe selectors as classes', async () => {
   assert.ok(!tokens.includes('.from'));
   assert.ok(!tokens.includes('.to'));
 });
+
+test('collectSourceFiles returns .tsx and .ts files sorted', async () => {
+  const cwd = await mktempCwd({
+    'src/ui/Card.tsx': '',
+    'src/ui/Button.tsx': '',
+    'src/ui/types.ts': '',
+  });
+  const files = extractor.collectSourceFiles('src/ui', cwd);
+  const names = files.map(f => path.basename(f));
+  assert.deepEqual(names, ['Button.tsx', 'Card.tsx', 'types.ts']);
+});
+
+test('collectSourceFiles recurses into subdirectories', async () => {
+  const cwd = await mktempCwd({
+    'src/ui/Button.tsx': '',
+    'src/ui/forms/Input.tsx': '',
+    'src/ui/forms/Select.tsx': '',
+  });
+  const files = extractor.collectSourceFiles('src/ui', cwd);
+  const names = files.map(f => path.relative(path.join(cwd, 'src/ui'), f));
+  assert.ok(names.includes('Button.tsx'));
+  assert.ok(names.includes(path.join('forms', 'Input.tsx')));
+  assert.ok(names.includes(path.join('forms', 'Select.tsx')));
+});
+
+test('collectSourceFiles skips .test, .stories, .spec sidecars', async () => {
+  const cwd = await mktempCwd({
+    'src/ui/Button.tsx': '',
+    'src/ui/Button.test.tsx': '',
+    'src/ui/Button.stories.tsx': '',
+    'src/ui/Button.spec.tsx': '',
+    'src/ui/Card.test.ts': '',
+    'src/ui/Helper.stories.ts': '',
+  });
+  const files = extractor.collectSourceFiles('src/ui', cwd);
+  const names = files.map(f => path.basename(f));
+  assert.deepEqual(names, ['Button.tsx']);
+});
+
+test('collectSourceFiles skips .d.ts files', async () => {
+  const cwd = await mktempCwd({
+    'src/ui/Button.tsx': '',
+    'src/ui/types.d.ts': '',
+  });
+  const files = extractor.collectSourceFiles('src/ui', cwd);
+  const names = files.map(f => path.basename(f));
+  assert.deepEqual(names, ['Button.tsx']);
+});
+
+test('collectSourceFiles skips .jsx and .js files', async () => {
+  const cwd = await mktempCwd({
+    'src/ui/Button.tsx': '',
+    'src/ui/legacy.js': '',
+    'src/ui/old.jsx': '',
+  });
+  const files = extractor.collectSourceFiles('src/ui', cwd);
+  const names = files.map(f => path.basename(f));
+  assert.deepEqual(names, ['Button.tsx']);
+});
+
+test('collectSourceFiles output is deterministic regardless of filesystem order', async () => {
+  const cwd = await mktempCwd({
+    'src/ui/Zeta.tsx': '',
+    'src/ui/Yankee.tsx': '',
+    'src/ui/Alpha.tsx': '',
+  });
+  const files = extractor.collectSourceFiles('src/ui', cwd);
+  const names = files.map(f => path.basename(f));
+  assert.deepEqual(names, ['Alpha.tsx', 'Yankee.tsx', 'Zeta.tsx']);
+});

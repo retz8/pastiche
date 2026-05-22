@@ -53,6 +53,9 @@ export interface ResolveCtx {
   visiting: Set<string>;
 }
 
+const SOURCE_EXTS = new Set(['.ts', '.tsx']);
+const SIDECAR_RE = /\.(test|stories|spec)\.(ts|tsx)$/;
+
 // ---------------------------------------------------------------------------
 // Pipeline stages — stubs filled in by subsequent tasks
 // ---------------------------------------------------------------------------
@@ -183,8 +186,21 @@ export function extractTokens(cssPaths: string[], cwd: string): string[] {
   return out;
 }
 
-export function collectSourceFiles(_dir: string, _cwd: string): string[] {
-  throw new Error('collectSourceFiles: not implemented yet (Task 5)');
+export function collectSourceFiles(dir: string, cwd: string): string[] {
+  const root = path.resolve(cwd, dir);
+  const entries = fs.readdirSync(root, { recursive: true, withFileTypes: true });
+  const out: string[] = [];
+  for (const e of entries) {
+    if (!e.isFile()) continue;
+    const full = path.join(e.parentPath ?? root, e.name);
+    if (e.name.endsWith('.d.ts')) continue;
+    const ext = path.extname(e.name);
+    if (!SOURCE_EXTS.has(ext)) continue;
+    if (SIDECAR_RE.test(e.name)) continue;
+    out.push(full);
+  }
+  out.sort();
+  return out;
 }
 
 export function buildProject(
