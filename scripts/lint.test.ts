@@ -348,3 +348,133 @@ MDX_Heading:
   assert.ok(r.atoms.components.has('Form.Input'));
   assert.ok(r.atoms.components.has('MDX_Heading'));
 });
+
+import { lintWisdom } from './lint.ts';
+
+function atoms(components: string[], tokens: string[]) {
+  return { components: new Set(components), tokens: new Set(tokens) };
+}
+
+test('lintWisdom: valid strict-format tags pass', () => {
+  const a = atoms(['Button', 'IconButton', 'Form.Input'], ['--color-brand-primary', '.type-display']);
+  const w = `
+- [Button] Default type is "button".
+- [Button,IconButton] Dual-ring focus.
+- [GENERAL] No dark mode.
+- [--color-brand-primary] Pairs with foreground.
+- [.type-display,Button] Use tracking-tight.
+`;
+  const r = lintWisdom(w, a);
+  assert.deepEqual(r.violations, []);
+  assert.equal(r.counts.tagsChecked, 7);
+  assert.equal(r.counts.generalTags, 1);
+});
+
+test('lintWisdom: unknown tag fails', () => {
+  const a = atoms(['Button'], []);
+  const w = `
+- [Button] ok.
+- [Modal] stale tag.
+`;
+  const r = lintWisdom(w, a);
+  assert.equal(r.violations.length, 1);
+  assert.match(r.violations[0].message, /unknown tag.*Modal/);
+  assert.equal(r.violations[0].line, 3);
+});
+
+test('lintWisdom: whitespace inside bracket → malformed tag group', () => {
+  const a = atoms(['Button', 'IconButton'], []);
+  const w = `- [Button, IconButton] should fail strict format.`;
+  const r = lintWisdom(w, a);
+  assert.equal(r.violations.length, 1);
+  assert.match(r.violations[0].message, /malformed tag group/);
+});
+
+test('lintWisdom: legacy concatenated [A][B] → rejected', () => {
+  const a = atoms(['Button', 'IconButton'], []);
+  const w = `- [Button][IconButton] legacy form.`;
+  const r = lintWisdom(w, a);
+  assert.equal(r.violations.length, 1);
+  assert.match(r.violations[0].message, /legacy concatenated/);
+});
+
+test('lintWisdom: empty [] → malformed tag group', () => {
+  const a = atoms(['Button'], []);
+  const r = lintWisdom(`- [] rule.`, a);
+  assert.equal(r.violations.length, 1);
+  assert.match(r.violations[0].message, /malformed tag group/);
+});
+
+test('lintWisdom: leading comma [,A] → malformed tag group', () => {
+  const a = atoms(['Button'], []);
+  const r = lintWisdom(`- [,Button] rule.`, a);
+  assert.equal(r.violations.length, 1);
+  assert.match(r.violations[0].message, /malformed tag group/);
+});
+
+test('lintWisdom: trailing comma [A,] → malformed tag group', () => {
+  const a = atoms(['Button'], []);
+  const r = lintWisdom(`- [Button,] rule.`, a);
+  assert.equal(r.violations.length, 1);
+  assert.match(r.violations[0].message, /malformed tag group/);
+});
+
+test('lintWisdom: double comma [A,,B] → malformed tag group', () => {
+  const a = atoms(['Button', 'IconButton'], []);
+  const r = lintWisdom(`- [Button,,IconButton] rule.`, a);
+  assert.equal(r.violations.length, 1);
+  assert.match(r.violations[0].message, /malformed tag group/);
+});
+
+test('lintWisdom: whitespace-only [ ] → malformed tag group', () => {
+  const a = atoms([], []);
+  const r = lintWisdom(`- [ ] rule.`, a);
+  assert.equal(r.violations.length, 1);
+  assert.match(r.violations[0].message, /malformed tag group/);
+});
+
+test('lintWisdom: brackets inside code-spans are not tags', () => {
+  const a = atoms(['Button'], []);
+  const w = `- [Button] never use \`px-[24px]\` or \`mt-[13px]\`.`;
+  const r = lintWisdom(w, a);
+  assert.deepEqual(r.violations, []);
+});
+
+test('lintWisdom: subsequent bracket in prose is not a tag (leading-only)', () => {
+  const a = atoms(['Button'], []);
+  const w = `- [Button] later prose mentions [Modal] but Modal is not a tag here.`;
+  const r = lintWisdom(w, a);
+  assert.deepEqual(r.violations, []);
+});
+
+test('lintWisdom: HTML comments are skipped', () => {
+  const a = atoms(['Button'], []);
+  const w = `<!-- example: [Foo,Bar] -->\n- [Button] ok.`;
+  const r = lintWisdom(w, a);
+  assert.deepEqual(r.violations, []);
+});
+
+test('lintWisdom: lines without leading "- [" are skipped (continuation, prose, blank)', () => {
+  const a = atoms(['Button'], []);
+  const w = `
+some intro prose with [Modal] in it.
+- [Button] rule.
+  continuation line with [Modal].
+`;
+  const r = lintWisdom(w, a);
+  assert.deepEqual(r.violations, []);
+});
+
+test('lintWisdom: GENERAL counts separately', () => {
+  const a = atoms(['Button'], []);
+  const w = `
+- [Button] rule one.
+- [GENERAL] rule two.
+- [Button,GENERAL] paired.
+`;
+  const r = lintWisdom(w, a);
+  assert.deepEqual(r.violations, []);
+  assert.equal(r.counts.tagsChecked, 4);
+  assert.equal(r.counts.generalTags, 2);
+  assert.equal(r.counts.factBoundTags, 2);
+});

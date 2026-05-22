@@ -470,6 +470,120 @@ export function parseAndValidateFact(text: string): ParseAndValidateFactResult {
 }
 
 // ---------------------------------------------------------------------------
+// WISDOM tag lint (strict format per spec decision 6)
+// ---------------------------------------------------------------------------
+
+const WISDOM = 'pastiche/WISDOM.md';
+const TAG_CHAR_RE = /^[A-Za-z0-9_.\-]+$/;
+const ALLOW_LISTED_TAGS = new Set(['GENERAL']);
+const LEADING_BULLET_RE = /^- \[([^\]]*)\]/;
+const CODE_SPAN_RE = /`[^`]*`/g;
+
+export interface LintWisdomCounts {
+  tagsChecked: number;
+  generalTags: number;
+  factBoundTags: number;
+}
+
+export interface LintWisdomResult {
+  violations: Violation[];
+  counts: LintWisdomCounts;
+}
+
+export function lintWisdom(text: string, atomsArg: FactAtoms): LintWisdomResult {
+  const violations: Violation[] = [];
+  const validAtoms = new Set([...atomsArg.components, ...atomsArg.tokens]);
+  let tagsChecked = 0;
+  let generalTags = 0;
+  let factBoundTags = 0;
+
+  const lines = text.split('\n');
+  for (let i = 0; i < lines.length; i++) {
+    const raw = lines[i];
+    if (raw.trimStart().startsWith('<!--')) continue;
+
+    // Strip backtick code-spans so bracketed Tailwind/arbitrary values inside
+    // backticks don't get parsed as tag groups.
+    const stripped = raw.replace(CODE_SPAN_RE, '');
+
+    // Only the leading "- [...]" bracket group is a tag group.
+    const m = stripped.match(LEADING_BULLET_RE);
+    if (!m) continue;
+    const inner = m[1];
+
+    // Legacy concatenated [A][B] form check — after the closing ] of the
+    // first bracket group, is the next character '['?
+    const closingIdx = stripped.indexOf(']');
+    if (closingIdx >= 0 && stripped[closingIdx + 1] === '[') {
+      violations.push(
+        violation(
+          'wisdom',
+          WISDOM,
+          i + 1,
+          'legacy concatenated bracket form "[A][B]" is not allowed — use "[A,B]".',
+        ),
+      );
+      continue;
+    }
+
+    // Malformed bracket group checks.
+    const isMalformed =
+      inner.length === 0 ||
+      /\s/.test(inner) ||
+      inner.startsWith(',') ||
+      inner.endsWith(',') ||
+      inner.includes(',,');
+    if (isMalformed) {
+      violations.push(
+        violation(
+          'wisdom',
+          WISDOM,
+          i + 1,
+          `malformed tag group "[${inner}]" — use strict [Tag1,Tag2,...] with no whitespace.`,
+        ),
+      );
+      continue;
+    }
+
+    // Split and validate each tag.
+    const tags = inner.split(',');
+    let lineHadInvalidShape = false;
+    for (const tag of tags) {
+      if (!TAG_CHAR_RE.test(tag)) {
+        violations.push(
+          violation(
+            'wisdom',
+            WISDOM,
+            i + 1,
+            `malformed tag group "[${inner}]" — tag "${tag}" has invalid characters.`,
+          ),
+        );
+        lineHadInvalidShape = true;
+        break;
+      }
+    }
+    if (lineHadInvalidShape) continue;
+
+    for (const tag of tags) {
+      tagsChecked++;
+      if (ALLOW_LISTED_TAGS.has(tag)) {
+        generalTags++;
+        continue;
+      }
+      if (!validAtoms.has(tag)) {
+        violations.push(
+          violation('wisdom', WISDOM, i + 1, `unknown tag [${tag}] — not in FACT.md.`),
+        );
+        continue;
+      }
+      factBoundTags++;
+    }
+  }
+
+  return { violations, counts: { tagsChecked, generalTags, factBoundTags } };
+}
+
+// ---------------------------------------------------------------------------
 // main() — composes the pipeline; filled in by Task 9.
 // ---------------------------------------------------------------------------
 
