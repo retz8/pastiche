@@ -469,8 +469,8 @@ setup_progress:
 Field semantics:
 
 - **`platform`** — single string (`claude-code` or `codex`). v1 generates one adapter tree per `init`; switching platforms means re-running `init`.
-- **`packages`** — list of `{name, types | source_dir, ...}` entries. `name` is required and unique. Exactly one of `types` (aggregate `.d.ts`) or `source_dir` (source-walk) per entry. Optional `extensions` (on `source_dir`; default `[".tsx", ".ts"]`). See §9.4.1 for shapes.
-- **`tokens`** — list of `{format, source, ...}` entries. `format` ∈ {`tailwind-v4-theme`, `css-vars`}. Optional `selectors` (on `css-vars`; default `[":root"]`). See §9.4.1 for shapes.
+- **`packages`** — list of `{name, types | source_dir}` entries. `name` is required and unique. Exactly one of `types` (aggregate `.d.ts`) or `source_dir` (source-walk) per entry. Source-walk extensions are hard-coded as `.tsx` and `.ts`; no per-entry extension override. See §9.4.1 for shapes.
+- **`tokens`** — list of CSS file paths (strings). The extractor scans each file with a single unified parser that harvests every CSS custom property (`--*`) declared anywhere in the file regardless of selector — `@theme { ... }`, `:root { ... }`, `[data-theme="dark"] { ... }`, etc. — and every class selector (`.btn-primary`, `.text-h1`). See §9.4.1 for shapes.
 - **`design_md_reference`** — path string (or `null`); not a boolean. Allows non-root locations. `/pastiche-setup` writes the discovered path during opt-in. Path-safety checks (resolve, in-repo, readable) apply at both read and write time.
 - **`typecheck_command`** — full shell command (e.g. `"pnpm typecheck"`). `null` means implementer agents skip the typecheck step.
 - **`setup_progress`** — 13 kebab-case section slugs (12 KNOWLEDGE sections + `general-wisdom`). Same slugs accepted as `/pastiche-setup --section <slug>`. State flips from `stub` → `done` as setup walks each section.
@@ -483,7 +483,7 @@ Per-field reference for the release docs lives in `docs/config.md`, which hydrat
 
 ### 9.4.1 Stack scenarios
 
-v1 supports four combinations of component-source mode (`types` or `source_dir`) × token format (`tailwind-v4-theme` or `css-vars`). Other shapes (`types_glob` per-file `.d.ts`, `tailwind-v3-config`, `dtcg-json`, `js-export`, `classes`-as-format, per-entry `exclude`/`prefix`) are deferred to v1.x and fail-closed at lint time with clear error messages.
+v1 supports two component-source modes (`types` aggregate `.d.ts` or `source_dir` source-walk) and a single CSS token shape (a list of CSS file paths, parsed by the unified extractor). Other component shapes (`types_glob` per-file `.d.ts`) and other token shapes (`tailwind-v3-config`, `dtcg-json`, `js-export`) are deferred to v1.x and fail-closed at lint time with clear error messages.
 
 **Scenario 1 — monorepo with aggregate `.d.ts` + Tailwind v4 theme** (e.g. KISA-style internal DS)
 
@@ -495,8 +495,7 @@ packages:
   - name: "@umichkisa-ds/form"
     types: packages/form/dist/index.d.ts
 tokens:
-  - format: tailwind-v4-theme
-    source: src/styles/theme.css
+  - src/styles/theme.css
 ```
 
 **Scenario 2 — npm aggregate `.d.ts` + CSS-vars token files** (e.g. Primer; MUI with custom CSS vars)
@@ -507,10 +506,8 @@ packages:
   - name: "@primer/react"
     types: node_modules/@primer/react/dist/index.d.ts
 tokens:
-  - format: css-vars
-    source: node_modules/@primer/primitives/dist/css/colors/light.css
-  - format: css-vars
-    source: node_modules/@primer/primitives/dist/css/base/size.css
+  - node_modules/@primer/primitives/dist/css/colors/light.css
+  - node_modules/@primer/primitives/dist/css/base/size.css
 ```
 
 **Scenario 3 — shadcn-style source-walk + Tailwind v4** (the canonical 2026 React/Tailwind setup)
@@ -521,8 +518,7 @@ packages:
   - name: ui
     source_dir: src/components/ui
 tokens:
-  - format: tailwind-v4-theme
-    source: src/app/globals.css
+  - src/app/globals.css
 ```
 
 **Scenario 4 — shadcn source-walk + multiple token files**
@@ -535,17 +531,15 @@ packages:
   - name: brand
     source_dir: src/components/brand
 tokens:
-  - format: tailwind-v4-theme
-    source: src/app/globals.css
-  - format: css-vars
-    source: src/styles/brand-tokens.css
+  - src/app/globals.css
+  - src/styles/brand-tokens.css
 ```
 
 Cross-scenario notes:
 
-- Ordering in `packages` is preserved; on duplicate component-name exports, the first-listed entry wins (deterministic for FACT output and reviewer reads).
-- For `css-vars`, both `--*` custom properties and class selectors (`.btn-primary`, `.text-h1`) declared in the same file are harvested as token-atoms. The same is true for `tailwind-v4-theme`. There is no separate `classes` format in v1.
-- Multiple `tokens` entries layer freely (Tailwind theme + brand overrides + dark-mode stylesheet).
+- Ordering in `packages` is preserved; on duplicate component-name exports, the first-listed entry wins (deterministic for FACT output and reviewer reads). The extractor emits a stderr warning naming both packages when a collision is dropped.
+- `tokens` is always a list. Single-file consumers write a one-element list — no scalar shorthand. Multiple files layer freely (Tailwind theme + brand overrides + dark-mode stylesheet); on duplicate token names across files, first-encountered wins silently.
+- The unified parser harvests both `--*` custom properties and class selectors (`.btn-primary`, `.text-h1`) from every CSS file. Custom properties are harvested regardless of which selector contains them — `@theme { ... }`, `:root { ... }`, `[data-theme="dark"] { ... }` all work.
 
 ---
 

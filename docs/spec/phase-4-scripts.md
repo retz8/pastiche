@@ -86,6 +86,10 @@ The only artifacts that land in the adopter's repo are under `pastiche/` — the
 - Canonical sources stay platform-agnostic. Neither script embeds KISA atom names, paths, or phrasing.
 - Skill bodies invoke scripts as Node subprocesses via the plugin root (resolved at runtime); no hard-coded paths to `~/.claude/plugins/pastiche/`.
 
+## Amendments
+
+- **2026-05-22 (task 4.1).** Config schema simplified — `tokens` becomes a list of CSS file paths (no per-entry `format`/`selectors`); `packages` drops the `extensions` sub-field (`.tsx`/`.ts` hard-coded). Amends `docs/spec/task-2.4-config-template.md` decisions 14, 15, 21 and OSS_SPEC §9.4 + §9.4.1. Full rationale: `docs/spec/task-4.1-extract-fact-ts.md`.
+
 ## Open items
 
 These were raised and explicitly deferred during the grill. They do not block Phase 4 and are not resolved by this spec.

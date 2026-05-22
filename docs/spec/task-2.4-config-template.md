@@ -76,20 +76,23 @@ packages:
 
 `name` is required and unique across entries (lint-enforced). Ordering preserved; first-listed wins on duplicate component exports. List form (vs map keyed by package name) accommodates `source_dir` mode where `name` is a human label, not an npm package specifier.
 
-### 14. `tokens` as list of `{format, source}` entries
+### 14. `tokens` as list of CSS file paths
+
+> **Amended 2026-05-22 by task 4.1** — superseded the original "list of `{format, source, selectors?}` entries" decision. See `docs/spec/task-4.1-extract-fact-ts.md` for rationale (`@theme {}`, `:root {}`, and other selectors are all handled by one unified regex parser; per-entry `format` and `selectors` discriminators bought nothing the flat-name FACT output could express).
 
 ```yaml
 tokens:
-  - format: tailwind-v4-theme | css-vars
-    source: <path>
-    selectors: [...]       # css-vars only, optional
+  - <path>
+  - <path>
 ```
 
-Composability — real consumers layer multiple token files (Tailwind theme + brand overrides + dark-mode stylesheet). Format is explicit per entry because `@theme {}` and `:root {}` need different parsers.
+Always a list. Single-file consumers write a one-element list — no scalar shorthand. The unified extractor scans each file for both `--*` custom properties (regardless of containing selector) and class selectors. On duplicate token names across files, first-encountered wins silently.
 
 ### 15. Per-entry optional sub-fields shipped in v1
 
-`extensions` (on `source_dir` package entries; default `[".tsx", ".ts"]`) and `selectors` (on `css-vars` token entries; default `[":root"]`). Deferred to v1.x: `exclude` (per-package glob array) and `prefix` (per-token filter) — no scenario in the research needs them yet.
+> **Amended 2026-05-22 by task 4.1** — `extensions` is removed; `selectors` is removed (subsumed by decision 14's amendment).
+
+No per-entry optional sub-fields ship in v1. Source-walk extensions are hard-coded as `.tsx` and `.ts`. Token-file scanning is uniform across selectors. Deferred to v1.x: `exclude` (per-package glob array), `prefix` (per-token filter), and any per-entry override surface that real adopter scenarios justify.
 
 ### 16. `design_md_reference` field semantics
 
@@ -129,9 +132,11 @@ Init-filled fields first; skill-mutated state last. Signals "machine-managed, do
 
 ### 21. Four stack scenarios (capture mandate)
 
+> **Amended 2026-05-22 by task 4.1** — scenarios rewritten to use the amended decision-14 token shape (list of CSS paths) and to drop `extensions` per amended decision 15.
+
 The following four scenarios + full configs are part of the locked output of this grill, to be embedded verbatim in OSS_SPEC §9.4.1 and referenced by the task's release-doc descendants (`docs/config.md`).
 
-**Scenario 1 — KISA-style monorepo (`types` + `tailwind-v4-theme`)**
+**Scenario 1 — KISA-style monorepo (`types` + Tailwind v4)**
 
 ```yaml
 platform: claude-code
@@ -141,11 +146,10 @@ packages:
   - name: "@umichkisa-ds/form"
     types: packages/form/dist/index.d.ts
 tokens:
-  - format: tailwind-v4-theme
-    source: src/styles/theme.css
+  - src/styles/theme.css
 ```
 
-**Scenario 2 — npm aggregate `.d.ts` + CSS vars (MUI / Primer shape)**
+**Scenario 2 — npm aggregate `.d.ts` + multiple CSS-vars files (MUI / Primer shape)**
 
 ```yaml
 platform: claude-code
@@ -153,10 +157,8 @@ packages:
   - name: "@primer/react"
     types: node_modules/@primer/react/dist/index.d.ts
 tokens:
-  - format: css-vars
-    source: node_modules/@primer/primitives/dist/css/colors/light.css
-  - format: css-vars
-    source: node_modules/@primer/primitives/dist/css/base/size.css
+  - node_modules/@primer/primitives/dist/css/colors/light.css
+  - node_modules/@primer/primitives/dist/css/base/size.css
 ```
 
 **Scenario 3 — Shadcn (canonical 2026 setup)**
@@ -167,8 +169,7 @@ packages:
   - name: ui
     source_dir: src/components/ui
 tokens:
-  - format: tailwind-v4-theme
-    source: src/app/globals.css
+  - src/app/globals.css
 ```
 
 **Scenario 4 — Shadcn + custom CSS vars**
@@ -181,10 +182,8 @@ packages:
   - name: brand
     source_dir: src/components/brand
 tokens:
-  - format: tailwind-v4-theme
-    source: src/app/globals.css
-  - format: css-vars
-    source: src/styles/brand-tokens.css
+  - src/app/globals.css
+  - src/styles/brand-tokens.css
 ```
 
 ### 22. OSS_SPEC + TODO edit list
@@ -204,7 +203,7 @@ Performed in the same commit as the template author:
 - Every other phase spec decision remains in force.
 - Agent/skill body path refs to `pastiche/pastiche.config.yaml` are out of scope here; flagged for the Phase 2.8 sweep.
 - Phase 4.1 extractor enhancement (source-directory walking, plain-CSS-vars parser) is required for v1 stack-scope decision 12 to be functional; not implemented in this task.
-- Phase 4.2 lint must enforce: required-field non-emptiness post-init, exactly-one of `types`/`source_dir` per package entry, package `name` uniqueness, `platform` ∈ {`claude-code`, `codex`}, `tokens[].format` ∈ {`tailwind-v4-theme`, `css-vars`}, all 13 `setup_progress` keys present. Lint implementation is not in this task.
+- Phase 4.2 lint must enforce: required-field non-emptiness post-init, exactly-one of `types`/`source_dir` per package entry, package `name` uniqueness, `platform` ∈ {`claude-code`, `codex`}, `tokens` is a list of strings (each pointing at an existing CSS file), all 13 `setup_progress` keys present. Lint implementation is not in this task. *(`tokens[].format` enforcement removed by task 4.1 amendment to decision 14.)*
 
 ## Open items
 
