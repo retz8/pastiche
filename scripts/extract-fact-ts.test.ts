@@ -2,6 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import * as extractor from './extract-fact-ts.ts';
 import * as os from 'node:os';
+import * as fs from 'node:fs';
 import * as fsp from 'node:fs/promises';
 import * as path from 'node:path';
 import { spawnSync } from 'node:child_process';
@@ -649,4 +650,54 @@ export declare const Button: React.FC<ButtonProps>;
   assert.match(fact, /size\?: \[sm, md\]/);
   assert.match(fact, /^--color-primary$/m);
   assert.match(stdout, /pastiche\/FACT\.md/);
+});
+
+test('e2e: source_dir fixture produces correct FACT.md', () => {
+  const fixtureRoot = path.resolve(
+    fileURLToPath(new URL('.', import.meta.url)),
+    '__fixtures__',
+    'source-walk',
+  );
+  const { status, stderr } = runMain(fixtureRoot);
+  assert.equal(status, 0, `extractor failed: ${stderr}`);
+  const fact = fs.readFileSync(path.join(fixtureRoot, 'pastiche/FACT.md'), 'utf8');
+
+  // Header banners
+  assert.match(fact, /^<!-- AUTO-GENERATED/m);
+
+  // Components fence
+  assert.match(fact, /## Components\n\n```yaml/);
+
+  // Button: walked, sidecar excluded, all format details
+  assert.match(fact, /^Button:$/m);
+  assert.match(fact, /^  pkg: "ui"$/m);
+  assert.match(fact, /^  size\?: \[sm, md, lg\]$/m);
+  assert.match(fact, /^  variant\?: \[primary, secondary\]$/m);
+  assert.match(fact, /^  disabled\?: bool$/m);
+  assert.match(fact, /^  onClick\?: "\(e: .*MouseEvent\) => void"$/m);
+  assert.match(fact, /^  children: ReactNode$/m);
+
+  // Card: spreads list
+  assert.match(fact, /^Card:$/m);
+  assert.match(fact, /^  spreads: \[/m);
+  assert.match(fact, /^  hoverable\?: bool$/m);
+
+  // TestButton (from button.test.tsx) must NOT appear
+  assert.ok(!/TestButton:/.test(fact), 'TestButton from sidecar leaked into FACT.md');
+
+  // Accordion: discriminated union renders as variants list (decision 15)
+  assert.match(fact, /^Accordion:$/m);
+  assert.match(fact, /^  variants:$/m);
+  assert.match(fact, /^    - type: \[single\]$/m);
+  assert.match(fact, /^    - type: \[multiple\]$/m);
+
+  // Tokens: all three CSS shapes, no bullet prefix
+  assert.match(fact, /^--color-primary$/m);
+  assert.match(fact, /^--color-bg$/m);
+  assert.match(fact, /^--color-fg$/m);
+  assert.match(fact, /^\.text-h1$/m);
+  assert.ok(!/^- --color-primary/m.test(fact), 'tokens have bullet prefix');
+
+  // Cleanup
+  fs.rmSync(path.join(fixtureRoot, 'pastiche/FACT.md'));
 });

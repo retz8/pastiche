@@ -1,0 +1,12 @@
+@theme {
+  --color-primary: oklch(0.7 0.15 250);
+  --color-bg: #ffffff;
+}
+
+:root {
+  --color-fg: #1f2328;
+}
+
+.text-h1 {
+  font-size: 2rem;
+}

@@ -1,0 +1,6 @@
+platform: claude-code
+packages:
+  - name: ui
+    source_dir: src/components/ui
+tokens:
+  - src/styles/theme.css
