@@ -756,6 +756,24 @@ export function discoverComponentsForPackage(
   return out;
 }
 
+export function dedupeComponents(
+  comps: Component[],
+  warn: (msg: string) => void = msg => process.stderr.write(msg + '\n'),
+): Component[] {
+  const seen = new Map<string, Component>();
+  for (const c of comps) {
+    const prior = seen.get(c.name);
+    if (prior) {
+      if (prior.pkg !== c.pkg) {
+        warn(`Warning: \`${c.name}\` is exported by both \`${prior.pkg}\` and \`${c.pkg}\`; using \`${prior.pkg}\`.`);
+      }
+      continue;
+    }
+    seen.set(c.name, c);
+  }
+  return [...seen.values()];
+}
+
 interface RenderedAtom {
   name: string;
   pkg: string;

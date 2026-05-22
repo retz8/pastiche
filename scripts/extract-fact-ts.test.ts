@@ -561,6 +561,20 @@ test('renderFact emits tokens without bullet prefix', () => {
   assert.ok(!/^- --color-primary/m.test(out));
 });
 
+test('dedupeComponents keeps first-listed and warns on collisions', () => {
+  const a = { name: 'Button', pkg: '@org/a', position: 0, ctx: {} as any };
+  const b = { name: 'Button', pkg: '@org/b', position: 0, ctx: {} as any };
+  const c = { name: 'Card', pkg: '@org/a', position: 0, ctx: {} as any };
+  const warnings: string[] = [];
+  const out = extractor.dedupeComponents([a, b, c], msg => warnings.push(msg));
+  assert.equal(out.length, 2);
+  assert.equal(out[0].pkg, '@org/a');
+  assert.equal(out[0].name, 'Button');
+  assert.equal(out[1].name, 'Card');
+  assert.equal(warnings.length, 1);
+  assert.match(warnings[0], /Button.*@org\/a.*@org\/b/);
+});
+
 test('renderFact wraps components in a fenced yaml block', async () => {
   const cwd = await mktempCwd({
     'pastiche/config.yaml': `
