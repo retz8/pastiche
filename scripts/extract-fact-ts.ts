@@ -57,8 +57,82 @@ export interface ResolveCtx {
 // Pipeline stages — stubs filled in by subsequent tasks
 // ---------------------------------------------------------------------------
 
-export function loadConfig(_cwd: string): Config {
-  throw new Error('loadConfig: not implemented yet (Task 3)');
+export function loadConfig(cwd: string): Config {
+  const configPath = path.join(cwd, 'pastiche', 'config.yaml');
+  if (!fs.existsSync(configPath)) {
+    throw new Error(
+      `pastiche/config.yaml not found in ${cwd}. Run /pastiche-init first.`,
+    );
+  }
+  const raw = fs.readFileSync(configPath, 'utf8');
+  let parsed: unknown;
+  try {
+    parsed = YAML.parse(raw);
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    throw new Error(`Failed to parse pastiche/config.yaml: ${msg}`);
+  }
+  if (!parsed || typeof parsed !== 'object') {
+    throw new Error('pastiche/config.yaml must be a YAML mapping at top level.');
+  }
+  const obj = parsed as Record<string, unknown>;
+
+  const platform = (obj.platform ?? null) as Config['platform'];
+  const packagesRaw = (obj.packages ?? []) as unknown[];
+  const tokensRaw = (obj.tokens ?? []) as unknown[];
+
+  if (!Array.isArray(packagesRaw)) {
+    throw new Error('`packages` must be a list.');
+  }
+  if (!Array.isArray(tokensRaw)) {
+    throw new Error('`tokens` must be a list of CSS file path strings.');
+  }
+
+  const packages: PackageEntry[] = packagesRaw.map((entryUnknown, i) => {
+    if (!entryUnknown || typeof entryUnknown !== 'object') {
+      throw new Error(`packages[${i}] must be a mapping with \`name\` and exactly one of \`types\` or \`source_dir\`.`);
+    }
+    const entry = entryUnknown as Record<string, unknown>;
+    const name = entry.name;
+    if (typeof name !== 'string' || !name) {
+      throw new Error(`packages[${i}].name must be a non-empty string.`);
+    }
+    const hasTypes = typeof entry.types === 'string' && entry.types.length > 0;
+    const hasSourceDir = typeof entry.source_dir === 'string' && entry.source_dir.length > 0;
+    if (hasTypes === hasSourceDir) {
+      throw new Error(
+        `packages[${i}] (${name}) must declare exactly one of \`types\` or \`source_dir\`.`,
+      );
+    }
+    if (hasTypes) {
+      const typesPath = entry.types as string;
+      const abs = path.resolve(cwd, typesPath);
+      if (!fs.existsSync(abs)) {
+        throw new Error(`packages[${i}] (${name}): types file does not exist: ${typesPath}`);
+      }
+      return { name, types: typesPath };
+    } else {
+      const dirPath = entry.source_dir as string;
+      const abs = path.resolve(cwd, dirPath);
+      if (!fs.existsSync(abs) || !fs.statSync(abs).isDirectory()) {
+        throw new Error(`packages[${i}] (${name}): source_dir does not exist or is not a directory: ${dirPath}`);
+      }
+      return { name, source_dir: dirPath };
+    }
+  });
+
+  const tokens: string[] = tokensRaw.map((tokenUnknown, i) => {
+    if (typeof tokenUnknown !== 'string') {
+      throw new Error(`tokens[${i}] must be a string (path to a CSS file).`);
+    }
+    const abs = path.resolve(cwd, tokenUnknown);
+    if (!fs.existsSync(abs)) {
+      throw new Error(`tokens[${i}]: CSS file does not exist: ${tokenUnknown}`);
+    }
+    return tokenUnknown;
+  });
+
+  return { platform, packages, tokens };
 }
 
 export function extractTokens(_cssPaths: string[], _cwd: string): string[] {
