@@ -334,3 +334,82 @@ tokens: []
   assert.equal(project.getSourceFiles().length, 2);
   assert.equal(packageSources.size, 2);
 });
+
+test('discoverComponentsForPackage finds a simple component from a .d.ts file', async () => {
+  const cwd = await mktempCwd({
+    'pastiche/config.yaml': `
+platform: claude-code
+packages:
+  - name: "@org/web"
+    types: dist/index.d.ts
+tokens: []
+`,
+    'dist/index.d.ts': `
+export interface ButtonProps {
+  size?: 'sm' | 'md';
+  variant?: 'primary' | 'secondary';
+}
+export declare const Button: React.FC<ButtonProps>;
+`,
+  });
+  const cfg = extractor.loadConfig(cwd);
+  const { packageSources } = extractor.buildProject(cfg, cwd);
+  const sources = packageSources.get('@org/web')!;
+  const comps = extractor.discoverComponentsForPackage(cfg.packages[0], sources);
+  assert.equal(comps.length, 1);
+  assert.equal(comps[0].name, 'Button');
+  assert.equal(comps[0].pkg, '@org/web');
+});
+
+test('discoverComponentsForPackage finds components from source files', async () => {
+  const cwd = await mktempCwd({
+    'pastiche/config.yaml': `
+platform: claude-code
+packages:
+  - name: ui
+    source_dir: src
+tokens: []
+`,
+    'src/Button.tsx': `
+import * as React from 'react';
+export interface ButtonProps { size?: 'sm' | 'md'; }
+export const Button = (_: ButtonProps) => null;
+`,
+    'src/Card.tsx': `
+import * as React from 'react';
+export interface CardProps { hoverable?: boolean; }
+export const Card = (_: CardProps) => null;
+`,
+  });
+  const cfg = extractor.loadConfig(cwd);
+  const { packageSources } = extractor.buildProject(cfg, cwd);
+  const comps = extractor.discoverComponentsForPackage(cfg.packages[0], packageSources.get('ui')!);
+  const names = comps.map(c => c.name).sort();
+  assert.deepEqual(names, ['Button', 'Card']);
+});
+
+test('discoverComponentsForPackage finds compound components (Foo.Bar)', async () => {
+  const cwd = await mktempCwd({
+    'pastiche/config.yaml': `
+platform: claude-code
+packages:
+  - name: "@org/web"
+    types: dist/index.d.ts
+tokens: []
+`,
+    'dist/index.d.ts': `
+export interface CardRootProps {}
+export interface CardHeaderProps {}
+export declare const CardRoot: React.FC<CardRootProps>;
+export declare const CardHeader: React.FC<CardHeaderProps>;
+export declare const Card: typeof CardRoot & { Header: typeof CardHeader };
+`,
+  });
+  const cfg = extractor.loadConfig(cwd);
+  const { packageSources } = extractor.buildProject(cfg, cwd);
+  const comps = extractor.discoverComponentsForPackage(cfg.packages[0], packageSources.get('@org/web')!);
+  const names = comps.map(c => c.name);
+  assert.ok(names.includes('Card'));
+  assert.ok(names.includes('Card.Header'));
+  assert.ok(!names.includes('CardHeader'));
+});
