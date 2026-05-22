@@ -4,13 +4,13 @@ Spec for TODO task 4.1: promote `_dev/scripts/extract-fact.ts` into the project-
 
 ## Scope
 
-- Author `scripts/extract-fact-ts.ts` as the generalized extractor, supporting both `types` (aggregate `.d.ts`) and `source_dir` (source-walk) package modes and a unified CSS token parser.
-- Author `scripts/extract-fact-ts.test.ts` covering the five buckets locked under decision 8.
+- Author `scripts/extract-fact-ts.ts` as the generalized extractor, supporting both `types` (aggregate `.d.ts`) and `source_dir` (source-walk) package modes, a unified CSS token parser, **and the new FACT output format mandated by phase-2 §3** (see decision 14 below).
+- Author `scripts/extract-fact-ts.test.ts` covering the five buckets locked under decision 10.
 - Add the `yaml` npm package as a dependency (authoring a minimal `package.json` if one does not yet exist at the repo root).
-- Amend `docs/spec/task-2.4-config-template.md` decisions 14, 15, and 21 in the same commit to reflect the simpler schema locked in this grill.
-- Amend `_dev/docs/OSS_SPEC.md` §9.4 and §9.4.1 in the same commit (`format`, `selectors`, `extensions` removed; `tokens` becomes a list of CSS file paths; four stack scenarios rewritten).
-- Add an "Amendments" note in `docs/spec/phase-4-scripts.md` pointing to the above.
-- Delete `_dev/scripts/extract-fact.ts` in the same commit per Rule 5 (phase-4 spec decision 7).
+- Amend `docs/spec/task-2.4-config-template.md` decisions 14, 15, and 21 in the same commit to reflect the simpler schema locked in this grill. *(shipped in commit 16978c5)*
+- Amend `_dev/docs/OSS_SPEC.md` §9.4 and §9.4.1 in the same commit (`format`, `selectors`, `extensions` removed; `tokens` becomes a list of CSS file paths; four stack scenarios rewritten). *(shipped in commit 16978c5)*
+- Add an "Amendments" note in `docs/spec/phase-4-scripts.md` pointing to the above. *(shipped in commit 16978c5)*
+- Delete `_dev/scripts/extract-fact.ts` in the same commit as the source port per Rule 5 (phase-4 spec decision 7).
 
 ## Locked decisions
 
@@ -74,7 +74,42 @@ Components: first-listed package wins on duplicate component-name exports. The c
 
 Schema validation is lint's responsibility (Phase 4.2). The extractor re-validates only the subset it must to fail with actionable errors instead of an unhelpful stack trace: (a) every file referenced in `packages[].types`, `packages[].source_dir`, and `tokens[]` exists on disk; (b) each `packages` entry has exactly one of `types` or `source_dir`. All other validations (name uniqueness, required-field non-emptiness, platform enum, etc.) stay in lint's lane.
 
-### 14. Out of scope
+### 14. FACT output format follows phase-2 §3 (post-grill amendment, 2026-05-22)
+
+> **Amendment note:** This decision was not surfaced during the original 4.1 grill but was uncovered during plan writing. Phase-2 §3 (task 2.1) already mandated a new FACT shape and explicitly assigned the extractor's emission of that shape to Phase 4.1 (phase-2 spec line 69). The agents shipped under tasks 1.2/1.3/1.4/2.8 grep against the new shape (`^Atom:` anchor). Format conversion must ship in lockstep with the schema generalization in this same task; splitting them would leave `/pastiche-sync` producing FACT files that every implementer agent grep would fail against.
+
+The extractor emits the new FACT shape as defined in `docs/spec/phase-2-templates-and-skills.md` §3. Concretely:
+
+- **Components section** wrapped in a fenced ```` ```yaml ``` ```` block under an `## Components` H2.
+- **Atom key** at column 0: `Button:` (replaces `### [Button]`).
+- **`pkg:` field** (replaces `package:`) — quoted when the package name contains characters YAML would otherwise interpret (`@`, `/`).
+- **`spreads:` field** — YAML list of extension/spread type-text values (replaces the `...React.HTMLAttributes<...>` lines previously emitted inline). Items are bareword when YAML-safe inside a flow sequence, quoted otherwise.
+- **Props as direct children** of the atom key (no nested `Props:` block). Required by default; `?` suffix on the key marks optional.
+- **Literal-union props** rendered as YAML flow arrays of bareword values: `size?: [sm, md, lg]`. Replaces the pipe-union `"sm" | "md" | "lg"` text. Applies to string-literal unions and other unions the type checker collapses to a finite literal set; the existing `maybeInlineLiteralUnion` resolver already identifies these.
+- **Function-type props** rendered as quoted strings: `onChange?: "(v: string) => void"`.
+- **Discriminated unions** rendered as a `variants:` list of prop-map records (replaces the `(or)` separator the existing renderer used).
+- **Type-text normalizations** applied uniformly to rendered values: `boolean` → `bool`; `React.ReactNode` → `ReactNode`. Other normalizations are not introduced in v1.
+- **No-props atoms** collapse to one-line YAML flow: `Avatar: { pkg: "@org/x" }`.
+- **Tokens section** — flat lines, one token per line, no `- ` bullet prefix. Replaces the existing bulleted list. `## Tokens` H2 unchanged.
+- **Top-of-file banner** retained as HTML comment(s); the existing extractor's three-comment banner stays in shape.
+
+Quoting policy (implementation guidance, not over-specification): values whose text is a YAML-safe identifier (matching `[A-Za-z_][A-Za-z0-9_.-]*`, no leading sigil, not containing YAML special chars) emit bareword; all other values are double-quoted. Errs on the side of quoting for ambiguous cases — output is consumed by `grep -E`, not by a YAML parser, so over-quoting is harmless to readers and lint validators alike.
+
+### 15. Test coverage adds format-shape buckets (post-grill amendment, 2026-05-22)
+
+The five coverage buckets in decision 10 are extended with format-shape assertions. The bucket count remains "five" conceptually; the third bucket ("Component discovery") absorbs the format assertions because rendering is the component pipeline's tail stage. Concretely the third bucket now also covers:
+
+- An atom with `?`-marked optional and required props rendering correctly.
+- An atom with a literal-union prop rendering as a YAML flow array of barewords.
+- An atom with a function-type prop rendering as a quoted string.
+- An atom with `boolean` and `React.ReactNode` props rendering as `bool` and `ReactNode`.
+- An atom with spreads rendering a `spreads:` list (and no inline `...` lines).
+- A no-props atom rendering as one-line flow.
+- The tokens section rendering as un-bulleted lines.
+
+Discriminated unions (`variants:` list) are exercised in the end-to-end fixture rather than as a standalone unit case — they require a meaningful surrounding type.
+
+### 16. Out of scope
 
 The following are explicitly out of scope for this commit:
 
