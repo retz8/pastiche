@@ -23,9 +23,11 @@ Both scripts are consumed by skill bodies (`/pastiche-init`, `/pastiche-sync`, `
 
 Both scripts stay in TypeScript. The extractor's dependency on the TypeScript type checker (via ts-morph) is load-bearing — semantic features such as `VariantProps<typeof X>` expansion, recursive `Omit<>` flattening, and literal-union inlining cannot be reproduced in Rust without reimplementing a type checker or losing those features. Rust was considered for the CLI/lint alone but rejected because the user-facing speed gain is modest and the multi-platform release pipeline cost outweighs it under plugin-first distribution.
 
-### 4. Bun is dev tooling only
+### 4. Dev tooling: `tsx` for TS execution, `tsup` for bundling
 
-Bun is used during development for fast TypeScript execution, tests, and bundling. It is not a runtime requirement for adopters. Adopters need Node (for the bundled JS subprocess invoked by skill bodies). Nothing in the plugin requires Bun on the adopter machine.
+Dev-time TypeScript execution uses `tsx` (already a dev dependency). Bundling of `scripts/*.ts` → `dist/*.js` uses `tsup` (esbuild engine, zero config). Adopters need only Node to run the bundled JS subprocess invoked by skill bodies. Nothing in the plugin requires a separate JS runtime on the adopter machine.
+
+**Amended 2026-05-23 (Phase 6 grill).** The original decision named `bun build --target=node` for bundling. Bun was rejected for v1 because `tsx` already covers dev-time TS execution, leaving bundling as bun's only role — not enough to justify installing a separate ~100 MB runtime. `tsup` provides esbuild-quality Node bundling with zero configuration.
 
 ### 5. Script shape: library + guarded `main()`
 

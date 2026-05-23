@@ -2,7 +2,9 @@
 
 Sequenced delivery plan for shipping v1 of pastiche, derived from `OSS_SPEC.md`. Phases run in order; tasks within a phase can parallelize unless noted.
 
-> **Plugin-first pivot (2026-05-20, locked in Phase 4 grill — see `docs/spec/phase-4-scripts.md`):** v1 ships as a Claude Code plugin only. No npm package, no standalone CLI binary, no Rust. `pastiche init`/`sync`/`lint` become slash-command skills inside the plugin; bundled JS (extractor, lint) is invoked from skill bodies via `node $CLAUDE_PLUGIN_ROOT/dist/*.js`. Phases 5, 7, and 8 contain pre-pivot wording — flagged inline below; they will be restructured by their own phase grills. OSS_SPEC sweep happens in Phase 8.1.
+> **Plugin-first pivot (2026-05-20, locked in Phase 4 grill — see `docs/spec/phase-4-scripts.md`):** v1 ships as a Claude Code plugin only. No npm package, no standalone CLI binary, no Rust. `pastiche init`/`sync`/`lint` become slash-command skills inside the plugin; bundled JS (extractor, lint) is invoked from skill bodies via `node $CLAUDE_PLUGIN_ROOT/dist/*.js`. Phase 8 (formerly 7) contains pre-pivot wording — flagged inline below; it will be restructured by its own phase grill. OSS_SPEC sweep happens in Phase 9.1.
+>
+> **Phase 6 restructure (2026-05-23, locked in `docs/spec/phase-6-reference-adoption.md`):** Phase 6 now targets `examples/github-primer-react/`. New tasks 6.0 (plugin packaging slice, pulled forward from old 7.1) and 6.2.5 (primer.style research session). Old 6.7 extracted to a new Phase 7 (extractor field-testing). Old Phases 7 and 8 renumber to 8 and 9. Bundler choice in Phase 4 spec amended from `bun build` to `tsup`.
 
 ---
 
@@ -71,34 +73,47 @@ Sequenced delivery plan for shipping v1 of pastiche, derived from `OSS_SPEC.md`.
 
 ---
 
-## Phase 6 — Reference adoption: `examples/primer-react/` (§12)
+## Phase 6 — Reference adoption: `examples/github-primer-react/` (§12)
 
-- [ ] **6.1** Scaffold Next.js + `@primer/react` demo app (5–8 components; pin Primer version).
-- [ ] **6.2** Run `pastiche init` against it; commit the resulting `FACT.md`.
-- [ ] **6.3** Hand-curate illustrative `KNOWLEDGE.md` across the canonical 12 sections.
-- [ ] **6.4** Hand-curate illustrative `WISDOM.md` (5–8 atom-tagged + 2–3 `[GENERAL]`).
-- [ ] **6.5** Commit one task artifact per failure mode (component omission, token omission, wrong choice) — input → loop output → final diff.
-- [ ] **6.6** Add non-affiliation banners (fixture README + KNOWLEDGE/WISDOM headers).
-- [ ] **6.7** Extractor field-testing — run `scripts/extract-fact-ts.ts` against ≥3 varied real-world FE codebases (different DS shapes, generics, re-exports, namespaced components). Document gaps; iterate the extractor until coverage is acceptable. Defers the question of a manual FACT-overrides surface until empirical evidence justifies it.
+> Restructured 2026-05-23 per `docs/spec/phase-6-reference-adoption.md`. Original 6.7 (extractor field-testing) extracted to new Phase 7. Old 7.1 plugin-packaging chunk pulled forward into new task 6.0. New task 6.2.5 adds a dedicated primer.style research session. Original "5–8 components" cap dropped — scaffold uses whatever a realistic app needs. Example name corrected from `primer-react/` to `github-primer-react/`.
 
----
-
-## Phase 7 — Packaging & docs
-
-> **⚠ Pre-pivot wording.** Plugin-only distribution per Phase 4 spec. 7.1 collapses to plugin packaging only (no npm `package.json`); a bundling step (`bun build --target=node` over `scripts/*.ts` → `dist/*.js`) joins this phase. Per-phase grill required.
-
-- [ ] **7.1** `package.json` (npm) + `.claude-plugin/{plugin.json,marketplace.json}` — ship both (§14.6).
-- [ ] **7.2** `README.md`: positioning, quickstart, KISA linked as production adopter.
-- [ ] **7.3** Per-document format docs: `docs/fact.md`, `docs/knowledge.md`, `docs/wisdom.md`, `docs/config.md` (hydrates from OSS_SPEC §9.4 + §9.4.1 — four stack scenarios + field semantics).
-- [ ] **7.4** `docs/adapters/claude-code.md`; finalize `docs/adapters/codex.md` (from Phase 0).
-- [ ] **7.5** `docs/contributing/adding-an-extractor.md` (extractor plugin contract). *Absorbed old 5.3 per `docs/spec/phase-5-skills.md`: design + document the pluggable FACT extractor contract; the `fact_extractor` config field (dropped in task 2.4) is reintroduced alongside this contract when a second extractor lands; v1 hard-codes `dist/extract-fact.js`. See OSS_SPEC §14.1.*
-- [ ] **7.6** `LICENSE` — MIT (§14.5).
+- [ ] **6.0** Plugin packaging slice — `scripts/build.ts` orchestrator (via `tsx`), `dist-plugin/` layout (gitignored), minimal `plugin.json`, bundling of `scripts/*.ts` → `dist-plugin/dist/*.js` via `tsup`. Pulled forward from old 7.1 because the example cannot symlink-install a plugin that does not yet exist in loadable shape.
+- [ ] **6.1** Scaffold Next.js (app router) + `@primer/react` (exact-pinned) + TypeScript skeleton at `examples/github-primer-react/`; symlink-install plugin via `.claude/plugins/pastiche` → `../../../dist-plugin/`.
+- [ ] **6.2** Run `/pastiche-init` against it; commit the resulting `pastiche/{config.yaml, FACT.md}`.
+- [ ] **6.2.5** Deep research session on primer.style → human-readable research doc at `examples/github-primer-react/docs/primer-research.md`. Upstream of KNOWLEDGE/WISDOM curation; also prototype evidence for a future research-from-docs `pastiche-setup` mode.
+- [ ] **6.3** KNOWLEDGE skeleton pass — one or two entries per canonical 12 sections, distilled from 6.2.5. Lint-clean.
+- [ ] **6.4** WISDOM skeleton pass — 3–5 atom-tagged rules, distilled from 6.2.5. Parallel-eligible with 6.3.
+- [ ] **6.5** Run pastiche tasks against the example app (KNOWLEDGE/WISDOM deepen JIT; findings logged to `docs/phase-6-findings.md`). Cherry-pick three best invocations as failure-mode artifacts (component omission, token omission, wrong choice) at `examples/github-primer-react/artifacts/<NN>-<failure-mode>/` with input/round1/reviewer/round2/final.
+- [ ] **6.6** Non-affiliation banners — example README + KNOWLEDGE/WISDOM headers + research doc header. Parallel-eligible throughout.
 
 ---
 
-## Phase 8 — Release gate
+## Phase 7 — Extractor field-testing
 
-- [ ] **8.1** Dedicated `spec.md` editing pass — accumulate changes discovered during phases 1–7 and revise the philosophical spec in a single focused session. The Phase 1 port is a mechanical de-KISA only; substantive revisions happen here.
-- [ ] **8.2** Run OSS_SPEC §15 eight-point acceptance checklist end-to-end against `examples/primer-react/` **on Claude Code only**. Codex is shipped as placeholder per OSS_SPEC §2.2; runtime validation deferred to a v1.x community milestone. Per Phase 4 spec open item (2), acceptance criterion #5 (CI lint) softens to adopter-side hook-based enforcement; the 8.1 spec-editing pass updates §15 accordingly.
-- [ ] **8.3** Verify `_dev/` is empty (sources are deleted per Rule 5 as they're ported) and remove the tree, once §15 is green.
-- [ ] **8.4** Ship v1.
+> Extracted from old 6.7 per `docs/spec/phase-6-reference-adoption.md`. Per-phase grill required.
+
+- [ ] **7.1** Stress-test `scripts/extract-fact-ts.ts` against ≥3 varied real-world FE codebases (different DS shapes, generics, re-exports, namespaced components). Document gaps; iterate the extractor until coverage is acceptable. Defers the question of a manual FACT-overrides surface until empirical evidence justifies it.
+
+---
+
+## Phase 8 — Packaging & docs
+
+> Renumbered from old Phase 7. **⚠ Pre-pivot wording remains in tasks below.** Plugin-only distribution per Phase 4 spec. Old 7.1 plugin packaging is partially complete via Phase 6.0 (build orchestrator, `dist-plugin/` layout, minimal `plugin.json`, bundling) — what remains here is `marketplace.json`, version metadata, and release polish. Per-phase grill required.
+
+- [ ] **8.1** Plugin release polish: harden `.claude-plugin/plugin.json` (description, version), add `.claude-plugin/marketplace.json` (§14.6). Build orchestrator + minimal manifest already shipped in Phase 6.0.
+- [ ] **8.2** `README.md`: positioning, quickstart, KISA linked as production adopter.
+- [ ] **8.3** Per-document format docs: `docs/fact.md`, `docs/knowledge.md`, `docs/wisdom.md`, `docs/config.md` (hydrates from OSS_SPEC §9.4 + §9.4.1 — four stack scenarios + field semantics).
+- [ ] **8.4** `docs/adapters/claude-code.md`; finalize `docs/adapters/codex.md` (from Phase 0).
+- [ ] **8.5** `docs/contributing/adding-an-extractor.md` (extractor plugin contract). *Absorbed old 5.3 per `docs/spec/phase-5-skills.md`: design + document the pluggable FACT extractor contract; the `fact_extractor` config field (dropped in task 2.4) is reintroduced alongside this contract when a second extractor lands; v1 hard-codes `dist/extract-fact.js`. See OSS_SPEC §14.1.*
+- [ ] **8.6** `LICENSE` — MIT (§14.5).
+
+---
+
+## Phase 9 — Release gate
+
+> Renumbered from old Phase 8.
+
+- [ ] **9.1** Dedicated `spec.md` editing pass — accumulate changes discovered during phases 1–8 and revise the philosophical spec in a single focused session. The Phase 1 port is a mechanical de-KISA only; substantive revisions happen here.
+- [ ] **9.2** Run OSS_SPEC §15 eight-point acceptance checklist end-to-end against `examples/github-primer-react/` **on Claude Code only**. Codex is shipped as placeholder per OSS_SPEC §2.2; runtime validation deferred to a v1.x community milestone. Per Phase 4 spec open item (2), acceptance criterion #5 (CI lint) softens to adopter-side hook-based enforcement; the 9.1 spec-editing pass updates §15 accordingly.
+- [ ] **9.3** Verify `_dev/` is empty (sources are deleted per Rule 5 as they're ported) and remove the tree, once §15 is green.
+- [ ] **9.4** Ship v1.
