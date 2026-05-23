@@ -60,16 +60,14 @@ Sequenced delivery plan for shipping v1 of pastiche, derived from `OSS_SPEC.md`.
 
 ---
 
-## Phase 5 — CLI (`cli/src/`, Node + TS per §14.2)
+## Phase 5 — Plugin slash-command skills
 
-> **⚠ Pre-pivot wording.** Under the plugin-first model locked in Phase 4, there is no standalone CLI. `pastiche init`/`sync`/`lint` become slash-command skills (`/pastiche-init`, `/pastiche-sync`, `/pastiche-lint`) that orchestrate the bundled scripts from Phase 4. The adapter generator (5.2) is no longer needed for Claude Code (canonical skill/agent bodies are copied directly into the plugin tree); whether it survives for Codex depends on open item (1) in the Phase 4 spec. This phase needs its own grill before any task here is picked up.
+> Restructured 2026-05-23 per `docs/spec/phase-5-skills.md`. Old 5.1 (CLI bootstrap) and old 5.2 (adapter generator) dropped under plugin-first. Old 5.3 (extractor contract doc) relocated to Phase 7 / merged with 7.5. Phase 4 open item 2 (lint hook) killed — lint runs from inside mutator skills + manually via `/pastiche-lint`. All four tasks parallelize.
 
-- [ ] **5.1** Bootstrap CLI package with `bin: pastiche`.
-- [ ] **5.2** Adapter generator module — canonical body + template → emit final file (§14.3 implementation TBD; lean toward TS functions).
-- [ ] **5.3** Pluggable FACT extractor contract — design and document at `docs/contributing/adding-an-extractor.md`. The `fact_extractor` config field was dropped from v1 (task 2.4); reintroduce alongside this contract when a second extractor lands. v1 CLI hard-codes `scripts/extract-fact-ts.ts`. See §14.1.
-- [ ] **5.4** Implement `pastiche init` (§6.1): platform prompt, scaffold `pastiche/` + config, run extractor, generate adapter files.
-- [ ] **5.5** Implement `pastiche sync` (§6.2): re-extract + regenerate adapters; idempotent; honors config edits.
-- [ ] **5.6** Implement `pastiche lint` (§6.3): wraps Phase 4 lint; fail-closed with clear errors.
+- [x] **5.1** Author `skills/pastiche-init.md` — scaffold `pastiche/{config.yaml, FACT.md, KNOWLEDGE.md, WISDOM.md}`, run extractor; no lint, no chain to `/pastiche-setup`.
+- [ ] **5.2** Author `skills/pastiche-sync.md` — re-run extractor, overwrite `FACT.md`, run lint as self-check, report drift. FACT-only; no remediation.
+- [ ] **5.3** Author `skills/pastiche-lint.md` — manual entry point wrapping `dist/lint.js`.
+- [ ] **5.4** Amend `skills/pastiche-setup.md`, `skills/pastiche-write-knowledge.md`, `skills/pastiche-write-wisdom.md` to invoke `dist/lint.js` as a self-check at end of mutation (fail-warn, plain text, no auto-fix).
 
 ---
 
@@ -93,7 +91,7 @@ Sequenced delivery plan for shipping v1 of pastiche, derived from `OSS_SPEC.md`.
 - [ ] **7.2** `README.md`: positioning, quickstart, KISA linked as production adopter.
 - [ ] **7.3** Per-document format docs: `docs/fact.md`, `docs/knowledge.md`, `docs/wisdom.md`, `docs/config.md` (hydrates from OSS_SPEC §9.4 + §9.4.1 — four stack scenarios + field semantics).
 - [ ] **7.4** `docs/adapters/claude-code.md`; finalize `docs/adapters/codex.md` (from Phase 0).
-- [ ] **7.5** `docs/contributing/adding-an-extractor.md` (extractor plugin contract).
+- [ ] **7.5** `docs/contributing/adding-an-extractor.md` (extractor plugin contract). *Absorbed old 5.3 per `docs/spec/phase-5-skills.md`: design + document the pluggable FACT extractor contract; the `fact_extractor` config field (dropped in task 2.4) is reintroduced alongside this contract when a second extractor lands; v1 hard-codes `dist/extract-fact.js`. See OSS_SPEC §14.1.*
 - [ ] **7.6** `LICENSE` — MIT (§14.5).
 
 ---
