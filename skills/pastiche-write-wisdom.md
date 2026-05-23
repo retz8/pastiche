@@ -38,6 +38,7 @@ Inserts one atom-intrinsic rule into `pastiche/WISDOM.md` per invocation. See WI
 
 7. **Insert.** For each tag in the new entry, `grep -nE '\[([^]]*,)?<Tag>(,[^]]*)?\]' pastiche/WISDOM.md | grep -vE '^[0-9]+:[[:space:]]*<!--'` (escape regex meta-characters in `<Tag>` as in step 5). Insert the bullet immediately after the last matching line across all the entry's tags. If no tag has any existing match, append to end of file.
 
-8. **Lint.** Run `/pastiche-lint`. On failure, print the lint output verbatim and stop — do not revert the insertion. On success, report:
+8. **Lint.** Run `node $CLAUDE_PLUGIN_ROOT/dist/lint.js`, cwd = repo root. Forward stdout; on non-zero exit, also forward stderr. Don't revert; don't abort. Then close with:
 
-   > Inserted at WISDOM.md:`<line>`. Lint passed. Re-invoke for additional rules.
+   - exit 0: *"Inserted at WISDOM.md:`<line>`. Lint passed. Re-invoke for additional rules."*
+   - exit non-zero: *"Inserted at WISDOM.md:`<line>`. Lint output above — review and remediate. Re-invoke for additional rules."*

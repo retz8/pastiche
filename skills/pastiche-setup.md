@@ -13,6 +13,10 @@ Resumes from `setup_progress` in `pastiche/config.yaml`. Unit of work is one sec
 2. Read `pastiche/FACT.md`. If empty or missing, stop: *"`pastiche/FACT.md` is empty or missing. Run `/pastiche-sync` (or re-run `/pastiche-init`) and re-invoke."*
 3. **Re-derive `setup_progress` from files** (the file is the source of truth; config is the cache). For each KNOWLEDGE section: marker still present → `stub`, otherwise `filled`. For `general-wisdom`: any `[GENERAL]` bullet present in `pastiche/WISDOM.md` → `filled`, otherwise `stub`. Update config silently.
 
+## Lint
+
+Every lint call below: run `node $CLAUDE_PLUGIN_ROOT/dist/lint.js`, cwd = repo root. Forward stdout; on non-zero exit, also forward stderr. Don't revert; don't abort.
+
 ## First run vs. returning run
 
 If every `setup_progress` entry is `stub`, this is a first run.
@@ -58,7 +62,7 @@ If `--all` was passed, skip this prompt. Stop only when every stub is `filled` (
 - If the adopter pastes prose, take it as-is, read back for confirmation, loop on natural-language edits until `yes`.
 - If they say "guide me" (or equivalent), ask 4–5 prompts in sequence: brand voice in 1–2 adjectives; density posture (dense vs. spacious, why); restraint signal (when the DS pulls back); the one rule that makes a screen feel off-brand; optional anti-example. Draft a prose paragraph from the answers, read back, loop.
 
-Write the final prose into `## Brand Identity` (replacing whatever was there). Flip `setup_progress.brand-identity: filled`. Run `/pastiche-lint`.
+Write the final prose into `## Brand Identity` (replacing whatever was there). Flip `setup_progress.brand-identity: filled`. Run lint.
 
 ## Scenario sections (11)
 
@@ -81,7 +85,7 @@ Per section:
 
 4. **Write.** Replace the section's `_(empty — …)_` marker with the confirmed scenarios. Each scenario: one or more prose framing lines, then one or more `→ <atom expression>` lines.
 
-5. **Flip + lint.** Set `setup_progress.<section>: filled` in config. Run `/pastiche-lint`. On failure: surface output verbatim; do not revert, roll back, or block.
+5. **Flip + lint.** Set `setup_progress.<section>: filled` in config. Run lint.
 
 6. **Cadence prompt** (unless `--all`).
 
@@ -101,7 +105,7 @@ Runs only when every KNOWLEDGE stub is `filled`. Same shape as a scenario sectio
 
 2. **Gate DESIGN.md-mined candidates.** For each DESIGN.md-mined candidate, apply: (a) can it be tagged to specific FACT atom(s) instead? (b) does it hold for *all* UI in the project regardless of atoms used? On either failure, drop and note: *"`<rule>` sounds scenario-conditional — re-route to KNOWLEDGE during the relevant section."* Canonical seeds skip this gate.
 
-3. **Show, confirm, write.** Numbered list, natural-language response, loop until accepted. Write each accepted rule as `- [GENERAL] <rule text>.` Append to WISDOM.md (after any existing content, before EOF). Flip `setup_progress.general-wisdom: filled`. Run `/pastiche-lint`.
+3. **Show, confirm, write.** Numbered list, natural-language response, loop until accepted. Write each accepted rule as `- [GENERAL] <rule text>.` Append to WISDOM.md (after any existing content, before EOF). Flip `setup_progress.general-wisdom: filled`. Run lint.
 
 ## Wrap
 
@@ -111,8 +115,7 @@ Print:
 
 1. Completion line, warm and brief: *"Setup complete — pastiche is wired up for your DS."*
 2. Light stats: sections filled, total scenarios authored, `[GENERAL]` rules added.
-3. Lint summary — only if any section had an unfixed lint failure during the walk; list those sections. Otherwise skip.
-4. One concrete next step: *"Invoke `/pastiche` on a frontend task — your loop will gate against KNOWLEDGE + WISDOM. As your DS grows, use `/pastiche-write-knowledge` and `/pastiche-write-wisdom` for incremental additions."*
+3. One concrete next step: *"Invoke `/pastiche` on a frontend task — your loop will gate against KNOWLEDGE + WISDOM. As your DS grows, use `/pastiche-write-knowledge` and `/pastiche-write-wisdom` for incremental additions."*
 
 No emoji, no theatrics.
 

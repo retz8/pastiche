@@ -67,7 +67,7 @@ Sequenced delivery plan for shipping v1 of pastiche, derived from `OSS_SPEC.md`.
 - [x] **5.1** Author `skills/pastiche-init.md` — scaffold `pastiche/{config.yaml, FACT.md, KNOWLEDGE.md, WISDOM.md}`, run extractor; no lint, no chain to `/pastiche-setup`.
 - [x] **5.2** Author `skills/pastiche-sync.md` — re-run extractor, overwrite `FACT.md`, run lint as self-check, report drift. FACT-only; no remediation.
 - [x] **5.3** Author `skills/pastiche-lint.md` — manual entry point wrapping `dist/lint.js`.
-- [ ] **5.4** Amend `skills/pastiche-setup.md`, `skills/pastiche-write-knowledge.md`, `skills/pastiche-write-wisdom.md` to invoke `dist/lint.js` as a self-check at end of mutation (fail-warn, plain text, no auto-fix).
+- [x] **5.4** Amend `skills/pastiche-setup.md`, `skills/pastiche-write-knowledge.md`, `skills/pastiche-write-wisdom.md` to invoke `dist/lint.js` as a self-check at end of mutation (fail-warn, plain text, no auto-fix).
 
 ---
 

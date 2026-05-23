@@ -43,6 +43,7 @@ Multi-`→` scenarios are allowed within a single invocation; multiple scenarios
    - If that range's sole content is `_(empty — run /pastiche-setup --section <name>)_`, **replace** that marker line with the new scenario (preserve a single blank line above and below as the surrounding sections have).
    - Otherwise **append** the new scenario at the end of the section (insert before the next `## ` heading; preserve a single blank line of separation from the prior scenario).
 
-6. **Lint.** Run `/pastiche-lint`. On failure, print the lint output verbatim and stop — do not revert the insertion. On success, report:
+6. **Lint.** Run `node $CLAUDE_PLUGIN_ROOT/dist/lint.js`, cwd = repo root. Forward stdout; on non-zero exit, also forward stderr. Don't revert; don't abort. Then close with:
 
-   > Inserted at KNOWLEDGE.md:`<line>`. Lint passed. Re-invoke for additional scenarios.
+   - exit 0: *"Inserted at KNOWLEDGE.md:`<line>`. Lint passed. Re-invoke for additional scenarios."*
+   - exit non-zero: *"Inserted at KNOWLEDGE.md:`<line>`. Lint output above — review and remediate. Re-invoke for additional scenarios."*
