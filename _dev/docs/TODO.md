@@ -65,8 +65,8 @@ Sequenced delivery plan for shipping v1 of pastiche, derived from `OSS_SPEC.md`.
 > Restructured 2026-05-23 per `docs/spec/phase-5-skills.md`. Old 5.1 (CLI bootstrap) and old 5.2 (adapter generator) dropped under plugin-first. Old 5.3 (extractor contract doc) relocated to Phase 7 / merged with 7.5. Phase 4 open item 2 (lint hook) killed — lint runs from inside mutator skills + manually via `/pastiche-lint`. All four tasks parallelize.
 
 - [x] **5.1** Author `skills/pastiche-init.md` — scaffold `pastiche/{config.yaml, FACT.md, KNOWLEDGE.md, WISDOM.md}`, run extractor; no lint, no chain to `/pastiche-setup`.
-- [ ] **5.2** Author `skills/pastiche-sync.md` — re-run extractor, overwrite `FACT.md`, run lint as self-check, report drift. FACT-only; no remediation.
-- [ ] **5.3** Author `skills/pastiche-lint.md` — manual entry point wrapping `dist/lint.js`.
+- [ ] [WIP] **5.2** Author `skills/pastiche-sync.md` — re-run extractor, overwrite `FACT.md`, run lint as self-check, report drift. FACT-only; no remediation.
+- [ ] [WIP] **5.3** Author `skills/pastiche-lint.md` — manual entry point wrapping `dist/lint.js`.
 - [ ] **5.4** Amend `skills/pastiche-setup.md`, `skills/pastiche-write-knowledge.md`, `skills/pastiche-write-wisdom.md` to invoke `dist/lint.js` as a self-check at end of mutation (fail-warn, plain text, no auto-fix).
 
 ---

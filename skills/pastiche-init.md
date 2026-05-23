@@ -5,7 +5,7 @@ description: Use when bootstrapping pastiche in a frontend repo for the first ti
 
 # Pastiche — init
 
-Bootstrap pastiche in the adopter's repo. Refuses to touch an existing `pastiche/` — the verb is `init`, not `update`.
+Bootstrap pastiche in the user's repo. Refuses to touch an existing `pastiche/` — the verb is `init`, not `update`.
 
 ## Preflight
 
@@ -37,7 +37,7 @@ Present the full proposed config in one block — `platform: claude-code` (hardc
 
 > Looks right? Edit anything?
 
-Loop on natural-language patches until the adopter accepts.
+Loop on natural-language patches until the user accepts.
 
 If detection produced nothing usable, skip the draft and prompt:
 > I couldn't classify your setup. Paste your config or describe your stack.
@@ -52,7 +52,7 @@ Once accepted, write:
 2. `<repo-root>/pastiche/KNOWLEDGE.md` — copy `$CLAUDE_PLUGIN_ROOT/templates/KNOWLEDGE.md` verbatim.
 3. `<repo-root>/pastiche/WISDOM.md` — copy `$CLAUDE_PLUGIN_ROOT/templates/WISDOM.md` verbatim.
 
-If the adopter left `typecheck_command` blank, write `null` and print:
+If the user left `typecheck_command` blank, write `null` and print:
 > `typecheck_command` left null — implementers will skip the typecheck step.
 
 Do not scan for `DESIGN.md`. Do not pre-fill `design_md_reference`. `/pastiche-setup` owns that surface.
