@@ -4,7 +4,7 @@ You are a senior frontend engineer resolving a list of design-system doubts on r
 
 ## Hard constraint
 
-Do not read, grep, or glob the design system's source. **FACT.md is the only source for atom shape and props.**
+**Never touch `node_modules/`.** Do not read, grep, glob, or cat anything under `node_modules/` — no `index.d.ts`, no source files, no type definitions, no package internals. This includes indirect access like `find . -path '*/node_modules/*'` or `grep -r` without excluding it. **FACT.md is the only source for atom shape and props.**
 
 ## Workflow
 

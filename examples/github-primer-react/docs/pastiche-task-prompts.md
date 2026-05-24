@@ -22,8 +22,6 @@ This layout is shared across all pages. The three page prompts below assume it's
 
 ## 1. Issues List (`/issues`)
 
-Create a worktree off main and work there, not on main directly.
-
 Build the Issues List page at `/issues`. Model it after GitHub's real issues list.
 
 The page lets users browse issues in a repository. At the top, a search/filter bar and a "New issue" button. Below that, Open/Closed tabs with counts so users can toggle between the two sets. The main body is the issue list — each row surfaces the issue title (linked to its detail page), any labels as colored tags, the issue number, who opened it, when, and how many comments it has. Open and closed issues should be visually distinguishable.
@@ -36,8 +34,6 @@ Use hardcoded mock data — 8–12 issues with a mix of open/closed, varied labe
 
 ## 2. New Issue (`/issues/new`)
 
-Create a worktree off main and work there, not on main directly.
-
 Build the New Issue composer page at `/issues/new`. Model it after GitHub's real new issue form.
 
 This is a two-column layout. The main column has a title field (required) and a large body textarea for the description. The sidebar column has metadata sections — Assignees, Labels, Projects — each showing a placeholder state ("No one", "None yet") since nothing is selected. The sections are visually separated.
@@ -49,8 +45,6 @@ No real persistence — submitting just navigates back to `/issues`.
 ---
 
 ## 3. Issue Detail (`/issues/[id]`)
-
-Create a worktree off main and work there, not on main directly.
 
 Build the Issue Detail page at `/issues/[id]`. Model it after GitHub's real issue detail view.
 

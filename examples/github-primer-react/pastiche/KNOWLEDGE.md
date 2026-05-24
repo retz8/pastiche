@@ -128,7 +128,7 @@ Numeric count badge alongside a tab, nav item, or heading (e.g., "Issues 42").
 Hierarchical tree of expandable items (e.g., file browser, directory listing).
 → `TreeView` + `TreeView.Item` + `TreeView.SubTree`
 
-List of content-rich navigable items where each row shows status, title, metadata, and trailing info.
+Standalone page-level list where each row is a navigable item with status, title, metadata, and trailing info. Not a menu — this is primary page content rendered directly in the page body, not inside an overlay or ActionMenu.
 → `ActionList` + `ActionList.Item`
 → `ActionList.LeadingVisual`
 → `ActionList.TrailingVisual`
