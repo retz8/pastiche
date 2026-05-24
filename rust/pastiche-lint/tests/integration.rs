@@ -23,6 +23,7 @@ tokens:
   - "src/styles/tokens.css"
 design_md_reference: null
 typecheck_command: "tsc --noEmit"
+build_command: "npm run build"
 setup_progress:
   action-buttons: stub
   forms-input-collection: stub

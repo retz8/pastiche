@@ -49,6 +49,12 @@ pub fn validate_config(raw: &str) -> Vec<Violation> {
         violations.push(v(ViolationFamily::Sentinel, 1, "typecheck_command not set \u{2014} run /pastiche-init.".to_string()));
     }
 
+    let build = obj.get(&Value::String("build_command".into()));
+    let _build_str = build.and_then(|v| v.as_str());
+    if build.is_none() || build == Some(&Value::Null) {
+        violations.push(v(ViolationFamily::Sentinel, 1, "build_command not set \u{2014} run /pastiche-init.".to_string()));
+    }
+
     let packages = obj.get(&Value::String("packages".into()));
     let tokens = obj.get(&Value::String("tokens".into()));
     let packages_empty = packages
@@ -220,6 +226,19 @@ pub fn validate_config(raw: &str) -> Vec<Violation> {
         }
     }
 
+    if let Some(bc) = build.filter(|v| *v != &Value::Null) {
+        match bc.as_str() {
+            Some(s) if !s.is_empty() => {}
+            _ => {
+                violations.push(v(
+                    ViolationFamily::Config,
+                    1,
+                    "build_command must be a non-empty string.".to_string(),
+                ));
+            }
+        }
+    }
+
     let sp = obj.get(&Value::String("setup_progress".into()));
     if let Some(sp_val) = sp {
         match sp_val.as_mapping() {
@@ -292,6 +311,7 @@ tokens:
   - "src/styles/tokens.css"
 design_md_reference: null
 typecheck_command: "tsc --noEmit"
+build_command: "npm run build"
 setup_progress:
   action-buttons: stub
   forms-input-collection: stub
@@ -338,6 +358,15 @@ setup_progress:
         let sentinels: Vec<_> = r.iter().filter(|v| v.family == ViolationFamily::Sentinel).collect();
         assert_eq!(sentinels.len(), 1);
         assert!(sentinels[0].message.contains("typecheck_command not set"));
+    }
+
+    #[test]
+    fn null_build_command_sentinel() {
+        let input = VALID_CONFIG.replace("build_command: \"npm run build\"", "build_command: null");
+        let r = validate_config(&input);
+        let sentinels: Vec<_> = r.iter().filter(|v| v.family == ViolationFamily::Sentinel).collect();
+        assert_eq!(sentinels.len(), 1);
+        assert!(sentinels[0].message.contains("build_command not set"));
     }
 
     #[test]

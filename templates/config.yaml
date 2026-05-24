@@ -12,6 +12,8 @@ design_md_reference: null
 
 typecheck_command: null
 
+build_command: null
+
 setup_progress:
   action-buttons: stub
   forms-input-collection: stub

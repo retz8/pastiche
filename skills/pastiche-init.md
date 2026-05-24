@@ -29,11 +29,13 @@ Read `<repo-root>/package.json` and probe canonical locations. Classify against 
 
 **`typecheck_command`:** check `package.json` `scripts` for `typecheck` / `type-check` / `tsc`. Detect package manager from lockfile (`pnpm-lock.yaml` → `pnpm`, `yarn.lock` → `yarn`, `bun.lock` → `bun`, else `npm run`). Compose accordingly.
 
+**`build_command`:** check `package.json` `scripts` for `build`. Detect package manager from lockfile (same as above). Compose accordingly (e.g., `npm run build`).
+
 Use file tools freely. Trust your judgment on non-standard workspace names, weird `exports` fields, or unusual token paths.
 
 ## Draft + confirm
 
-Present the full proposed config in one block — `platform: claude-code` (hardcoded), then drafted `packages`, `tokens`, `typecheck_command`. Ask:
+Present the full proposed config in one block — `platform: claude-code` (hardcoded), then drafted `packages`, `tokens`, `typecheck_command`, `build_command`. Ask:
 
 > Looks right? Edit anything?
 
@@ -48,12 +50,15 @@ Then draft from the response and confirm as above.
 
 Once accepted, write:
 
-1. `<repo-root>/pastiche/config.yaml` — read the template from this skill's sibling `templates/config.yaml` directory, mutate `platform`, `packages`, `tokens`, `typecheck_command`. Leave `design_md_reference: null` and `setup_progress` untouched (13 stubs).
+1. `<repo-root>/pastiche/config.yaml` — read the template from this skill's sibling `templates/config.yaml` directory, mutate `platform`, `packages`, `tokens`, `typecheck_command`, `build_command`. Leave `design_md_reference: null` and `setup_progress` untouched (13 stubs).
 2. `<repo-root>/pastiche/KNOWLEDGE.md` — copy `templates/KNOWLEDGE.md` (sibling to this skill's directory) verbatim.
 3. `<repo-root>/pastiche/WISDOM.md` — copy `templates/WISDOM.md` (sibling to this skill's directory) verbatim.
 
 If the user left `typecheck_command` blank, write `null` and print:
 > `typecheck_command` left null — implementers will skip the typecheck step.
+
+If the user left `build_command` blank, write `null` and print:
+> `build_command` left null — the orchestrator will skip the final build check.
 
 Do not scan for `DESIGN.md`. Do not pre-fill `design_md_reference`. `/pastiche-setup` owns that surface.
 
