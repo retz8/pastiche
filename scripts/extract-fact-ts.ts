@@ -620,7 +620,7 @@ interface CompoundInfo {
  * Returns the member list (memberName as accessed: `X.A`, innerName as the
  * inner Props-bearing component: `XA`).
  */
-function detectCompound(decls: readonly Node[]): CompoundInfo['members'] | null {
+function detectCompound(decls: readonly Node[], rootName: string): CompoundInfo['members'] | null {
   for (const d of decls) {
     if (!Node.isVariableDeclaration(d)) continue;
     const tn = d.getTypeNode();
@@ -630,14 +630,17 @@ function detectCompound(decls: readonly Node[]): CompoundInfo['members'] | null 
       if (!Node.isTypeLiteral(branch)) continue;
       for (const m of branch.getMembers()) {
         if (!Node.isPropertySignature(m)) continue;
+        const memberName = unquoteName(m.getName());
+        if (!/^[A-Z]/.test(memberName) || /^[A-Z][A-Z0-9_]*$/.test(memberName)) continue;
         const memberTypeNode = m.getTypeNode();
         if (!memberTypeNode) continue;
-        if (memberTypeNode.getKind() !== SyntaxKind.TypeQuery) continue;
-        const innerName = memberTypeNode.getText().replace(/^typeof\s+/, '').trim();
-        members.push({
-          memberName: unquoteName(m.getName()),
-          innerName,
-        });
+        let innerName: string;
+        if (memberTypeNode.getKind() === SyntaxKind.TypeQuery) {
+          innerName = memberTypeNode.getText().replace(/^typeof\s+/, '').trim();
+        } else {
+          innerName = rootName + memberName;
+        }
+        members.push({ memberName, innerName });
       }
     }
     if (members.length > 0) return members;
@@ -712,7 +715,7 @@ function discoverComponents(sf: SourceFile, packageName: string, knownPaths: Set
   const subsumedInners = new Set<string>();
   for (const [name, decls] of sf.getExportedDeclarations().entries()) {
     if (!/^[A-Z]/.test(name) || /^[A-Z][A-Z0-9_]*$/.test(name)) continue;
-    const members = detectCompound(decls);
+    const members = detectCompound(decls, name);
     if (members && members.length > 0) {
       compounds.push({ rootName: name, members });
       for (const m of members) subsumedInners.add(m.innerName);
@@ -816,6 +819,30 @@ export function dedupeComponents(
       continue;
     }
     seen.set(c.name, c);
+  }
+  // Drop flattened names that are subsumed by a dot-notation compound member.
+  // e.g., if both `ActionList.Item` and `ActionListItem` exist, keep only the
+  // dot-notation form — it matches how adopters actually write code.
+  const dotNames = new Set<string>();
+  for (const name of seen.keys()) {
+    if (name.includes('.')) dotNames.add(name);
+  }
+  for (const dotName of dotNames) {
+    const flat = dotName.replace('.', '');
+    if (seen.has(flat)) {
+      const dotComp = seen.get(dotName)!;
+      const flatComp = seen.get(flat)!;
+      // Merge props: if the dot-notation entry lacks props but the flattened
+      // one has them, transfer before dropping.
+      const dotHasProps = !!(dotComp.propsTypeNode || dotComp.propsInterface);
+      const flatHasProps = !!(flatComp.propsTypeNode || flatComp.propsInterface);
+      if (!dotHasProps && flatHasProps) {
+        dotComp.propsTypeNode = flatComp.propsTypeNode;
+        dotComp.propsInterface = flatComp.propsInterface;
+        dotComp.ctx = flatComp.ctx;
+      }
+      seen.delete(flat);
+    }
   }
   return [...seen.values()];
 }

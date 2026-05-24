@@ -23,7 +23,7 @@ design_md_reference: null
 typecheck_command: npx tsc --noEmit
 
 setup_progress:
-  action-buttons: stub
+  action-buttons: done
   forms-input-collection: stub
   feedback-status: stub
   overlays: stub
@@ -34,5 +34,5 @@ setup_progress:
   iconography: stub
   visual-hierarchy: stub
   domain-specific-patterns: stub
-  brand-identity: stub
+  brand-identity: done
   general-wisdom: stub
