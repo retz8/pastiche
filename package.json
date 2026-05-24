@@ -7,13 +7,15 @@
   "scripts": {
     "test": "node --test --import tsx 'scripts/*.test.ts'",
     "extract:fact": "node --import tsx scripts/extract-fact-ts.ts",
-    "test:lint": "cargo test --manifest-path rust/pastiche-lint/Cargo.toml"
+    "test:lint": "cargo test --manifest-path rust/pastiche-lint/Cargo.toml",
+    "build": "tsx scripts/build.ts"
   },
   "devDependencies": {
+    "@types/node": "^22.10.0",
     "ts-morph": "^25.0.1",
+    "tsup": "8.5.1",
     "tsx": "^4.20.0",
     "typescript": "^5.7.0",
-    "yaml": "^2.7.0",
-    "@types/node": "^22.10.0"
+    "yaml": "^2.7.0"
   }
 }
