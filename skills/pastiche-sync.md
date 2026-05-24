@@ -15,7 +15,7 @@ Refresh FACT after the user's DS changes. Extractor regenerates `pastiche/FACT.m
 
 ## Extract FACT
 
-Run `node $CLAUDE_PLUGIN_ROOT/dist/extract-fact.js` with cwd = `<repo-root>`. Block on completion.
+Shell: `extract-fact` (cwd = `<repo-root>`). It is on PATH via the plugin's `bin/` — do not search for it. Block on completion.
 
 On non-zero exit, print stderr verbatim and stop. Do not run lint — FACT may be stale or unwritten. The extractor's own message (config parse error, missing input file, etc.) is the actionable surface.
 
@@ -23,7 +23,7 @@ On success, the extractor prints `"Wrote pastiche/FACT.md: <N> components, <M> t
 
 ## Lint self-check
 
-Run `pastiche-lint` with cwd = `<repo-root>`. Block on completion.
+Shell: `pastiche-lint` (cwd = `<repo-root>`). It is on PATH via the plugin's `bin/` — do not search for it. Block on completion.
 
 Forward stdout (summary) verbatim. If exit is non-zero, also forward stderr (violations) verbatim. No reformatting.
 

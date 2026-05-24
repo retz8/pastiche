@@ -729,3 +729,174 @@ export declare const Badge: React.FC<BadgeProps>;
   // Negative: pipe-union form must not leak through.
   assert.ok(!/"sm" \| "md"/.test(out), 'pipe-union form leaked through');
 });
+
+// ---------------------------------------------------------------------------
+// Re-export resolution (types mode)
+// ---------------------------------------------------------------------------
+
+test('buildProject resolves re-exports in types mode', async () => {
+  const cwd = await mktempCwd({
+    'pastiche/config.yaml': `
+platform: claude-code
+packages:
+  - name: "@org/web"
+    types: dist/index.d.ts
+tokens: []
+`,
+    'dist/index.d.ts': `
+export * from './Button';
+export * from './Card';
+`,
+    'dist/Button.d.ts': `
+export interface ButtonProps { size?: 'sm' | 'md'; }
+export declare const Button: React.FC<ButtonProps>;
+`,
+    'dist/Card.d.ts': `
+export interface CardProps { hoverable?: boolean; }
+export declare const Card: React.FC<CardProps>;
+`,
+  });
+  const cfg = extractor.loadConfig(cwd);
+  const { packageSources } = extractor.buildProject(cfg, cwd);
+  const sources = packageSources.get('@org/web')!;
+  assert.equal(sources.length, 3);
+});
+
+test('buildProject resolves nested re-exports transitively', async () => {
+  const cwd = await mktempCwd({
+    'pastiche/config.yaml': `
+platform: claude-code
+packages:
+  - name: pkg
+    types: dist/index.d.ts
+tokens: []
+`,
+    'dist/index.d.ts': `export * from './components';`,
+    'dist/components.d.ts': `export * from './Button';`,
+    'dist/Button.d.ts': `
+export interface ButtonProps { size?: 'sm'; }
+export declare const Button: React.FC<ButtonProps>;
+`,
+  });
+  const cfg = extractor.loadConfig(cwd);
+  const { packageSources } = extractor.buildProject(cfg, cwd);
+  assert.equal(packageSources.get('pkg')!.length, 3);
+});
+
+test('buildProject skips non-relative re-exports', async () => {
+  const cwd = await mktempCwd({
+    'pastiche/config.yaml': `
+platform: claude-code
+packages:
+  - name: pkg
+    types: dist/index.d.ts
+tokens: []
+`,
+    'dist/index.d.ts': `
+export * from './Button';
+export { something } from 'external-package';
+`,
+    'dist/Button.d.ts': `
+export interface ButtonProps {}
+export declare const Button: React.FC<ButtonProps>;
+`,
+  });
+  const cfg = extractor.loadConfig(cwd);
+  const { packageSources } = extractor.buildProject(cfg, cwd);
+  assert.equal(packageSources.get('pkg')!.length, 2);
+});
+
+test('buildProject handles circular re-exports without looping', async () => {
+  const cwd = await mktempCwd({
+    'pastiche/config.yaml': `
+platform: claude-code
+packages:
+  - name: pkg
+    types: dist/index.d.ts
+tokens: []
+`,
+    'dist/index.d.ts': `export * from './a';`,
+    'dist/a.d.ts': `
+export * from './b';
+export declare const A: React.FC;
+`,
+    'dist/b.d.ts': `
+export * from './a';
+export declare const B: React.FC;
+`,
+  });
+  const cfg = extractor.loadConfig(cwd);
+  const { packageSources } = extractor.buildProject(cfg, cwd);
+  assert.equal(packageSources.get('pkg')!.length, 3);
+});
+
+test('discoverComponentsForPackage finds props in re-exported .d.ts files', async () => {
+  const cwd = await mktempCwd({
+    'pastiche/config.yaml': `
+platform: claude-code
+packages:
+  - name: "@org/web"
+    types: dist/index.d.ts
+tokens: []
+`,
+    'dist/index.d.ts': `
+export * from './Button';
+export * from './Card';
+`,
+    'dist/Button.d.ts': `
+export interface ButtonProps { size?: 'sm' | 'md'; disabled?: boolean; }
+export declare const Button: React.FC<ButtonProps>;
+`,
+    'dist/Card.d.ts': `
+export interface CardProps { hoverable?: boolean; }
+export declare const Card: React.FC<CardProps>;
+`,
+  });
+  const cfg = extractor.loadConfig(cwd);
+  const { packageSources } = extractor.buildProject(cfg, cwd);
+  const rawComps = extractor.discoverComponentsForPackage(
+    cfg.packages[0],
+    packageSources.get('@org/web')!,
+  );
+  const comps = extractor.dedupeComponents(rawComps, () => {});
+  const names = comps.map(c => c.name).sort();
+  assert.deepEqual(names, ['Button', 'Card']);
+  const button = comps.find(c => c.name === 'Button')!;
+  assert.ok(button.propsInterface || button.propsTypeNode, 'ButtonProps should be resolved');
+});
+
+test('renderFact renders props from re-exported .d.ts files', async () => {
+  const cwd = await mktempCwd({
+    'pastiche/config.yaml': `
+platform: claude-code
+packages:
+  - name: "@org/web"
+    types: dist/index.d.ts
+tokens: []
+`,
+    'dist/index.d.ts': `
+export * from './Button';
+export * from './Card';
+`,
+    'dist/Button.d.ts': `
+export interface ButtonProps { size?: 'sm' | 'md'; disabled?: boolean; }
+export declare const Button: React.FC<ButtonProps>;
+`,
+    'dist/Card.d.ts': `
+export interface CardProps { hoverable?: boolean; }
+export declare const Card: React.FC<CardProps>;
+`,
+  });
+  const cfg = extractor.loadConfig(cwd);
+  const { packageSources } = extractor.buildProject(cfg, cwd);
+  const comps = extractor.discoverComponentsForPackage(
+    cfg.packages[0],
+    packageSources.get('@org/web')!,
+  );
+  const out = extractor.renderFact(comps, []);
+  assert.match(out, /^Button:$/m);
+  assert.match(out, /size\?: \[sm, md\]/);
+  assert.match(out, /disabled\?: bool/);
+  assert.match(out, /^Card:$/m);
+  assert.match(out, /hoverable\?: bool/);
+});

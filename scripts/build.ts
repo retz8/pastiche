@@ -117,6 +117,15 @@ function bundleJs() {
   log('  JS bundled → dist-plugin/dist/extract-fact.js');
 }
 
+function writeExtractFactWrapper() {
+  const binDir = path.join(DIST, 'bin');
+  ensureDir(binDir);
+  const wrapper = path.join(binDir, 'extract-fact');
+  fs.writeFileSync(wrapper, `#!/usr/bin/env bash\nexec node "$(dirname "$0")/../dist/extract-fact.js" "$@"\n`);
+  fs.chmodSync(wrapper, 0o755);
+  log('  wrapper: bin/extract-fact');
+}
+
 function buildRustBinary() {
   const manifestPath = path.join(ROOT, 'rust', 'pastiche-lint', 'Cargo.toml');
   if (!fs.existsSync(manifestPath)) {
@@ -160,6 +169,8 @@ function main() {
   generatePluginJson();
 
   bundleJs();
+
+  writeExtractFactWrapper();
 
   buildRustBinary();
 

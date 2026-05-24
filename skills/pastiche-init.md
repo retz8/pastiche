@@ -37,7 +37,7 @@ Present the full proposed config in one block — `platform: claude-code` (hardc
 
 > Looks right? Edit anything?
 
-Loop on natural-language patches until the user accepts.
+If the user requests edits, apply them to the current draft and re-display the updated config. Do not re-run detection. Loop until the user accepts.
 
 If detection produced nothing usable, skip the draft and prompt:
 > I couldn't classify your setup. Paste your config or describe your stack.
@@ -48,9 +48,9 @@ Then draft from the response and confirm as above.
 
 Once accepted, write:
 
-1. `<repo-root>/pastiche/config.yaml` — start from `$CLAUDE_PLUGIN_ROOT/templates/config.yaml`, mutate `platform`, `packages`, `tokens`, `typecheck_command`. Leave `design_md_reference: null` and `setup_progress` untouched (13 stubs).
-2. `<repo-root>/pastiche/KNOWLEDGE.md` — copy `$CLAUDE_PLUGIN_ROOT/templates/KNOWLEDGE.md` verbatim.
-3. `<repo-root>/pastiche/WISDOM.md` — copy `$CLAUDE_PLUGIN_ROOT/templates/WISDOM.md` verbatim.
+1. `<repo-root>/pastiche/config.yaml` — read the template from this skill's sibling `templates/config.yaml` directory, mutate `platform`, `packages`, `tokens`, `typecheck_command`. Leave `design_md_reference: null` and `setup_progress` untouched (13 stubs).
+2. `<repo-root>/pastiche/KNOWLEDGE.md` — copy `templates/KNOWLEDGE.md` (sibling to this skill's directory) verbatim.
+3. `<repo-root>/pastiche/WISDOM.md` — copy `templates/WISDOM.md` (sibling to this skill's directory) verbatim.
 
 If the user left `typecheck_command` blank, write `null` and print:
 > `typecheck_command` left null — implementers will skip the typecheck step.
@@ -59,7 +59,7 @@ Do not scan for `DESIGN.md`. Do not pre-fill `design_md_reference`. `/pastiche-s
 
 ## Extract FACT
 
-Run `node $CLAUDE_PLUGIN_ROOT/dist/extract-fact.js` with cwd = `<repo-root>`. Block on completion.
+Shell: `extract-fact` (cwd = `<repo-root>`). It is on PATH via the plugin's `bin/` — do not search for it. Block on completion.
 
 - **Non-zero exit** — print stderr verbatim, then stop:
   > Extractor failed: <stderr>. Fix config or rebuild your DS, then run `/pastiche-sync` to retry FACT extraction. KNOWLEDGE/WISDOM templates and config are already in place.

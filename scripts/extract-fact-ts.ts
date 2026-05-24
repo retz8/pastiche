@@ -52,6 +52,7 @@ export interface ResolveCtx {
   localTypeAliases: Map<string, TypeNode>;
   exportNames: Set<string>;
   visiting: Set<string>;
+  knownPaths: Set<string>;
 }
 
 const SOURCE_EXTS = new Set(['.ts', '.tsx']);
@@ -204,6 +205,32 @@ export function collectSourceFiles(dir: string, cwd: string): string[] {
   return out;
 }
 
+export function resolveReExports(project: Project, entryFile: SourceFile): SourceFile[] {
+  const resolved: SourceFile[] = [];
+  const seen = new Set<string>([entryFile.getFilePath()]);
+  const queue: SourceFile[] = [entryFile];
+
+  while (queue.length > 0) {
+    const sf = queue.shift()!;
+    for (const exportDecl of sf.getExportDeclarations()) {
+      const specifier = exportDecl.getModuleSpecifierValue();
+      if (!specifier || !specifier.startsWith('.')) continue;
+      const target = exportDecl.getModuleSpecifierSourceFile();
+      if (!target) continue;
+      const targetPath = target.getFilePath();
+      if (seen.has(targetPath)) continue;
+      seen.add(targetPath);
+      let added = project.getSourceFile(targetPath);
+      if (!added) {
+        added = project.addSourceFileAtPath(targetPath);
+      }
+      resolved.push(added);
+      queue.push(added);
+    }
+  }
+  return resolved;
+}
+
 export function buildProject(
   cfg: Config,
   cwd: string,
@@ -223,7 +250,9 @@ export function buildProject(
     const sources: SourceFile[] = [];
     if (pkg.types) {
       const abs = path.resolve(cwd, pkg.types);
-      sources.push(project.addSourceFileAtPath(abs));
+      const entry = project.addSourceFileAtPath(abs);
+      sources.push(entry);
+      sources.push(...resolveReExports(project, entry));
     } else if (pkg.source_dir) {
       const files = collectSourceFiles(pkg.source_dir, cwd);
       for (const f of files) {
@@ -306,7 +335,8 @@ function resolveLocalProjectType(
   const sym = t.getAliasSymbol() ?? t.getSymbol();
   const decls = sym?.getDeclarations() ?? [];
   for (const d of decls) {
-    if (d.getSourceFile().getFilePath().includes('/node_modules/')) continue;
+    const filePath = d.getSourceFile().getFilePath();
+    if (filePath.includes('/node_modules/') && !ctx.knownPaths.has(filePath)) continue;
     if (Node.isTypeAliasDeclaration(d)) {
       const tn = d.getTypeNode();
       if (tn) return { target: { node: tn }, aliasName };
@@ -358,9 +388,7 @@ function classifyBranch(node: TypeNode, ctx: ResolveCtx): Classification {
     const decls = sym?.getDeclarations() ?? [];
     if (decls.length === 0) return { kind: 'spread' };
     const fp = decls[0].getSourceFile().getFilePath();
-    if (fp.includes('/node_modules/')) return { kind: 'spread' };
-    // Local exported type (e.g., another component's Props) → spread; the
-    // reader will look it up by atom name.
+    if (fp.includes('/node_modules/') && !ctx.knownPaths.has(fp)) return { kind: 'spread' };
     return { kind: 'spread' };
   }
   return { kind: 'expand' };
@@ -379,7 +407,8 @@ const NULL_UNDEFINED_RE = /\s*\|\s*null\s*\|\s*undefined\s*$|\s*\|\s*undefined\s
 
 function cleanTypeText(s: string): string {
   let out = s.trim();
-  // strip trailing | null | undefined / | undefined / | null repeatedly
+  out = out.replace(/\/\*\*[\s\S]*?\*\//g, '');
+  out = out.replace(/\s+/g, ' ').trim();
   while (NULL_UNDEFINED_RE.test(out)) out = out.replace(NULL_UNDEFINED_RE, '').trim();
   return out;
 }
@@ -536,7 +565,7 @@ function mergeOmitIntoSpread(text: string, omit: Set<string>): string {
 
 function renderBranch(branch: TypeNode, ctx: ResolveCtx): RenderedSegment[] {
   const cls = classifyBranch(branch, ctx);
-  if (cls.kind === 'spread') return [{ kind: 'spread', text: branch.getText() }];
+  if (cls.kind === 'spread') return [{ kind: 'spread', text: cleanTypeText(branch.getText()) }];
   if (cls.kind === 'expand') return [{ kind: 'expand', props: expandTypeNode(branch, ctx) }];
   if (cls.kind === 'recurse') {
     if (cls.aliasName) ctx.visiting.add(cls.aliasName);
@@ -616,7 +645,7 @@ function detectCompound(decls: readonly Node[]): CompoundInfo['members'] | null 
   return null;
 }
 
-function discoverComponents(sf: SourceFile, packageName: string): Component[] {
+function discoverComponents(sf: SourceFile, packageName: string, knownPaths: Set<string>): Component[] {
   // Collect exported names. Use both export-declarations (`export { A, B }`)
   // and the broader getExportedDeclarations() map (catches `export function`).
   const exportNames = new Set<string>();
@@ -719,6 +748,7 @@ function discoverComponents(sf: SourceFile, packageName: string): Component[] {
     localTypeAliases: localTypeAliasNodes,
     exportNames,
     visiting: new Set(),
+    knownPaths,
   };
   for (const name of candidates) {
     const propsAlias = localTypeAliases.get(`${name}Props`);
@@ -758,9 +788,10 @@ export function discoverComponentsForPackage(
   pkg: PackageEntry,
   sources: SourceFile[],
 ): Component[] {
+  const knownPaths = new Set(sources.map(sf => sf.getFilePath()));
   const out: Component[] = [];
   for (const sf of sources) {
-    out.push(...discoverComponents(sf, pkg.name));
+    out.push(...discoverComponents(sf, pkg.name, knownPaths));
   }
   return out;
 }
@@ -775,6 +806,12 @@ export function dedupeComponents(
     if (prior) {
       if (prior.pkg !== c.pkg) {
         warn(`Warning: \`${c.name}\` is exported by both \`${prior.pkg}\` and \`${c.pkg}\`; using \`${prior.pkg}\`.`);
+        continue;
+      }
+      const priorHasProps = !!(prior.propsTypeNode || prior.propsInterface);
+      const currHasProps = !!(c.propsTypeNode || c.propsInterface);
+      if (!priorHasProps && currHasProps) {
+        seen.set(c.name, c);
       }
       continue;
     }
