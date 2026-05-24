@@ -1,0 +1,12 @@
+[package]
+name = "pastiche-lint"
+version = "0.0.0-dev"
+edition = "2021"
+
+[dependencies]
+serde = { version = "1", features = ["derive"] }
+serde_yaml = "0.9"
+regex = "1"
+
+[dev-dependencies]
+tempfile = "3"

@@ -6,7 +6,8 @@
   "description": "Faithful design-system execution for LLM coding agents",
   "scripts": {
     "test": "node --test --import tsx 'scripts/*.test.ts'",
-    "extract:fact": "node --import tsx scripts/extract-fact-ts.ts"
+    "extract:fact": "node --import tsx scripts/extract-fact-ts.ts",
+    "test:lint": "cargo test --manifest-path rust/pastiche-lint/Cargo.toml"
   },
   "devDependencies": {
     "ts-morph": "^25.0.1",
