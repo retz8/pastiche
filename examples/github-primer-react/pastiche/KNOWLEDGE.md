@@ -128,6 +128,15 @@ Numeric count badge alongside a tab, nav item, or heading (e.g., "Issues 42").
 Hierarchical tree of expandable items (e.g., file browser, directory listing).
 → `TreeView` + `TreeView.Item` + `TreeView.SubTree`
 
+List of content-rich navigable items where each row shows status, title, metadata, and trailing info.
+→ `ActionList` + `ActionList.Item`
+→ `ActionList.LeadingVisual`
+→ `ActionList.TrailingVisual`
+→ `ActionList.Description`
+
+Inline label tags displayed next to text content (e.g., issue title followed by colored labels in a list row).
+→ `LabelGroup` to wrap the `Label` set; provides overflow handling via overflowStyle="inline" | "overlay"
+
 ## Layout & page structure
 
 Top-level page heading with title, optional description, and action buttons — the entry point of a page.
@@ -136,16 +145,19 @@ Top-level page heading with title, optional description, and action buttons — 
 → `PageHeader.Actions`
 → `PageHeader.Description`
 
-Two-column layout with a main content area and a sidebar for navigation or metadata.
-→ `SplitPageLayout`
-→ `SplitPageLayout.Content`
-→ `SplitPageLayout.Pane`
+Content page with a metadata or navigation sidebar (issue detail, issue composer, PR detail) — two regions, one content + one pane.
+→ `SplitPageLayout` + `SplitPageLayout.Content` + `SplitPageLayout.Pane` position="end"
 
-Full page scaffold with optional header, footer, content pane, and sidebar — the outermost structural shell.
+Full page scaffold needing more than two regions (header, footer, sidebar, content), per-viewport region visibility, or a resizable pane.
 → `PageLayout` + `PageLayout.Header` + `PageLayout.Content` + `PageLayout.Pane` + `PageLayout.Footer`
 
 Vertical or horizontal stacking of elements with consistent gap spacing.
 → `Stack` direction="vertical" | "horizontal" gap="condensed" | "normal" | "spacious"
+
+Global site footer with copyright text and navigation links. All footer content uses 12px text.
+→ `Stack` direction="horizontal" gap="normal" wrap="wrap"
+→ `Text` style={{ fontSize: 12 }}
+→ `Link` muted style={{ fontSize: 12 }}
 
 ## Date & time selection
 
