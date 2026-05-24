@@ -76,9 +76,12 @@ Sequenced delivery plan for shipping v1 of pastiche, derived from `OSS_SPEC.md`.
 ## Phase 6 — Reference adoption: `examples/github-primer-react/` (§12)
 
 > Restructured 2026-05-23 per `docs/spec/phase-6-reference-adoption.md`. Original 6.7 (extractor field-testing) extracted to new Phase 7. Old 7.1 plugin-packaging chunk pulled forward into new task 6.0. New task 6.2.5 adds a dedicated primer.style research session. Original "5–8 components" cap dropped — scaffold uses whatever a realistic app needs. Example name corrected from `primer-react/` to `github-primer-react/`.
+>
+> **6.0 split (2026-05-24, locked in `docs/spec/task-6.0a-rust-lint.md` + `docs/spec/task-6.0b-build-script.md`):** 6.0 split into 6.0a (Rust lint binary — rewrite `lint.ts` to native `pastiche-lint` in `bin/`) and 6.0b (build script + plugin packaging). Lint converted to Rust for speed and token savings across mutator skills. `tsup` only bundles the extractor; lint ships as a compiled binary. 6.0b depends on 6.0a.
 
-- [ ] **6.0** Plugin packaging slice — `scripts/build.ts` orchestrator (via `tsx`), `dist-plugin/` layout (gitignored), minimal `plugin.json`, bundling of `scripts/*.ts` → `dist-plugin/dist/*.js` via `tsup`. Pulled forward from old 7.1 because the example cannot symlink-install a plugin that does not yet exist in loadable shape.
-- [ ] **6.1** Scaffold Next.js (app router) + `@primer/react` (exact-pinned) + TypeScript skeleton at `examples/github-primer-react/`; symlink-install plugin via `.claude/plugins/pastiche` → `../../../dist-plugin/`.
+- [ ] [WIP] **6.0a** Rust lint binary — rewrite `scripts/lint.ts` as a Rust binary (`pastiche-lint`) at `rust/pastiche-lint/`, port tests, sweep five skill bodies (`node $CLAUDE_PLUGIN_ROOT/dist/lint.js` → `pastiche-lint`), delete superseded TS sources. Spec: `docs/spec/task-6.0a-rust-lint.md`.
+- [ ] [WIP] **6.0b** Plugin packaging slice — `scripts/build.ts` orchestrator (via `tsx`), `tsup.config.ts`, `dist-plugin/` layout (gitignored), minimal `plugin.json`, bundling of `extract-fact-ts.ts` → `dist/extract-fact.js` via `tsup`, Rust binary copy to `bin/pastiche-lint`. Spec: `docs/spec/task-6.0b-build-script.md`. *Depends on 6.0a.*
+- [ ] **6.1** Scaffold Next.js (app router) + `@primer/react` (exact-pinned) + TypeScript skeleton at `examples/github-primer-react/`; symlink-install plugin via `.claude/plugins/pastiche` → `../../../dist-plugin/`. *Depends on 6.0b.*
 - [ ] **6.2** Run `/pastiche-init` against it; commit the resulting `pastiche/{config.yaml, FACT.md}`.
 - [ ] **6.2.5** Deep research session on primer.style → human-readable research doc at `examples/github-primer-react/docs/primer-research.md`. Upstream of KNOWLEDGE/WISDOM curation; also prototype evidence for a future research-from-docs `pastiche-setup` mode.
 - [ ] **6.3** KNOWLEDGE skeleton pass — one or two entries per canonical 12 sections, distilled from 6.2.5. Lint-clean.
