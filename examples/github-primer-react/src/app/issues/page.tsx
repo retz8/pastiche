@@ -266,6 +266,7 @@ export default function IssuesPage() {
                       ? "var(--borderWidth-thin) solid var(--borderColor-muted)"
                       : "none",
                 }}
+                size="large"
               >
                 <ActionList.LeadingVisual>
                   {issue.status === "open" ? (
@@ -283,15 +284,14 @@ export default function IssuesPage() {
                     <Link
                       as={NextLink}
                       href={`/issues/${issue.number}`}
-                      style={{ fontWeight: 600 }}
                       onClick={(e) => e.stopPropagation()}
                     >
-                      {issue.title}
+                      <Text size="medium" weight="semibold">{issue.title}</Text>
                     </Link>
                     {issue.labels.map((label) => (
                       <IssueLabelToken
                         key={label.name}
-                        text={label.name}
+                        text={<Text size="small" weight="medium">{label.name}</Text>}
                         fillColor={label.color}
                         size="small"
                       />
