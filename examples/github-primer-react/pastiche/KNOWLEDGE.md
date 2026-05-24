@@ -109,6 +109,10 @@ Breadcrumb trail showing the user's location within a nested hierarchy (e.g., Or
 Paginated navigation for long lists or search results.
 → `Pagination` pageCount={…} currentPage={…}
 
+Same-page filter toggle with counts (e.g., Open/Closed issue status tabs) — does not change the URL.
+→ `SegmentedControl`
+→ `SegmentedControl.Button` count leadingIcon
+
 ## Content display
 
 Tabular data with sorting, where each row represents an item and columns are data points about it.
