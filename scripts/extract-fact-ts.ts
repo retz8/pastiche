@@ -29,7 +29,7 @@ import {
 
 export interface PackageEntry {
   name: string;
-  types?: string;
+  types?: string[];
   source_dir?: string;
 }
 
@@ -102,7 +102,14 @@ export function loadConfig(cwd: string): Config {
     if (typeof name !== 'string' || !name) {
       throw new Error(`packages[${i}].name must be a non-empty string.`);
     }
-    const hasTypes = typeof entry.types === 'string' && entry.types.length > 0;
+    const rawTypes = entry.types;
+    let typesPaths: string[] | null = null;
+    if (typeof rawTypes === 'string' && rawTypes.length > 0) {
+      typesPaths = [rawTypes];
+    } else if (Array.isArray(rawTypes) && rawTypes.length > 0 && rawTypes.every(t => typeof t === 'string')) {
+      typesPaths = rawTypes as string[];
+    }
+    const hasTypes = typesPaths !== null;
     const hasSourceDir = typeof entry.source_dir === 'string' && entry.source_dir.length > 0;
     if (hasTypes === hasSourceDir) {
       throw new Error(
@@ -110,12 +117,13 @@ export function loadConfig(cwd: string): Config {
       );
     }
     if (hasTypes) {
-      const typesPath = entry.types as string;
-      const abs = path.resolve(cwd, typesPath);
-      if (!fs.existsSync(abs)) {
-        throw new Error(`packages[${i}] (${name}): types file does not exist: ${typesPath}`);
+      for (const tp of typesPaths!) {
+        const abs = path.resolve(cwd, tp);
+        if (!fs.existsSync(abs)) {
+          throw new Error(`packages[${i}] (${name}): types file does not exist: ${tp}`);
+        }
       }
-      return { name, types: typesPath };
+      return { name, types: typesPaths! };
     } else {
       const dirPath = entry.source_dir as string;
       const abs = path.resolve(cwd, dirPath);
@@ -249,10 +257,12 @@ export function buildProject(
   for (const pkg of cfg.packages) {
     const sources: SourceFile[] = [];
     if (pkg.types) {
-      const abs = path.resolve(cwd, pkg.types);
-      const entry = project.addSourceFileAtPath(abs);
-      sources.push(entry);
-      sources.push(...resolveReExports(project, entry));
+      for (const tp of pkg.types) {
+        const abs = path.resolve(cwd, tp);
+        const entry = project.addSourceFileAtPath(abs);
+        sources.push(entry);
+        sources.push(...resolveReExports(project, entry));
+      }
     } else if (pkg.source_dir) {
       const files = collectSourceFiles(pkg.source_dir, cwd);
       for (const f of files) {
