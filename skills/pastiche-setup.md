@@ -15,7 +15,7 @@ Resumes from `setup_progress` in `pastiche/config.yaml`. Unit of work is one sec
 
 ## Lint
 
-Every lint call below: run `node $CLAUDE_PLUGIN_ROOT/dist/lint.js`, cwd = repo root. Forward stdout; on non-zero exit, also forward stderr. Don't revert; don't abort.
+Every lint call below: run `pastiche-lint`, cwd = repo root. Forward stdout; on non-zero exit, also forward stderr. Don't revert; don't abort.
 
 ## First run vs. returning run
 

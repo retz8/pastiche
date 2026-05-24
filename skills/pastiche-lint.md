@@ -9,7 +9,7 @@ Manual entry point for the lint script. The four mutator skills (`/pastiche-sync
 
 ## Run
 
-Invoke `node $CLAUDE_PLUGIN_ROOT/dist/lint.js` with cwd = the user's repo root. Print stdout and stderr verbatim.
+Invoke `pastiche-lint` with cwd = the user's repo root. Print stdout and stderr verbatim.
 
 Do not interpret violations, group them by document, suggest remediation, or point at other skills — the script's output already includes a summary and `OK` / `FAILED — N violation(s)` line.
 

@@ -23,7 +23,7 @@ On success, the extractor prints `"Wrote pastiche/FACT.md: <N> components, <M> t
 
 ## Lint self-check
 
-Run `node $CLAUDE_PLUGIN_ROOT/dist/lint.js` with cwd = `<repo-root>`. Block on completion.
+Run `pastiche-lint` with cwd = `<repo-root>`. Block on completion.
 
 Forward stdout (summary) verbatim. If exit is non-zero, also forward stderr (violations) verbatim. No reformatting.
 
