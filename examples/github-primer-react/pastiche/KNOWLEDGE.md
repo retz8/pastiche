@@ -30,43 +30,162 @@ Link-styled navigation — action that navigates to another page but lives in a 
 
 ## Forms & input collection
 
-_(empty — run /pastiche-setup --section forms-input-collection)_
+Single-line text field for short-form entry (name, email, URL).
+→ `FormControl` + `TextInput`
+
+Longer-form freetext entry (comment, description, bio).
+→ `FormControl` + `Textarea` block={true}
+
+Picking one option from a predefined list (country, role, priority).
+→ `FormControl` + `Select`
+
+Choosing one option when all choices should be visible (visibility level, notification frequency).
+→ `RadioGroup` + `FormControl` + `Radio`
+
+Toggling multiple options on/off (notification preferences, label categories).
+→ `CheckboxGroup` + `FormControl` + `Checkbox`
+
+Boolean on/off setting with immediate effect (enable feature, dark mode).
+→ `ToggleSwitch` aria-labelledby="…"
+
+Searching and selecting from a large or dynamic set (assignee picker, repo search).
+→ `Autocomplete` + `Autocomplete.Input` + `Autocomplete.Menu` + `Autocomplete.Overlay`
+
+Selecting multiple items rendered as dismissible tokens (labels, collaborators).
+→ `FormControl` + `TextInputWithTokens`
+
+Picking one or more items from a searchable overlay list (label picker, reviewer picker).
+→ `SelectPanel` selectionVariant="multiple"
+
+Showing success or error feedback tied to a specific field.
+→ `FormControl.Validation` variant="error"
+→ `FormControl.Validation` variant="success"
+
+Wrapping a field with label, required mark, and helper text.
+→ `FormControl` required={true} + `FormControl.Label` + `FormControl.Caption`
 
 ## Feedback & status
 
-_(empty — run /pastiche-setup --section feedback-status)_
+Page-level notification highlighting important information, a warning, or the result of an action.
+→ `Banner` variant="info" | "warning" | "critical" | "success"
+
+Localized feedback adjacent to the action that triggered it (e.g., below an input, next to a button).
+→ `InlineMessage` variant="critical" | "warning" | "success" | "unavailable"
 
 ## Overlays
 
-_(empty — run /pastiche-setup --section overlays)_
+Modal dialog for transient content — editing, composing, or reviewing information that doesn't warrant a full page.
+→ `Dialog`
+
+Confirming a potentially destructive or irreversible user action before proceeding.
+→ `ConfirmationDialog` confirmButtonType="danger"
+
+Context menu or dropdown of actions triggered from a button (e.g., kebab "more actions", sort options).
+→ `ActionMenu` + `ActionMenu.Button` + `ActionList` + `ActionList.Item`
+
+Tooltip providing a short text hint on hover/focus — supplementary context, not essential information.
+→ `Tooltip` text="…" type="description"
+
+Tooltip serving as the accessible name for an icon-only control (replacing a visible label).
+→ `Tooltip` text="…" type="label"
+
+Anchored overlay for custom positioned content attached to a trigger element (e.g., a custom picker or rich preview).
+→ `AnchoredOverlay` renderAnchor={…}
 
 ## Navigation & wayfinding
 
-_(empty — run /pastiche-setup --section navigation-wayfinding)_
+Vertical sidebar navigation showing the current view and linking to sibling views within a context.
+→ `NavList`
+→ `NavList.Item` aria-current="page"
+→ `NavList.Group`
+
+Horizontal tabbed navigation switching between 2+ related views, where each tab changes the URL.
+→ `UnderlineNav`
+→ `UnderlineNav.Item` counter
+
+Breadcrumb trail showing the user's location within a nested hierarchy (e.g., Org → Repo → Settings).
+→ `Breadcrumbs` + `Breadcrumbs.Item`
+
+Paginated navigation for long lists or search results.
+→ `Pagination` pageCount={…} currentPage={…}
 
 ## Content display
 
-_(empty — run /pastiche-setup --section content-display)_
+Tabular data with sorting, where each row represents an item and columns are data points about it.
+→ `DataTable`
+→ `Table.Container`
+→ `Table.Title`
+
+Displaying the status of an issue or pull request with an icon and color-coded label.
+→ `StateLabel` status="open" | "closed" | "merged" | "draft"
+
+Compact label for categorization or metadata (e.g., issue labels, language tags).
+→ `Label` variant="default" | "primary" | "secondary" | "accent" | "success" | "attention" | "severe" | "danger" | "done" | "sponsors"
+
+Numeric count badge alongside a tab, nav item, or heading (e.g., "Issues 42").
+→ `CounterLabel` scheme="primary" | "secondary"
+
+Hierarchical tree of expandable items (e.g., file browser, directory listing).
+→ `TreeView` + `TreeView.Item` + `TreeView.SubTree`
 
 ## Layout & page structure
 
-_(empty — run /pastiche-setup --section layout-page-structure)_
+Top-level page heading with title, optional description, and action buttons — the entry point of a page.
+→ `PageHeader`
+→ `PageHeader.Title`
+→ `PageHeader.Actions`
+→ `PageHeader.Description`
+
+Two-column layout with a main content area and a sidebar for navigation or metadata.
+→ `SplitPageLayout`
+→ `SplitPageLayout.Content`
+→ `SplitPageLayout.Pane`
+
+Full page scaffold with optional header, footer, content pane, and sidebar — the outermost structural shell.
+→ `PageLayout` + `PageLayout.Header` + `PageLayout.Content` + `PageLayout.Pane` + `PageLayout.Footer`
+
+Vertical or horizontal stacking of elements with consistent gap spacing.
+→ `Stack` direction="vertical" | "horizontal" gap="condensed" | "normal" | "spacious"
 
 ## Date & time selection
 
-_(empty — run /pastiche-setup --section date-time-selection)_
+Displaying a timestamp in human-readable relative format that automatically updates (e.g., "3 hours ago", "yesterday").
+→ `RelativeTime` threshold="P30D"
 
 ## Iconography
 
-_(empty — run /pastiche-setup --section iconography)_
+Icon-only button in a compact space where the icon's meaning is universally understood (e.g., close, search, settings).
+→ `IconButton` aria-label="<descriptive text>" icon={OcticonName}
+
+Decorative icon inside a button or list item that reinforces the adjacent text label — not the sole means of communication.
+→ `Button` leadingVisual={OcticonName}
+→ `ActionList.LeadingVisual`
+
 
 ## Visual hierarchy
 
-_(empty — run /pastiche-setup --section visual-hierarchy)_
+Primary page heading that establishes the top of the content hierarchy.
+→ `Heading` as="h1" | "h2"
+
+De-emphasized secondary text that provides supporting context without competing with primary content.
+→ `Text` size="small" weight="light"
+
+Rendering longer-form body text or inline content with controlled size and color.
+→ `Text` as="p" size="medium"
 
 ## Domain-specific patterns
 
-_(empty — run /pastiche-setup --section domain-specific-patterns)_
+Chronological event history showing a sequence of comments, status changes, and activity on an issue or pull request.
+→ `Timeline`
+→ `Timeline.Item`
+→ `Timeline.Badge`
+→ `Timeline.Body`
+
+Empty state placeholder when a list or page has no content yet — guiding the user toward a first action.
+→ `Blankslate`
+→ `Blankslate.Visual`
+→ `Blankslate.Heading`
+→ `Blankslate.PrimaryAction`
 
 ## Brand Identity
 

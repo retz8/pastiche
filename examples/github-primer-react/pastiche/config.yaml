@@ -6,7 +6,9 @@ platform: claude-code
 
 packages:
   - name: "@primer/react"
-    types: "node_modules/@primer/react/dist/index.d.ts"
+    types:
+      - "node_modules/@primer/react/dist/index.d.ts"
+      - "node_modules/@primer/react/dist/experimental/index.d.ts"
 
 tokens:
   - node_modules/@primer/primitives/dist/css/functional/size/size.css
@@ -24,15 +26,15 @@ typecheck_command: npx tsc --noEmit
 
 setup_progress:
   action-buttons: done
-  forms-input-collection: stub
-  feedback-status: stub
-  overlays: stub
-  navigation-wayfinding: stub
-  content-display: stub
-  layout-page-structure: stub
-  date-time-selection: stub
-  iconography: stub
-  visual-hierarchy: stub
-  domain-specific-patterns: stub
+  forms-input-collection: done
+  feedback-status: done
+  overlays: done
+  navigation-wayfinding: done
+  content-display: done
+  layout-page-structure: done
+  date-time-selection: done
+  iconography: done
+  visual-hierarchy: done
+  domain-specific-patterns: done
   brand-identity: done
-  general-wisdom: stub
+  general-wisdom: done
