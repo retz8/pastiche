@@ -1,5 +1,6 @@
 mod canonical_sections;
 mod config;
+mod fact;
 mod read_docs;
 mod violation;
 
