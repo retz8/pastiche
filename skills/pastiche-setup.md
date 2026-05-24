@@ -78,16 +78,11 @@ Per section:
 
 2. **Confirm.** Show the list. *"Accept all, or tell me what to change (accept some / reject some / edit some / add new)?"* Loop on natural-language responses until the adopter accepts.
 
-3. **Verify atoms.** For each backticked identifier `X`:
-   - Components → `grep '^X:' pastiche/FACT.md` (inside `## Components` YAML; top-level keys only).
-   - Tokens → `grep -Fx 'X' pastiche/FACT.md` (flat lines under `## Tokens`).
-   - On miss, retry case-insensitively, surface the closest match, confirm with the adopter. If still no match, drop or rewrite that scenario.
+3. **Write.** Replace the section's `_(empty — …)_` marker with the confirmed scenarios. Each scenario: one or more prose framing lines, then one or more `→ <atom expression>` lines.
 
-4. **Write.** Replace the section's `_(empty — …)_` marker with the confirmed scenarios. Each scenario: one or more prose framing lines, then one or more `→ <atom expression>` lines.
+4. **Flip + lint.** Set `setup_progress.<section>: done` in config. Run lint.
 
-5. **Flip + lint.** Set `setup_progress.<section>: done` in config. Run lint.
-
-6. **Cadence prompt** (unless `--all`).
+5. **Cadence prompt** (unless `--all`).
 
 ## `[GENERAL]` WISDOM phase (last)
 
