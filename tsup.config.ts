@@ -6,9 +6,14 @@ export default defineConfig({
   format: ['esm'],
   target: 'node20',
   platform: 'node',
+  shims: true,
   splitting: false,
   clean: false,
   banner: {
-    js: '#!/usr/bin/env node',
+    js: [
+      '#!/usr/bin/env node',
+      'import { createRequire as __$$createRequire } from "module";',
+      'const require = __$$createRequire(import.meta.url);',
+    ].join('\n'),
   },
 });
