@@ -1,0 +1,38 @@
+# pastiche config — adopter-owned. Edit freely.
+# `/pastiche-sync` re-reads this file and regenerates FACT/adapters accordingly.
+# Field reference: docs/config.md
+
+platform: claude-code
+
+packages:
+  - name: "@primer/react"
+    types: "node_modules/@primer/react/dist/index.d.ts"
+
+tokens:
+  - node_modules/@primer/primitives/dist/css/functional/size/size.css
+  - node_modules/@primer/primitives/dist/css/functional/size/border.css
+  - node_modules/@primer/primitives/dist/css/functional/size/radius.css
+  - node_modules/@primer/primitives/dist/css/functional/size/z-index.css
+  - node_modules/@primer/primitives/dist/css/functional/spacing/space.css
+  - node_modules/@primer/primitives/dist/css/functional/typography/typography.css
+  - node_modules/@primer/primitives/dist/css/functional/motion/motion.css
+  - node_modules/@primer/primitives/dist/css/functional/themes/light.css
+
+design_md_reference: null
+
+typecheck_command: npx tsc --noEmit
+
+setup_progress:
+  action-buttons: stub
+  forms-input-collection: stub
+  feedback-status: stub
+  overlays: stub
+  navigation-wayfinding: stub
+  content-display: stub
+  layout-page-structure: stub
+  date-time-selection: stub
+  iconography: stub
+  visual-hierarchy: stub
+  domain-specific-patterns: stub
+  brand-identity: stub
+  general-wisdom: stub
