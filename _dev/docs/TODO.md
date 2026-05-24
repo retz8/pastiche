@@ -120,3 +120,7 @@ Sequenced delivery plan for shipping v1 of pastiche, derived from `OSS_SPEC.md`.
 - [ ] **9.2** Run OSS_SPEC §15 eight-point acceptance checklist end-to-end against `examples/github-primer-react/` **on Claude Code only**. Codex is shipped as placeholder per OSS_SPEC §2.2; runtime validation deferred to a v1.x community milestone. Per Phase 4 spec open item (2), acceptance criterion #5 (CI lint) softens to adopter-side hook-based enforcement; the 9.1 spec-editing pass updates §15 accordingly.
 - [ ] **9.3** Verify `_dev/` is empty (sources are deleted per Rule 5 as they're ported) and remove the tree, once §15 is green.
 - [ ] **9.4** Ship v1.
+
+---
+
+> **Personal note (Jioh):** After finishing Rust basics study, revisit `rust/pastiche-lint/` as a real-world reading exercise — config parsing, regex, serde_yaml, CLI entry, test patterns with tempfile. Good second-pass material.
