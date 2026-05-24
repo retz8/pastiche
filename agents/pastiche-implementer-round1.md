@@ -20,7 +20,7 @@ The task description is in your dispatch prompt.
    grep -n '^## ' pastiche/KNOWLEDGE.md | grep -v '## Brand Identity'
    ```
 
-3. Identify sections relevant to the task. **Cast a wide net** — if a section could even loosely apply, read it. A page task typically touches 4–6 sections (e.g., an issues list needs Action buttons, Content display, Navigation, Layout, Feedback, and Iconography). Read each by line range — from its start line to the next H2's start line.
+3. Identify sections relevant to the task. **Cast a wide net** — if a section could even loosely apply, read it. A page task typically touches 4–6 sections. Read each by line range — from its start line to the next H2's start line.
 
 4. From the loaded sections, identify candidate **atoms** — components and tokens — that the scenarios map to.
 
