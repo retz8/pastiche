@@ -3,14 +3,15 @@
 import { useState } from "react";
 import NextLink from "next/link";
 import {
+  ActionList,
   LinkButton,
+  PageLayout,
   TextInput,
   UnderlineNav,
   StateLabel,
   IssueLabelToken,
   LabelGroup,
   RelativeTime,
-  Link,
   Text,
   Stack,
 } from "@primer/react";
@@ -174,11 +175,9 @@ export default function IssuesPage() {
   ).length;
 
   return (
-    <Stack
-      direction="vertical"
-      gap="normal"
-      style={{ maxWidth: 1012, margin: "0 auto", padding: "var(--stack-gap-normal) var(--stack-gap-normal)" }}
-    >
+    <PageLayout containerWidth="xlarge" padding="normal" rowGap="normal">
+    <PageLayout.Content>
+    <Stack direction="vertical" gap="normal">
       {/* Search bar + New issue button */}
       <Stack direction="horizontal" gap="normal" align="center">
         <div style={{ flex: 1 }}>
@@ -242,87 +241,46 @@ export default function IssuesPage() {
           </Blankslate>
         </div>
       ) : (
-        <div
-          style={{
-            border: "1px solid var(--borderColor-default)",
-            borderRadius: "var(--borderRadius-medium)",
-          }}
-        >
-          {filteredIssues.map((issue, index) => (
-            <div
+        <ActionList showDividers>
+          {filteredIssues.map((issue) => (
+            <ActionList.LinkItem
               key={issue.id}
-              style={{
-                padding: "12px 16px",
-                borderTop: index > 0 ? "1px solid var(--borderColor-muted)" : undefined,
-                display: "flex",
-                alignItems: "flex-start",
-                gap: 8,
-              }}
+              href={`/issues/${issue.id}`}
             >
-              {/* Status icon */}
-              <div style={{ paddingTop: 2 }}>
-                <StateLabel
-                  status={issue.status}
-                  variant="small"
-                />
-              </div>
-
-              {/* Main content */}
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: 6 }}>
-                  <Link
-                    as={NextLink}
-                    href={`/issues/${issue.id}`}
-                    style={{
-                      fontWeight: "var(--text-title-weight-small)",
-                      fontSize: "var(--text-title-size-small)",
-                    }}
-                  >
-                    {issue.title}
-                  </Link>
-                  {issue.labels.length > 0 && (
-                    <LabelGroup>
-                      {issue.labels.map((label) => (
-                        <IssueLabelToken
-                          key={label.name}
-                          text={label.name}
-                          fillColor={label.color}
-                          size="small"
-                        />
-                      ))}
-                    </LabelGroup>
-                  )}
-                </div>
-                <Text size="small" weight="light">
-                  #{issue.id} opened{" "}
-                  <RelativeTime datetime={issue.createdAt} /> by{" "}
-                  {issue.author}
-                </Text>
-              </div>
-
-              {/* Comment count */}
+              <ActionList.LeadingVisual>
+                <StateLabel status={issue.status} variant="small" />
+              </ActionList.LeadingVisual>
+              <span style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: 6 }}>
+                {issue.title}
+                {issue.labels.length > 0 && (
+                  <LabelGroup>
+                    {issue.labels.map((label) => (
+                      <IssueLabelToken
+                        key={label.name}
+                        text={label.name}
+                        fillColor={label.color}
+                        size="small"
+                      />
+                    ))}
+                  </LabelGroup>
+                )}
+              </span>
+              <ActionList.Description variant="block">
+                #{issue.id} opened{" "}
+                <RelativeTime datetime={issue.createdAt} /> by{" "}
+                {issue.author}
+              </ActionList.Description>
               {issue.commentCount > 0 && (
-                <Link
-                  as={NextLink}
-                  href={`/issues/${issue.id}`}
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 4,
-                    color: "var(--fgColor-muted)",
-                    fontSize: "var(--text-body-size-small)",
-                    whiteSpace: "nowrap",
-                    paddingTop: 4,
-                  }}
-                  aria-label={`${issue.commentCount} comments`}
-                >
-                  <CommentIcon size={16} />
-                  <Text size="small">{issue.commentCount}</Text>
-                </Link>
+                <ActionList.TrailingVisual>
+                  <Stack direction="horizontal" gap="condensed" align="center">
+                    <CommentIcon size={16} />
+                    <Text size="small">{issue.commentCount}</Text>
+                  </Stack>
+                </ActionList.TrailingVisual>
               )}
-            </div>
+            </ActionList.LinkItem>
           ))}
-        </div>
+        </ActionList>
       )}
     </Stack>
   );
