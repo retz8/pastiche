@@ -135,15 +135,22 @@ pub fn validate_config(raw: &str) -> Vec<Violation> {
                         }
                         if has_types {
                             let types_val = map.get(&Value::String("types".into()));
-                            match types_val.and_then(|v| v.as_str()) {
-                                Some(s) if !s.is_empty() => {}
-                                _ => {
-                                    violations.push(v(
-                                        ViolationFamily::Config,
-                                        1,
-                                        format!("packages[{}].types must be a non-empty string.", i),
-                                    ));
+                            let valid = match types_val {
+                                Some(Value::String(s)) => !s.is_empty(),
+                                Some(Value::Sequence(seq)) => {
+                                    !seq.is_empty()
+                                        && seq.iter().all(|item| {
+                                            matches!(item, Value::String(s) if !s.is_empty())
+                                        })
                                 }
+                                _ => false,
+                            };
+                            if !valid {
+                                violations.push(v(
+                                    ViolationFamily::Config,
+                                    1,
+                                    format!("packages[{}].types must be a non-empty string or list of strings.", i),
+                                ));
                             }
                         }
                         if has_source_dir {
@@ -424,6 +431,26 @@ setup_progress:
         );
         let r = validate_config(&input);
         assert!(r.iter().any(|v| v.message.contains("exactly one of types or source_dir")));
+    }
+
+    #[test]
+    fn types_as_string_array_is_valid() {
+        let input = VALID_CONFIG.replace(
+            "    types: \"node_modules/@org/web/dist/index.d.ts\"",
+            "    types:\n      - \"node_modules/@org/web/dist/index.d.ts\"\n      - \"node_modules/@org/web/dist/experimental.d.ts\"",
+        );
+        let r = validate_config(&input);
+        assert!(r.is_empty(), "expected no violations, got: {:?}", r);
+    }
+
+    #[test]
+    fn types_as_empty_array_is_invalid() {
+        let input = VALID_CONFIG.replace(
+            "    types: \"node_modules/@org/web/dist/index.d.ts\"",
+            "    types: []",
+        );
+        let r = validate_config(&input);
+        assert!(r.iter().any(|v| v.message.contains("types must be")));
     }
 
     #[test]
