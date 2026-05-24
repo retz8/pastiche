@@ -14,6 +14,8 @@ Below the header, a horizontal navigation bar with tabs for the main sections of
 
 The content area below the nav is where individual pages render. It should be centered with a max width appropriate for a productivity tool — not full-bleed, not too narrow.
 
+Add a proper footer for 2026 Github Inc. footer should be stay at the bottom of the page.
+
 This layout is shared across all pages. The three page prompts below assume it's already in place.
 
 ---
