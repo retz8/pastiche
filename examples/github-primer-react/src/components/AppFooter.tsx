@@ -7,7 +7,6 @@ export function AppFooter() {
   return (
     <footer
       style={{
-        borderTop: "var(--borderWidth-thin) solid var(--borderColor-default)",
         paddingBlock: "var(--base-size-40)",
         paddingInline: "var(--base-size-32)",
       }}
