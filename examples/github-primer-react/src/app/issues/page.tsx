@@ -283,5 +283,7 @@ export default function IssuesPage() {
         </ActionList>
       )}
     </Stack>
+    </PageLayout.Content>
+    </PageLayout>
   );
 }
