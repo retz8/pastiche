@@ -38,7 +38,7 @@ pub fn parse_and_validate_fact(text: &str) -> ParseFactResult {
 
     // Scan H2 positions.
     struct H2Pos {
-        name: String,
+        _name: String,
         line: usize,
     }
     let mut h2_positions: Vec<H2Pos> = Vec::new();
@@ -54,7 +54,7 @@ pub fn parse_and_validate_fact(text: &str) -> ParseFactResult {
             if name == "Tokens" && tokens_h2.is_none() {
                 tokens_h2 = Some(i);
             }
-            h2_positions.push(H2Pos { name, line: i });
+            h2_positions.push(H2Pos { _name: name, line: i });
         }
     }
 

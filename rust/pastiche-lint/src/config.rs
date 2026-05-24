@@ -44,7 +44,7 @@ pub fn validate_config(raw: &str) -> Vec<Violation> {
     }
 
     let typecheck = obj.get(&Value::String("typecheck_command".into()));
-    let typecheck_str = typecheck.and_then(|v| v.as_str());
+    let _typecheck_str = typecheck.and_then(|v| v.as_str());
     if typecheck.is_none() || typecheck == Some(&Value::Null) {
         violations.push(v(ViolationFamily::Sentinel, 1, "typecheck_command not set \u{2014} run /pastiche-init.".to_string()));
     }
