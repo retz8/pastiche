@@ -84,8 +84,8 @@ Sequenced delivery plan for shipping v1 of pastiche, derived from `OSS_SPEC.md`.
 - [ ] [WIP] **6.1** Scaffold Next.js (app router) + `@primer/react` (exact-pinned) + TypeScript skeleton at `examples/github-primer-react/`; symlink-install plugin via `.claude/plugins/pastiche` → `../../../dist-plugin/`. *Depends on 6.0b.*
 - [ ] **6.2** Run `/pastiche-init` against it; commit the resulting `pastiche/{config.yaml, FACT.md}`.
 - [x] **6.2.5** Deep research session on primer.style → human-readable research doc at `examples/github-primer-react/docs/primer-research.md`. Upstream of KNOWLEDGE/WISDOM curation; also prototype evidence for a future research-from-docs `pastiche-setup` mode.
-- [ ] **6.3** KNOWLEDGE skeleton pass — one or two entries per canonical 12 sections, distilled from 6.2.5. Lint-clean.
-- [ ] **6.4** WISDOM skeleton pass — 3–5 atom-tagged rules, distilled from 6.2.5. Parallel-eligible with 6.3.
+- [ ] [WIP] **6.3** KNOWLEDGE skeleton pass — one or two entries per canonical 12 sections, distilled from 6.2.5. Lint-clean.
+- [ ] [WIP] **6.4** WISDOM skeleton pass — 3–5 atom-tagged rules, distilled from 6.2.5. Parallel-eligible with 6.3.
 - [ ] **6.5** Run pastiche tasks against the example app (KNOWLEDGE/WISDOM deepen JIT; findings logged to `docs/phase-6-findings.md`). Cherry-pick three best invocations as failure-mode artifacts (component omission, token omission, wrong choice) at `examples/github-primer-react/artifacts/<NN>-<failure-mode>/` with input/round1/reviewer/round2/final.
 - [ ] **6.6** Non-affiliation banners — example README + KNOWLEDGE/WISDOM headers + research doc header. Parallel-eligible throughout.
 
@@ -124,3 +124,5 @@ Sequenced delivery plan for shipping v1 of pastiche, derived from `OSS_SPEC.md`.
 ---
 
 > **Personal note (Jioh):** After finishing Rust basics study, revisit `rust/pastiche-lint/` as a real-world reading exercise — config parsing, regex, serde_yaml, CLI entry, test patterns with tempfile. Good second-pass material.
+
+> **Post-v1 idea (from task 6.2.5):** Add a `/pastiche-research-ds-docs` skill that crawls a design system's public documentation (like primer.style) and generates a structured research file. The setup skill would then accept this research doc as an optional additional source alongside `design_md_reference` — a new `research_doc_reference` field in `config.yaml`. This bridges the gap for adopters whose DS knowledge lives in external docs rather than a local `DESIGN.md`. Evidence: the 6.2.5 research session produced decision-grade knowledge that the setup skill's canonical seeds + FACT alone could not surface.
