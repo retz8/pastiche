@@ -2,7 +2,6 @@
 
 import React, { useState } from "react";
 import {
-  Box,
   Button,
   LinkButton,
   TextInput,
@@ -10,10 +9,10 @@ import {
   StateLabel,
   IssueLabelToken,
   LabelGroup,
-  Blankslate,
   Text,
   Link,
 } from "@primer/react";
+import { Blankslate } from "@primer/react/experimental";
 import {
   IssueOpenedIcon,
   IssueClosedIcon,
@@ -159,30 +158,23 @@ export default function IssuesPage() {
   );
 
   return (
-    <Box sx={{ maxWidth: 1280, mx: "auto", p: 4 }}>
+    <div style={{ maxWidth: 1280, margin: "0 auto", padding: 24 }}>
       {/* Search bar + New issue button */}
-      <Box
-        sx={{
-          display: "flex",
-          gap: 2,
-          mb: 3,
-          alignItems: "center",
-        }}
-      >
-        <Box sx={{ flexGrow: 1 }}>
+      <div style={{ display: "flex", gap: 8, marginBottom: 16, alignItems: "center" }}>
+        <div style={{ flexGrow: 1 }}>
           <TextInput
             leadingVisual={SearchIcon}
             placeholder="Search all issues"
             value={filter}
             onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFilter(e.target.value)}
-            sx={{ width: "100%" }}
+            className="width-full"
             aria-label="Search issues"
           />
-        </Box>
+        </div>
         <LinkButton variant="primary" href="/issues/new">
           New issue
         </LinkButton>
-      </Box>
+      </div>
 
       {/* Open/Closed tabs */}
       <UnderlineNav aria-label="Issue status">
@@ -212,7 +204,7 @@ export default function IssuesPage() {
 
       {/* Issue list or empty state */}
       {displayedIssues.length === 0 ? (
-        <Box sx={{ mt: 5 }}>
+        <div style={{ marginTop: 40 }}>
           <Blankslate>
             <Blankslate.Visual>
               <IssueOpenedIcon size={24} />
@@ -229,66 +221,42 @@ export default function IssuesPage() {
               </Blankslate.PrimaryAction>
             )}
           </Blankslate>
-        </Box>
+        </div>
       ) : (
-        <Box
-          as="ul"
-          sx={{
+        <ul
+          style={{
             listStyle: "none",
-            p: 0,
-            m: 0,
-            borderWidth: 1,
-            borderStyle: "solid",
-            borderColor: "border.default",
-            borderRadius: 2,
-            mt: 3,
+            padding: 0,
+            margin: 0,
+            border: "1px solid var(--borderColor-default, #d0d7de)",
+            borderRadius: 6,
+            marginTop: 16,
           }}
         >
           {displayedIssues.map((issue, idx) => (
-            <Box
-              as="li"
+            <li
               key={issue.id}
-              sx={{
+              style={{
                 display: "flex",
                 alignItems: "flex-start",
-                gap: 2,
-                px: 3,
-                py: 2,
-                borderTopWidth: idx === 0 ? 0 : 1,
-                borderTopStyle: "solid",
-                borderTopColor: "border.muted",
-                "&:hover": { bg: "canvas.subtle" },
+                gap: 8,
+                padding: "12px 16px",
+                borderTop: idx === 0 ? "none" : "1px solid var(--borderColor-muted, #d8dee4)",
               }}
             >
               {/* Status icon */}
-              <Box sx={{ pt: "2px", flexShrink: 0 }}>
+              <div style={{ paddingTop: 2, flexShrink: 0 }}>
                 <StateLabel
-                  status={
-                    issue.status === "open" ? "issueOpened" : "issueClosed"
-                  }
+                  status={issue.status === "open" ? "issueOpened" : "issueClosed"}
                   variant="small"
                 />
-              </Box>
+              </div>
 
               {/* Main content */}
-              <Box sx={{ flexGrow: 1, minWidth: 0 }}>
-                <Box
-                  sx={{
-                    display: "flex",
-                    flexWrap: "wrap",
-                    alignItems: "center",
-                    gap: 1,
-                  }}
-                >
-                  <Link
-                    href={`/issues/${issue.id}`}
-                    sx={{
-                      fontWeight: "semibold",
-                      color: "fg.default",
-                      "&:hover": { color: "accent.fg" },
-                    }}
-                  >
-                    {issue.title}
+              <div style={{ flexGrow: 1, minWidth: 0 }}>
+                <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: 4 }}>
+                  <Link href={`/issues/${issue.id}`}>
+                    <Text weight="semibold">{issue.title}</Text>
                   </Link>
                   {issue.labels.length > 0 && (
                     <LabelGroup>
@@ -302,33 +270,23 @@ export default function IssuesPage() {
                       ))}
                     </LabelGroup>
                   )}
-                </Box>
-                <Text size="small" sx={{ color: "fg.muted", mt: 1 }}>
+                </div>
+                <Text size="small">
                   #{issue.id} opened {issue.createdAt} by {issue.author}
                 </Text>
-              </Box>
+              </div>
 
               {/* Comment count */}
               {issue.commentCount > 0 && (
-                <Box
-                  sx={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 1,
-                    flexShrink: 0,
-                    pt: "2px",
-                  }}
-                >
+                <div style={{ display: "flex", alignItems: "center", gap: 4, flexShrink: 0, paddingTop: 2 }}>
                   <CommentIcon size={16} />
-                  <Text size="small" sx={{ color: "fg.muted" }}>
-                    {issue.commentCount}
-                  </Text>
-                </Box>
+                  <Text size="small">{issue.commentCount}</Text>
+                </div>
               )}
-            </Box>
+            </li>
           ))}
-        </Box>
+        </ul>
       )}
-    </Box>
+    </div>
   );
 }
