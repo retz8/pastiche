@@ -124,9 +124,9 @@ export function AppHeader() {
         </UnderlineNav.Item>
         <UnderlineNav.Item
           as={Link}
-          href="/"
+          href="/settings"
           icon={GearIcon}
-          aria-current={undefined}
+          aria-current={pathname.startsWith("/settings") ? "page" : undefined}
         >
           Settings
         </UnderlineNav.Item>
