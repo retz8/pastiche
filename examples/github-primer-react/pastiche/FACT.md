@@ -996,9 +996,11 @@ SelectPanel.SecondaryActionLink: { pkg: "@primer/react" }
 SelectPanel.Message:
   pkg: "@primer/react"
   children: ReactNode
-  size?: [full]
-  title?: string
-  variant: [warning, error, empty]
+  title: string
+  variant: [empty, error, warning]
+  className?: string
+  icon?: "React.ComponentType<IconProps>"
+  action?: "React.ReactElement<any>"
 SideNav.Link:
   pkg: "@primer/react"
   spreads: ["ComponentProps<typeof SideNavLink>"]
@@ -1356,10 +1358,10 @@ AutocompleteMenuInternal:
   onSelectedChange?: "(item: T | T[]) => void"
   customScrollContainerRef?: "React.MutableRefObject<HTMLElement | null>"
   ['aria-labelledby']: string
-Blankslate: { pkg: "@primer/react" }
-Card: { pkg: "@primer/react" }
+Blankslate: { pkg: "@primer/react/experimental" }
+Card: { pkg: "@primer/react/experimental" }
 DataTable:
-  pkg: "@primer/react"
+  pkg: "@primer/react/experimental"
   aria-describedby?: string
   aria-labelledby?: string
   cellPadding?: [condensed, normal, spacious]
@@ -1371,20 +1373,20 @@ DataTable:
   getRowId?: "(rowData: Data) => string | number"
   onToggleSort?: "(columnId: ObjectPaths<Data> | string | number, direction: Exclude<SortDirection, 'NONE'>) => void"
 Table:
-  pkg: "@primer/react"
+  pkg: "@primer/react/experimental"
   spreads: ["React.ComponentPropsWithoutRef<'table'>"]
   aria-describedby?: string
   aria-labelledby?: string
   gridTemplateColumns?: "React.CSSProperties['gridTemplateColumns']"
   cellPadding?: [condensed, normal, spacious]
 InlineMessage:
-  pkg: "@primer/react"
+  pkg: "@primer/react/experimental"
   spreads: ["React.ComponentPropsWithoutRef<'div'>"]
   size?: [small, medium]
   variant: [critical, success, unavailable, warning]
   leadingVisual?: "React.ElementType | ReactNode"
 ScrollableRegion:
-  pkg: "@primer/react"
+  pkg: "@primer/react/experimental"
   spreads: ["React.ComponentPropsWithoutRef<'div'>"]
   variants:
     - aria-label: string
@@ -1392,16 +1394,16 @@ ScrollableRegion:
     - aria-label?: never
       aria-labelledby: string
 Announce:
-  pkg: "@primer/react"
+  pkg: "@primer/react/experimental"
   spreads: ["PolymorphicProps<As, 'div', { announceOnShow?: bool; hidden?: bool; delayMs?: number; politeness?: 'assertive' | 'polite'; }>"]
 AriaStatus:
-  pkg: "@primer/react"
+  pkg: "@primer/react/experimental"
   spreads: ["PolymorphicProps<As, 'div', { announceOnShow?: bool; hidden?: bool; delayMs?: number; }>"]
 AriaAlert:
-  pkg: "@primer/react"
+  pkg: "@primer/react/experimental"
   spreads: ["PolymorphicProps<As, 'div', { announceOnShow?: bool; hidden?: bool; }>"]
 UnderlinePanels:
-  pkg: "@primer/react"
+  pkg: "@primer/react/experimental"
   children: ReactNode
   aria-label?: "React.AriaAttributes['aria-label']"
   aria-labelledby?: "React.AriaAttributes['aria-labelledby']"
@@ -1410,23 +1412,23 @@ UnderlinePanels:
   className?: string
   as?: "React.ElementType"
 SkeletonText:
-  pkg: "@primer/react"
+  pkg: "@primer/react/experimental"
   spreads: ["Omit<HTMLProps<HTMLElement>, 'size'>"]
   size?: [display, titleLarge, titleMedium, titleSmall, bodyLarge, bodyMedium, bodySmall, subtitle]
   lines?: number
   maxWidth?: "React.CSSProperties['maxWidth']"
   className?: string
 SkeletonAvatar:
-  pkg: "@primer/react"
+  pkg: "@primer/react/experimental"
   spreads: ["Omit<React.HTMLProps<HTMLElement>, 'size'>"]
   className?: string
   size?: "AvatarProps['size']"
   square?: "AvatarProps['square']"
 FeatureFlags:
-  pkg: "@primer/react"
+  pkg: "@primer/react/experimental"
   spreads: ["React.PropsWithChildren<{ flags: FeatureFlags; }>"]
 IssueLabel:
-  pkg: "@primer/react"
+  pkg: "@primer/react/experimental"
   spreads: ["Omit<React.ComponentPropsWithoutRef<'span'>, 'onClick'>", "React.ComponentPropsWithoutRef<'a'>", "React.ComponentPropsWithoutRef<'button'>", "Omit<React.ComponentPropsWithoutRef<As>, keyof BaseProps>"]
   variants:
     - className?: string
@@ -1449,99 +1451,99 @@ IssueLabel:
       className?: string
       fillColor?: "`#${string}`"
       variant?: [auburn, blue, brown, coral, cyan, gray, green, indigo, lemon, lime, olive, orange, pine, pink, plum, purple, red, teal, yellow]
-TopicTag: { pkg: "@primer/react" }
+TopicTag: { pkg: "@primer/react/experimental" }
 Hidden:
-  pkg: "@primer/react"
+  pkg: "@primer/react/experimental"
   when: "Array<Viewport> | Viewport"
   children: ReactNode
   className?: string
   style?: CSSProperties
 KeybindingHint:
-  pkg: "@primer/react"
+  pkg: "@primer/react/experimental"
   keys: string
   format?: [condensed, full]
   variant?: [normal, onEmphasis, onPrimary]
   size?: [small, normal]
   className?: string
 Tabs:
-  pkg: "@primer/react"
+  pkg: "@primer/react/experimental"
   spreads: ["PropsWithChildren<ControlledTabsProps | UncontrolledTabsProps>"]
 TabList:
-  pkg: "@primer/react"
+  pkg: "@primer/react/experimental"
   spreads: [React.HTMLAttributes<HTMLElement>]
   variants:
     - aria-label: string
     - aria-labelledby: string
 Tab:
-  pkg: "@primer/react"
+  pkg: "@primer/react/experimental"
   spreads: ["PropsWithChildren<{ 'aria-selected'?: bool; onSelect?: (event: React.KeyboardEvent<HTMLButtonElement> | React.MouseEvent<HTMLButtonElement>) => void; counter?: number | string; icon?: FC<IconProps>; }>"]
 TabPanel:
-  pkg: "@primer/react"
+  pkg: "@primer/react/experimental"
   value: string
-DefaultFeatureFlags: { pkg: "@primer/react" }
-Blankslate.Visual: { pkg: "@primer/react" }
-Blankslate.Heading: { pkg: "@primer/react" }
-Blankslate.Description: { pkg: "@primer/react" }
-Blankslate.PrimaryAction: { pkg: "@primer/react" }
-Blankslate.SecondaryAction: { pkg: "@primer/react" }
-Card.Icon: { pkg: "@primer/react" }
-Card.Image: { pkg: "@primer/react" }
-Card.Heading: { pkg: "@primer/react" }
-Card.Description: { pkg: "@primer/react" }
-Card.Menu: { pkg: "@primer/react" }
-Card.Metadata: { pkg: "@primer/react" }
+DefaultFeatureFlags: { pkg: "@primer/react/experimental" }
+Blankslate.Visual: { pkg: "@primer/react/experimental" }
+Blankslate.Heading: { pkg: "@primer/react/experimental" }
+Blankslate.Description: { pkg: "@primer/react/experimental" }
+Blankslate.PrimaryAction: { pkg: "@primer/react/experimental" }
+Blankslate.SecondaryAction: { pkg: "@primer/react/experimental" }
+Card.Icon: { pkg: "@primer/react/experimental" }
+Card.Image: { pkg: "@primer/react/experimental" }
+Card.Heading: { pkg: "@primer/react/experimental" }
+Card.Description: { pkg: "@primer/react/experimental" }
+Card.Menu: { pkg: "@primer/react/experimental" }
+Card.Metadata: { pkg: "@primer/react/experimental" }
 Table.Container:
-  pkg: "@primer/react"
+  pkg: "@primer/react/experimental"
   spreads: ["PolymorphicProps<As, 'div'>", React.PropsWithChildren]
 Table.Title:
-  pkg: "@primer/react"
+  pkg: "@primer/react/experimental"
   spreads: ["React.PropsWithChildren<{ as?: keyof JSX.IntrinsicElements | React.ComponentType; id: string; } & React.HTMLAttributes<HTMLElement> & React.RefAttributes<HTMLElement>>"]
 Table.Subtitle:
-  pkg: "@primer/react"
+  pkg: "@primer/react/experimental"
   spreads: ["React.PropsWithChildren<{ as?: keyof JSX.IntrinsicElements | React.ComponentType; id: string; } & React.HTMLAttributes<HTMLElement>>"]
 Table.Actions:
-  pkg: "@primer/react"
+  pkg: "@primer/react/experimental"
   spreads: [React.PropsWithChildren]
-Table.Divider: { pkg: "@primer/react" }
+Table.Divider: { pkg: "@primer/react/experimental" }
 Table.Skeleton:
-  pkg: "@primer/react"
+  pkg: "@primer/react/experimental"
   spreads: ["React.ComponentPropsWithoutRef<'table'>"]
   cellPadding?: [condensed, normal, spacious]
   columns: Array<Column<Data>>
   rows?: number
 Table.Head:
-  pkg: "@primer/react"
+  pkg: "@primer/react/experimental"
   spreads: ["React.ComponentPropsWithoutRef<'thead'>"]
 Table.Body:
-  pkg: "@primer/react"
+  pkg: "@primer/react/experimental"
   spreads: ["React.ComponentPropsWithoutRef<'tbody'>"]
 Table.Header:
-  pkg: "@primer/react"
+  pkg: "@primer/react/experimental"
   spreads: ["Omit<React.ComponentPropsWithoutRef<'th'>, 'align'>"]
   align?: [start, end]
 Table.Row:
-  pkg: "@primer/react"
+  pkg: "@primer/react/experimental"
   spreads: ["React.ComponentPropsWithoutRef<'tr'>"]
 Table.Cell:
-  pkg: "@primer/react"
+  pkg: "@primer/react/experimental"
   spreads: ["Omit<React.ComponentPropsWithoutRef<'td'>, 'align'>"]
   align?: [start, end]
   scope?: [row]
 Table.CellPlaceholder:
-  pkg: "@primer/react"
+  pkg: "@primer/react/experimental"
   spreads: [React.PropsWithChildren]
-Table.Pagination: { pkg: "@primer/react" }
-Table.ErrorDialog: { pkg: "@primer/react" }
-UnderlinePanels.Panel: { pkg: "@primer/react" }
-UnderlinePanels.Tab: { pkg: "@primer/react" }
-TopicTag.Group: { pkg: "@primer/react" }
-SelectPanel.Button: { pkg: "@primer/react" }
-SelectPanel.Header: { pkg: "@primer/react" }
-SelectPanel.SearchInput: { pkg: "@primer/react" }
-SelectPanel.Footer: { pkg: "@primer/react" }
-SelectPanel.Loading: { pkg: "@primer/react" }
+Table.Pagination: { pkg: "@primer/react/experimental" }
+Table.ErrorDialog: { pkg: "@primer/react/experimental" }
+UnderlinePanels.Panel: { pkg: "@primer/react/experimental" }
+UnderlinePanels.Tab: { pkg: "@primer/react/experimental" }
+TopicTag.Group: { pkg: "@primer/react/experimental" }
+SelectPanel.Button: { pkg: "@primer/react/experimental" }
+SelectPanel.Header: { pkg: "@primer/react/experimental" }
+SelectPanel.SearchInput: { pkg: "@primer/react/experimental" }
+SelectPanel.Footer: { pkg: "@primer/react/experimental" }
+SelectPanel.Loading: { pkg: "@primer/react/experimental" }
 SelectPanel.SecondaryAction:
-  pkg: "@primer/react"
+  pkg: "@primer/react/experimental"
   children: ReactNode
   variant: [button]
   slot?: string
@@ -1824,10 +1826,10 @@ SelectPanel.SecondaryAction:
   onTransitionStartCapture?: TransitionEventHandler<T>
   type?: [submit, reset, button]
 Panel:
-  pkg: "@primer/react"
+  pkg: "@primer/react/experimental"
   spreads: [React.HTMLAttributes<HTMLDivElement>]
 TableSortHeader:
-  pkg: "@primer/react"
+  pkg: "@primer/react/experimental"
   spreads: ["Omit<React.ComponentPropsWithoutRef<'th'>, 'align'>"]
   align?: [start, end]
   direction: [ASC, DESC, NONE]
