@@ -283,6 +283,7 @@ type Classification =
   | { kind: 'expand' }
   | { kind: 'recurse'; node: TypeNode; aliasName?: string }
   | { kind: 'recurse-iface'; decl: InterfaceDeclaration; aliasName: string }
+  | { kind: 'recurse-known-args'; args: Array<{ node: TypeNode } | { iface: InterfaceDeclaration }> }
   | {
       kind: 'recurse-omit';
       target: { node: TypeNode } | { iface: InterfaceDeclaration };
@@ -350,13 +351,107 @@ function resolveLocalProjectType(
     if (filePath.includes('/node_modules/') && !ctx.knownPaths.has(filePath)) continue;
     if (Node.isTypeAliasDeclaration(d)) {
       const tn = d.getTypeNode();
-      if (tn) return { target: { node: tn }, aliasName };
+      if (tn && tn.getKind() !== SyntaxKind.ConditionalType) {
+        return { target: { node: tn }, aliasName };
+      }
     }
     if (Node.isInterfaceDeclaration(d)) {
       return { target: { iface: d }, aliasName };
     }
   }
   return null;
+}
+
+function hasKnownPathArg(node: TypeNode, ctx: ResolveCtx): boolean {
+  if (!Node.isTypeReference(node)) return false;
+  for (const arg of node.getTypeArguments()) {
+    if (arg.getKind() === SyntaxKind.TypeQuery) {
+      if (ctx.knownPaths.has(arg.getSourceFile().getFilePath())) return true;
+      continue;
+    }
+    const t = arg.getType();
+    const sym = t.getAliasSymbol() ?? t.getSymbol();
+    for (const d of sym?.getDeclarations() ?? []) {
+      if (ctx.knownPaths.has(d.getSourceFile().getFilePath())) return true;
+    }
+  }
+  return false;
+}
+
+type ExpandableArg = { node: TypeNode } | { iface: InterfaceDeclaration };
+
+function resolveKnownArgs(node: TypeNode, ctx: ResolveCtx): ExpandableArg[] | null {
+  if (!Node.isTypeReference(node)) return null;
+  const args = node.getTypeArguments();
+  if (args.length === 0) return null;
+
+  // (1) `typeof X` arg — follow X's value declaration's type annotation.
+  for (const arg of args) {
+    if (arg.getKind() !== SyntaxKind.TypeQuery) continue;
+    const exprName = arg.getText().replace(/^typeof\s+/, '').trim();
+    const sf = arg.getSourceFile();
+    for (const stmt of sf.getStatements()) {
+      if (!Node.isVariableStatement(stmt)) continue;
+      for (const decl of stmt.getDeclarations()) {
+        if (decl.getName() !== exprName) continue;
+        const typeAnnotation = decl.getTypeNode();
+        if (!typeAnnotation) continue;
+        if (Node.isTypeReference(typeAnnotation)) {
+          const expandable = collectExpandableArgs(typeAnnotation.getTypeArguments(), ctx);
+          if (expandable.length > 0) return expandable;
+        }
+        const styledName = `Styled${exprName}Props`;
+        const styledAlias = ctx.localTypeAliases.get(styledName);
+        if (styledAlias && (Node.isTypeLiteral(styledAlias) || Node.isIntersectionTypeNode(styledAlias))) {
+          return [{ node: styledAlias }];
+        }
+        // Cross-file: scan the typeof arg's own source file for the styled alias.
+        for (const s of sf.getStatements()) {
+          if (!Node.isTypeAliasDeclaration(s) || s.getName() !== styledName) continue;
+          const tn2 = s.getTypeNode();
+          if (tn2 && (Node.isTypeLiteral(tn2) || Node.isIntersectionTypeNode(tn2))) {
+            return [{ node: tn2 }];
+          }
+        }
+      }
+    }
+  }
+
+  // (2) Direct type reference args (e.g., React.FC<ButtonProps>).
+  const expandable = collectExpandableArgs(args, ctx);
+  if (expandable.length > 0) return expandable;
+
+  return null;
+}
+
+function collectExpandableArgs(args: TypeNode[], ctx: ResolveCtx): ExpandableArg[] {
+  const out: ExpandableArg[] = [];
+  for (const a of args) {
+    if (Node.isTypeLiteral(a)) {
+      out.push({ node: a });
+      continue;
+    }
+    if (Node.isIntersectionTypeNode(a)) {
+      out.push({ node: a });
+      continue;
+    }
+    if (!Node.isTypeReference(a)) continue;
+    const name = a.getTypeName().getText();
+    const local = ctx.localTypeAliases.get(name);
+    if (local && (Node.isTypeLiteral(local) || Node.isIntersectionTypeNode(local))) {
+      out.push({ node: local });
+      continue;
+    }
+    const resolved = resolveLocalProjectType(a, ctx);
+    if (resolved) {
+      if ('iface' in resolved.target) {
+        out.push({ iface: resolved.target.iface });
+      } else if (Node.isTypeLiteral(resolved.target.node) || Node.isIntersectionTypeNode(resolved.target.node)) {
+        out.push({ node: resolved.target.node });
+      }
+    }
+  }
+  return out;
 }
 
 function classifyBranch(node: TypeNode, ctx: ResolveCtx): Classification {
@@ -397,9 +492,17 @@ function classifyBranch(node: TypeNode, ctx: ResolveCtx): Classification {
     const t = node.getType();
     const sym = t.getAliasSymbol() ?? t.getSymbol();
     const decls = sym?.getDeclarations() ?? [];
-    if (decls.length === 0) return { kind: 'spread' };
+    if (decls.length === 0) {
+      const knownArgs = resolveKnownArgs(node, ctx);
+      if (knownArgs) return { kind: 'recurse-known-args', args: knownArgs };
+      return { kind: 'spread' };
+    }
     const fp = decls[0].getSourceFile().getFilePath();
-    if (fp.includes('/node_modules/') && !ctx.knownPaths.has(fp)) return { kind: 'spread' };
+    if (fp.includes('/node_modules/') && !ctx.knownPaths.has(fp)) {
+      const knownArgs = resolveKnownArgs(node, ctx);
+      if (knownArgs) return { kind: 'recurse-known-args', args: knownArgs };
+      return { kind: 'spread' };
+    }
     const resolved = resolveLocalProjectType(node, ctx);
     if (resolved) {
       if ('iface' in resolved.target) {
@@ -494,10 +597,23 @@ function resolveType(tn: TypeNode | undefined, fallback: string, ctx: ResolveCtx
   if (tn) {
     const inlined = maybeInlineLiteralUnion(tn, ctx);
     if (inlined) return inlined;
-    // Direct string-literal-union node (e.g. `'sm' | 'md' | 'lg'`) — not a TypeReference.
     const directKeys = extractStringLiteralKeys(tn);
     if (directKeys && directKeys.size > 0) {
       return { kind: 'union', values: [...directKeys] };
+    }
+    // Type-checker fallback: resolve `keyof typeof X`, mapped types, etc.
+    // to a literal union when the checker can collapse them.
+    const t = tn.getType();
+    if (t.isBoolean() || t.isBooleanLiteral()) return { kind: 'text', text: 'bool' };
+    if (t.isUnion()) {
+      const parts = t.getUnionTypes();
+      if (parts.length > 0 && parts.every(p => p.isBooleanLiteral())) {
+        return { kind: 'text', text: 'bool' };
+      }
+      if (parts.length > 0 && parts.length <= MAX_UNION_INLINE && parts.every(p => p.isLiteral())) {
+        const vals = parts.map(p => p.getText().replace(/^['"]|['"]$/g, ''));
+        return { kind: 'union', values: vals };
+      }
     }
     return { kind: 'text', text: cleanTypeText(tn.getText()) };
   }
@@ -543,7 +659,29 @@ function expandTypeNode(node: TypeNode, ctx: ResolveCtx): RenderedProp[] {
 function expandInterface(decl: InterfaceDeclaration, ctx: ResolveCtx): RenderedSegment[] {
   const segments: RenderedSegment[] = [];
   for (const heritage of decl.getExtends()) {
-    segments.push({ kind: 'spread', text: heritage.getText() });
+    const t = heritage.getType();
+    const sym = t.getSymbol();
+    const symDecls = sym?.getDeclarations() ?? [];
+    let resolved = false;
+    for (const d of symDecls) {
+      if (!ctx.knownPaths.has(d.getSourceFile().getFilePath())) continue;
+      if (Node.isInterfaceDeclaration(d)) {
+        const aliasName = d.getName();
+        if (!ctx.visiting.has(aliasName)) {
+          ctx.visiting.add(aliasName);
+          try {
+            segments.push(...expandInterface(d, ctx));
+          } finally {
+            ctx.visiting.delete(aliasName);
+          }
+          resolved = true;
+          break;
+        }
+      }
+    }
+    if (!resolved) {
+      segments.push({ kind: 'spread', text: heritage.getText() });
+    }
   }
   const props: RenderedProp[] = [];
   for (const m of decl.getMembers()) {
@@ -581,14 +719,20 @@ function mergeOmitIntoSpread(text: string, omit: Set<string>): string {
   return `Omit<${t}, ${keysUnion}>`;
 }
 
-function renderBranch(branch: TypeNode, ctx: ResolveCtx): RenderedSegment[] {
+function renderBranch(branch: TypeNode, ctx: ResolveCtx, flattenUnions = false): RenderedSegment[] {
+  if (branch.getKind() === SyntaxKind.ParenthesizedType) {
+    return renderPropsSegments((branch as any).getTypeNode(), ctx, flattenUnions);
+  }
+  if (Node.isIntersectionTypeNode(branch)) {
+    return renderPropsSegments(branch, ctx, flattenUnions);
+  }
   const cls = classifyBranch(branch, ctx);
   if (cls.kind === 'spread') return [{ kind: 'spread', text: cleanTypeText(branch.getText()) }];
   if (cls.kind === 'expand') return [{ kind: 'expand', props: expandTypeNode(branch, ctx) }];
   if (cls.kind === 'recurse') {
     if (cls.aliasName) ctx.visiting.add(cls.aliasName);
     try {
-      return renderPropsSegments(cls.node, ctx);
+      return renderPropsSegments(cls.node, ctx, flattenUnions);
     } finally {
       if (cls.aliasName) ctx.visiting.delete(cls.aliasName);
     }
@@ -601,25 +745,32 @@ function renderBranch(branch: TypeNode, ctx: ResolveCtx): RenderedSegment[] {
       ctx.visiting.delete(cls.aliasName);
     }
   }
+  if (cls.kind === 'recurse-known-args') {
+    return cls.args.flatMap(a =>
+      'iface' in a ? expandInterface(a.iface, ctx) : renderBranch(a.node, ctx, flattenUnions),
+    );
+  }
   // recurse-omit: walk the inner project-local type, then drop omitted keys.
   ctx.visiting.add(cls.aliasName);
   try {
     const inner =
       'iface' in cls.target
         ? expandInterface(cls.target.iface, ctx)
-        : renderPropsSegments(cls.target.node, ctx);
+        : renderPropsSegments(cls.target.node, ctx, flattenUnions);
     return applyOmit(inner, cls.omit);
   } finally {
     ctx.visiting.delete(cls.aliasName);
   }
 }
 
-function renderPropsSegments(propsTypeNode: TypeNode, ctx: ResolveCtx): RenderedSegment[] {
+function renderPropsSegments(propsTypeNode: TypeNode, ctx: ResolveCtx, flattenUnions = false): RenderedSegment[] {
   if (Node.isIntersectionTypeNode(propsTypeNode)) {
-    return propsTypeNode.getTypeNodes().flatMap(b => renderBranch(b, ctx));
+    return propsTypeNode.getTypeNodes().flatMap(b => renderBranch(b, ctx, true));
   }
   if (Node.isUnionTypeNode(propsTypeNode)) {
-    // Walk each union member as its own group, separated by an `(or)` marker.
+    if (flattenUnions) {
+      return propsTypeNode.getTypeNodes().flatMap(m => renderPropsSegments(m, ctx, true));
+    }
     const members = propsTypeNode.getTypeNodes();
     const out: RenderedSegment[] = [];
     members.forEach((m, i) => {
@@ -628,7 +779,7 @@ function renderPropsSegments(propsTypeNode: TypeNode, ctx: ResolveCtx): Rendered
     });
     return out;
   }
-  return renderBranch(propsTypeNode, ctx);
+  return renderBranch(propsTypeNode, ctx, flattenUnions);
 }
 
 // ---------------------------------------------------------------------------
@@ -883,14 +1034,32 @@ interface RenderedAtom {
 type AtomShape =
   | { kind: 'no-props' }
   | { kind: 'props'; props: RenderedProp[] }
-  | { kind: 'variants'; variants: RenderedProp[][] };
+  | { kind: 'variants'; variants: RenderedProp[][] }
+  | { kind: 'variants-with-shared'; shared: RenderedProp[]; variants: RenderedProp[][] };
+
+function dedupeProps(props: RenderedProp[]): void {
+  const seen = new Set<string>();
+  let write = 0;
+  for (let read = 0; read < props.length; read++) {
+    const key = props[read].name;
+    if (seen.has(key)) continue;
+    seen.add(key);
+    props[write++] = props[read];
+  }
+  props.length = write;
+}
 
 function segmentsToAtom(comp: Component, segments: RenderedSegment[]): RenderedAtom {
-  const isVariants = segments.some(s => s.kind === 'spread' && s.text === '(or)');
-  if (isVariants) {
-    const variants: RenderedProp[][] = [[]];
+  const firstOr = segments.findIndex(s => s.kind === 'spread' && s.text === '(or)');
+  if (firstOr !== -1) {
+    const sharedProps: RenderedProp[] = [];
     const spreads: string[] = [];
-    for (const seg of segments) {
+    for (const seg of segments.slice(0, firstOr)) {
+      if (seg.kind === 'spread') spreads.push(seg.text);
+      else sharedProps.push(...seg.props);
+    }
+    const variants: RenderedProp[][] = [];
+    for (const seg of segments.slice(firstOr)) {
       if (seg.kind === 'spread' && seg.text === '(or)') {
         variants.push([]);
         continue;
@@ -899,9 +1068,38 @@ function segmentsToAtom(comp: Component, segments: RenderedSegment[]): RenderedA
         spreads.push(seg.text);
         continue;
       }
+      if (variants.length === 0) variants.push([]);
       variants[variants.length - 1].push(...seg.props);
     }
-    return { name: comp.name, pkg: comp.pkg, spreads, shape: { kind: 'variants', variants } };
+    const nonEmpty = variants.filter(v => v.length > 0);
+    // If every variant prop name already appears in shared, the variants only
+    // refine existing props — fold back into flat props, merging type values.
+    const sharedNames = new Set(sharedProps.map(p => p.name));
+    const allSubsumed = nonEmpty.length === 0 || nonEmpty.every(v => v.every(p => sharedNames.has(p.name)));
+    if (allSubsumed) {
+      // Merge variant type values into the shared prop's type.
+      const sharedByName = new Map(sharedProps.map(p => [p.name, p]));
+      for (const v of nonEmpty) {
+        for (const vp of v) {
+          const sp = sharedByName.get(vp.name);
+          if (!sp) continue;
+          if (sp.type.kind === 'union' && vp.type.kind === 'union') {
+            const merged = new Set(sp.type.values);
+            for (const val of vp.type.values) merged.add(val);
+            sp.type = { kind: 'union', values: [...merged] };
+          }
+        }
+      }
+      dedupeProps(sharedProps);
+      if (sharedProps.length === 0 && spreads.length === 0) {
+        return { name: comp.name, pkg: comp.pkg, spreads: [], shape: { kind: 'no-props' } };
+      }
+      return { name: comp.name, pkg: comp.pkg, spreads, shape: { kind: 'props', props: sharedProps } };
+    }
+    if (sharedProps.length > 0) {
+      return { name: comp.name, pkg: comp.pkg, spreads, shape: { kind: 'variants-with-shared', shared: sharedProps, variants: nonEmpty } };
+    }
+    return { name: comp.name, pkg: comp.pkg, spreads, shape: { kind: 'variants', variants: nonEmpty } };
   }
   const props: RenderedProp[] = [];
   const spreads: string[] = [];
@@ -909,6 +1107,7 @@ function segmentsToAtom(comp: Component, segments: RenderedSegment[]): RenderedA
     if (seg.kind === 'spread') spreads.push(seg.text);
     else props.push(...seg.props);
   }
+  dedupeProps(props);
   if (props.length === 0 && spreads.length === 0) {
     return { name: comp.name, pkg: comp.pkg, spreads: [], shape: { kind: 'no-props' } };
   }
@@ -971,9 +1170,13 @@ function renderAtom(atom: RenderedAtom): string {
   }
   if (atom.shape.kind === 'props') {
     lines.push(...renderPropLines(atom.shape.props, '  '));
-  } else if (atom.shape.kind === 'variants') {
+  } else if (atom.shape.kind === 'variants' || atom.shape.kind === 'variants-with-shared') {
+    if (atom.shape.kind === 'variants-with-shared') {
+      lines.push(...renderPropLines(atom.shape.shared, '  '));
+    }
     lines.push(`  variants:`);
-    for (const variant of atom.shape.variants) {
+    const variants = atom.shape.kind === 'variants-with-shared' ? atom.shape.variants : atom.shape.variants;
+    for (const variant of variants) {
       if (variant.length === 0) {
         lines.push(`    - {}`);
         continue;

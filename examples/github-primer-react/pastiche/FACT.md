@@ -20,9 +20,9 @@ ThemeProvider:
 PageLayout:
   pkg: "@primer/react"
   containerWidth?: [full, medium, large, xlarge]
-  padding?: keyof typeof SPACING_MAP
-  rowGap?: keyof typeof SPACING_MAP
-  columnGap?: keyof typeof SPACING_MAP
+  padding?: [none, condensed, normal]
+  rowGap?: [none, condensed, normal]
+  columnGap?: [none, condensed, normal]
   _slotsConfig?: "Record<'header' | 'footer' | 'sidebar', React.ElementType>"
   className?: string
   style?: "React.CSSProperties"
@@ -43,17 +43,13 @@ ActionList:
   spreads: ["PolymorphicProps<As, 'ul', React.PropsWithChildren<{ variant?: 'inset' | 'horizontal-inset' | 'full'; selectionVariant?: 'single' | 'radio' | 'multiple'; showDividers?: bool; role?: AriaRole; disableFocusZone?: bool; className?: string; }>>"]
 ActionListGroupHeadingTrailingAction:
   pkg: "@primer/react"
-  variants:
-    - as?: [button]
-      href?: never
-      loading?: bool
-    - as: [a]
-      href: string
-      loading?: never
-      label: string
-      className?: string
-      style?: "React.CSSProperties"
-      icon: ElementType
+  as?: [button]
+  href?: never
+  loading?: bool
+  label: string
+  className?: string
+  style?: "React.CSSProperties"
+  icon: ElementType
 ActionMenu:
   pkg: "@primer/react"
   spreads: ["Pick<AnchoredOverlayProps, 'anchorRef'>"]
@@ -115,7 +111,7 @@ CircleBadge:
   pkg: "@primer/react"
   spreads: ["React.ComponentPropsWithRef<React.ElementType extends As ? 'a' : As>"]
   inline?: bool
-  variant?: keyof typeof variantSizes
+  variant?: [small, medium, large]
   size?: number
   as?: As
   className?: string
@@ -205,7 +201,8 @@ Header:
   as?: "React.ElementType"
 Heading:
   pkg: "@primer/react"
-  spreads: ["ComponentProps<typeof Heading>"]
+  as?: [h1, h2, h3, h4, h5, h6]
+  variant?: [large, medium, small]
 Label:
   pkg: "@primer/react"
   variant?: [default, primary, secondary, accent, success, attention, severe, danger, done, sponsors]
@@ -218,14 +215,23 @@ LabelGroup:
   className?: string
 Link:
   pkg: "@primer/react"
-  spreads: ["ComponentProps<typeof Link>"]
+  as?: As
+  hoverColor?: string
+  muted?: bool
+  inline?: bool
 NavList:
   pkg: "@primer/react"
   spreads: ["React.ComponentProps<'nav'>"]
   children: ReactNode
 Overlay:
   pkg: "@primer/react"
-  spreads: ["ComponentPropsWithRef<typeof Overlay>"]
+  width?: [small, auto, medium, large, xlarge, xxlarge]
+  height?: [small, auto, medium, large, xlarge, xsmall, initial, "fit-content"]
+  maxHeight?: [small, medium, large, xlarge, xsmall, "fit-content"]
+  maxWidth?: [small, medium, large, xlarge, xxlarge]
+  visibility?: [visible, hidden]
+  overflow?: [auto, hidden, scroll, visible]
+  style?: "React.CSSProperties"
 Pagination:
   pkg: "@primer/react"
   className?: string
@@ -253,9 +259,7 @@ ProgressBar:
   inline?: bool
   barSize?: [small, default, large]
   animated?: bool
-  className?: string
   progress?: "string | number"
-  bg?: string
 RadioGroup:
   pkg: "@primer/react"
   spreads: [CheckboxOrRadioGroupProps]
@@ -280,63 +284,72 @@ Select:
   placeholder?: string
 SelectPanel:
   pkg: "@primer/react"
-  spreads: ["Omit<Partial<Omit<GroupedListProps, keyof ListPropsBase>>, \"selectionVariant\" | \"variant\" | \"message\">", "Omit<ListPropsBase, \"selectionVariant\" | \"variant\" | \"message\">", "Pick<AnchoredOverlayProps, 'open' | 'height' | 'width' | 'align' | 'displayInViewport'>", Partial<AnchoredOverlayPropsWithAnchor>]
-  variants:
-    - title?: "string | React.ReactElement<any>"
-      subtitle?: "string | React.ReactElement<any>"
-      onOpenChange: "(open: bool, gesture: 'anchor-click' | 'anchor-key-press' | 'click-outside' | 'escape' | 'selection' | 'cancel') => void"
-      secondaryAction?: "React.ReactElement<typeof SecondaryButton> | React.ReactElement<typeof SecondaryLink>"
-      placeholder?: string
-      inputLabel?: string
-      overlayProps?: Partial<OverlayProps>
-      initialLoadingType?: [spinner, skeleton]
-      className?: string
-      notice?: "{ text: string | React.ReactElement<any>; variant: 'info' | 'warning' | 'error'; }"
-      message?: "{ title: string; body: string | React.ReactElement<any>; variant: 'empty' | 'error' | 'warning'; icon?: React.ComponentType<IconProps>; action?: React.ReactElement<any>; }"
-      footer?: "string | React.ReactElement<any>"
-      showSelectedOptionsFirst?: bool
-      disableFullscreenOnNarrow?: bool
-      showSelectAll?: bool
-      focusPrependedElements?: bool
-      loading?: bool
-      loadingType?: FilteredActionListLoadingType
-      placeholderText?: string
-      filterValue?: string
-      onFilterChange: "(value: string, e: React.ChangeEvent<HTMLInputElement> | null) => void"
-      onListContainerRefChanged?: "(ref: HTMLElement | null) => void"
-      onInputRefChanged?: "(ref: React.RefObject<HTMLInputElement | null>) => void"
-      scrollContainerRef?: "React.Ref<HTMLDivElement | null>"
-      textInputProps?: "Partial<Omit<TextInputProps, 'onChange'>>"
-      inputRef?: "React.RefObject<HTMLInputElement | null>"
-      messageText?: "{ title: string; description: string; }"
-      className?: string
-      announcementsEnabled?: bool
-      fullScreenOnNarrow?: bool
-      onSelectAllChange?: "(checked: bool) => void"
-      actionListProps?: Partial<ActionListProps>
-      focusOutBehavior?: [stop, wrap]
-      onActiveDescendantChanged?: "(newActiveDescendant: HTMLElement | undefined, previousActiveDescendant: HTMLElement | undefined, directlyActivated: bool) => void"
-      _PrivateFocusManagement?: ["roving-tabindex", "active-descendant"]
-      disableSelectOnHover?: bool
-      setInitialFocus?: bool
-      focusPrependedElements?: bool
-      scrollBehavior?: [auto, instant, smooth]
-      virtualized?: bool
-    - renderAnchor: null
-      anchorRef: "React.RefObject<HTMLElement | null>"
-      anchorId?: string
-      selected: ItemInput
-      onSelectedChange: "(selected: ItemInput | undefined) => void"
-      variant?: [anchored]
-      onCancel?: "() => void"
-    - variant: [modal]
-      onCancel: "() => void"
+  spreads: ["Omit<Partial<Omit<GroupedListProps, keyof ListPropsBase>>, \"selectionVariant\" | \"variant\" | \"message\">", "Pick<AnchoredOverlayProps, 'open' | 'height' | 'width' | 'align' | 'displayInViewport'>"]
+  title?: "string | React.ReactElement<any>"
+  subtitle?: "string | React.ReactElement<any>"
+  onOpenChange: "(open: bool, gesture: 'anchor-click' | 'anchor-key-press' | 'click-outside' | 'escape' | 'selection' | 'cancel') => void"
+  secondaryAction?: "React.ReactElement<typeof SecondaryButton> | React.ReactElement<typeof SecondaryLink>"
+  placeholder?: string
+  inputLabel?: string
+  overlayProps?: Partial<OverlayProps>
+  initialLoadingType?: [spinner, skeleton]
+  className?: string
+  notice?: "{ text: string | React.ReactElement<any>; variant: 'info' | 'warning' | 'error'; }"
+  message?: "{ title: string; body: string | React.ReactElement<any>; variant: 'empty' | 'error' | 'warning'; icon?: React.ComponentType<IconProps>; action?: React.ReactElement<any>; }"
+  footer?: "string | React.ReactElement<any>"
+  showSelectedOptionsFirst?: bool
+  disableFullscreenOnNarrow?: bool
+  showSelectAll?: bool
+  focusPrependedElements?: bool
+  items: "ItemInput[]"
+  role?: [article, button, dialog, figure, form, img, link, main, menu, menuitem, option, search, table, switch, none, alert, alertdialog, application, banner, cell, checkbox, columnheader, combobox, complementary, contentinfo, definition, directory, document, feed, grid, gridcell, group, heading, list, listbox, listitem, log, marquee, math, menubar, menuitemcheckbox, menuitemradio, navigation, note, presentation, progressbar, radio, radiogroup, region, row, rowgroup, rowheader, scrollbar, searchbox, separator, slider, spinbutton, status, tab, tablist, tabpanel, term, textbox, timer, toolbar, tooltip, tree, treegrid, treeitem]
+  id?: string
+  aria-label?: string
+  renderItem?: RenderItemFn
+  renderGroup?: typeof Group
+  showItemDividers?: bool
+  loading?: bool
+  loadingType?: FilteredActionListLoadingType
+  placeholderText?: string
+  filterValue?: string
+  onFilterChange: "(value: string, e: React.ChangeEvent<HTMLInputElement> | null) => void"
+  onListContainerRefChanged?: "(ref: HTMLElement | null) => void"
+  onInputRefChanged?: "(ref: React.RefObject<HTMLInputElement | null>) => void"
+  scrollContainerRef?: "React.Ref<HTMLDivElement | null>"
+  textInputProps?: "Partial<Omit<TextInputProps, 'onChange'>>"
+  inputRef?: "React.RefObject<HTMLInputElement | null>"
+  messageText?: "{ title: string; description: string; }"
+  announcementsEnabled?: bool
+  fullScreenOnNarrow?: bool
+  onSelectAllChange?: "(checked: bool) => void"
+  actionListProps?: Partial<ActionListProps>
+  focusOutBehavior?: [stop, wrap]
+  onActiveDescendantChanged?: "(newActiveDescendant: HTMLElement | undefined, previousActiveDescendant: HTMLElement | undefined, directlyActivated: bool) => void"
+  _PrivateFocusManagement?: ["roving-tabindex", "active-descendant"]
+  disableSelectOnHover?: bool
+  setInitialFocus?: bool
+  scrollBehavior?: [auto, instant, smooth]
+  virtualized?: bool
+  renderAnchor: "<T extends Omit<React.HTMLAttributes<HTMLElement>, 'aria-label' | 'aria-labelledby'>>(props: T) => JSX.Element"
+  anchorRef?: "React.RefObject<HTMLElement | null>"
+  anchorId?: string
+  selected: ItemInput
+  onSelectedChange: "(selected: ItemInput | undefined) => void"
+  variant?: [anchored]
+  onCancel?: "() => void"
 Item: { pkg: "@primer/react" }
 GroupedList:
   pkg: "@primer/react"
-  spreads: [ListPropsBase]
+  items: "ItemInput[]"
+  role?: [article, button, dialog, figure, form, img, link, main, menu, menuitem, option, search, table, switch, none, alert, alertdialog, application, banner, cell, checkbox, columnheader, combobox, complementary, contentinfo, definition, directory, document, feed, grid, gridcell, group, heading, list, listbox, listitem, log, marquee, math, menubar, menuitemcheckbox, menuitemradio, navigation, note, presentation, progressbar, radio, radiogroup, region, row, rowgroup, rowheader, scrollbar, searchbox, separator, slider, spinbutton, status, tab, tablist, tabpanel, term, textbox, timer, toolbar, tooltip, tree, treegrid, treeitem]
+  id?: string
+  aria-label?: string
+  renderItem?: "(props: FilteredActionListItemProps) => React.ReactElement<any>"
+  renderGroup?: typeof Group
+  variant?: [inset, "horizontal-inset", full]
+  selectionVariant?: [single, multiple, radio]
+  showItemDividers?: bool
   groupMetadata: "((Omit<ActionListGroupProps, 'items'> | Omit<Partial<ActionListGroupProps> & { renderItem?: RenderItemFn; renderGroup?: typeof Group; }, 'items'>) & { groupId: string; })[]"
-  items: "((FilteredActionListItemProps | (Partial<FilteredActionListItemProps> & { renderItem: RenderItemFn; })) & { groupId: string; })[]"
 SideNav:
   pkg: "@primer/react"
   as?: "React.ElementType"
@@ -348,7 +361,7 @@ SideNav:
 Spinner:
   pkg: "@primer/react"
   spreads: [HTMLDataAttributes]
-  size?: keyof typeof sizeMap
+  size?: [small, medium, large]
   srText?: string
   aria-label?: string
   className?: string
@@ -359,7 +372,7 @@ StateLabel:
   spreads: [React.HTMLAttributes<HTMLSpanElement>]
   size?: [small, medium]
   variant?: [normal, small]
-  status: keyof typeof octiconMap
+  status: [open, issueOpened, pullOpened, issueClosed, issueClosedNotPlanned, pullClosed, pullMerged, draft, issueDraft, pullQueued, unavailable, alertOpened, alertFixed, alertDismissed, alertClosed, closed, archived]
 SubNav:
   pkg: "@primer/react"
   spreads: ["React.ComponentProps<'nav'>"]
@@ -404,7 +417,7 @@ Text:
 Timeline:
   pkg: "@primer/react"
   spreads: ["React.ComponentPropsWithoutRef<'div'>"]
-  clipSidebar?: "bool | 'start' | 'end' | 'both'"
+  clipSidebar?: [false, true, start, both, end]
   className?: string
 TimelineItems:
   pkg: "@primer/react"
@@ -413,15 +426,37 @@ TimelineItems:
   className?: string
 Token:
   pkg: "@primer/react"
-  spreads: [TokenBaseProps]
+  spreads: ["Omit<React.HTMLProps<HTMLSpanElement | HTMLButtonElement | HTMLAnchorElement>, 'size' | 'id'>"]
+  as?: [button, a, span]
+  onRemove?: "() => void"
+  hideRemoveButton?: bool
+  isSelected?: bool
+  text: ReactNode
+  id?: "number | string"
+  size?: [small, medium, large, xlarge]
+  disabled?: bool
   leadingVisual?: "React.ElementType"
 IssueLabelToken:
   pkg: "@primer/react"
-  spreads: [TokenBaseProps]
+  spreads: ["Omit<React.HTMLProps<HTMLSpanElement | HTMLButtonElement | HTMLAnchorElement>, 'size' | 'id'>"]
+  as?: [button, a, span]
+  onRemove?: "() => void"
+  hideRemoveButton?: bool
+  isSelected?: bool
+  text: ReactNode
+  id?: "number | string"
+  size?: [small, medium, large, xlarge]
+  disabled?: bool
   fillColor?: string
 Tooltip:
   pkg: "@primer/react"
-  spreads: ["React.PropsWithChildren<{ direction?: TooltipDirection; text: string; type?: 'label' | 'description'; keybindingHint?: KeybindingHintProps['keys'] | Array<KeybindingHintProps['keys']>; delay?: 'short' | 'medium' | 'long'; _privateDisableTooltip?: bool; }>", React.HTMLAttributes<HTMLElement>]
+  spreads: [React.HTMLAttributes<HTMLElement>]
+  direction?: [nw, n, ne, e, se, s, sw, w]
+  text: string
+  type?: [label, description]
+  keybindingHint?: "KeybindingHintProps['keys'] | Array<KeybindingHintProps['keys']>"
+  delay?: [short, medium, long]
+  _privateDisableTooltip?: bool
 Truncate:
   pkg: "@primer/react"
   spreads: [React.HTMLAttributes<HTMLElement>]
@@ -471,16 +506,13 @@ VisuallyHidden:
 UnderlineNav: { pkg: "@primer/react" }
 ActionBar:
   pkg: "@primer/react"
-  variants:
-    - size?: [small, medium, large]
-      children: ReactNode
-      flush?: bool
-      className?: string
-      gap?: [none, condensed]
-      aria-label: "React.AriaAttributes['aria-label']"
-      aria-labelledby?: undefined
-    - aria-label?: undefined
-      aria-labelledby: "React.AriaAttributes['aria-labelledby']"
+  size?: [small, medium, large]
+  children: ReactNode
+  flush?: bool
+  className?: string
+  gap?: [none, condensed]
+  aria-label: "React.AriaAttributes['aria-label']"
+  aria-labelledby?: undefined
 Stack:
   pkg: "@primer/react"
   spreads: ["React.PropsWithChildren<{ as?: As; gap?: Gap; direction?: Direction; align?: Align; wrap?: Wrap; justify?: Justify; padding?: Padding; paddingBlock?: Padding; paddingInline?: Padding; className?: string; }>"]
@@ -534,25 +566,22 @@ Button:
 IconButton:
   pkg: "@primer/react"
   spreads: ["Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, \"aria-label\" | \"aria-labelledby\">"]
-  variants:
-    - aria-label: string
-      aria-labelledby?: undefined
-    - aria-label?: undefined
-      aria-labelledby: string
-      icon: "React.ElementType"
-      unsafeDisableTooltip?: bool
-      description?: string
-      tooltipDirection?: [s, nw, n, ne, e, se, sw, w]
-      keyshortcuts?: string
-      keybindingHint?: "string | string[]"
-      variant?: [default, primary, invisible, danger, link]
-      size?: [small, medium, large]
-      disabled?: bool
-      block?: bool
-      loading?: bool
-      loadingAnnouncement?: string
-      inactive?: bool
-      labelWrap?: bool
+  aria-label: string
+  aria-labelledby?: undefined
+  icon: "React.ElementType"
+  unsafeDisableTooltip?: bool
+  description?: string
+  tooltipDirection?: [s, nw, n, ne, e, se, sw, w]
+  keyshortcuts?: string
+  keybindingHint?: "string | string[]"
+  variant?: [default, primary, invisible, danger, link]
+  size?: [small, medium, large]
+  disabled?: bool
+  block?: bool
+  loading?: bool
+  loadingAnnouncement?: string
+  inactive?: bool
+  labelWrap?: bool
 ButtonBase:
   pkg: "@primer/react"
   spreads: [React.ButtonHTMLAttributes<HTMLButtonElement>]
@@ -574,7 +603,7 @@ LinkButton:
   rel?: string
   target?: string
   type?: string
-  referrerPolicy?: "React.AnchorHTMLAttributes<HTMLAnchorElement>['referrerPolicy']"
+  referrerPolicy?: ["", "no-referrer", "no-referrer-when-downgrade", origin, "origin-when-cross-origin", "same-origin", "strict-origin", "strict-origin-when-cross-origin", "unsafe-url"]
 Autocomplete:
   pkg: "@primer/react"
   spreads: ["ComponentProps<typeof Autocomplete>"]
@@ -583,7 +612,7 @@ PageLayout.Header:
   pkg: "@primer/react"
   aria-label?: "React.AriaAttributes['aria-label']"
   aria-labelledby?: "React.AriaAttributes['aria-labelledby']"
-  padding?: keyof typeof SPACING_MAP
+  padding?: [none, condensed, normal]
   divider?: "'none' | 'line' | ResponsiveValue<'none' | 'line', 'none' | 'line' | 'filled'>"
   dividerWhenNarrow?: [inherit, none, line, filled]
   hidden?: "bool | ResponsiveValue<bool>"
@@ -595,7 +624,7 @@ PageLayout.Content:
   aria-label?: "React.AriaAttributes['aria-label']"
   aria-labelledby?: "React.AriaAttributes['aria-labelledby']"
   width?: [full, medium, large, xlarge]
-  padding?: keyof typeof SPACING_MAP
+  padding?: [none, condensed, normal]
   hidden?: "bool | ResponsiveValue<bool>"
   className?: string
   style?: "React.CSSProperties"
@@ -608,7 +637,7 @@ PageLayout.Pane:
   width?: PaneWidthValue
   minWidth?: number
   widthStorageKey?: string
-  padding?: keyof typeof SPACING_MAP
+  padding?: [none, condensed, normal]
   divider?: "'none' | 'line' | ResponsiveValue<'none' | 'line', 'none' | 'line' | 'filled'>"
   dividerWhenNarrow?: [inherit, none, line, filled]
   sticky?: bool
@@ -618,8 +647,8 @@ PageLayout.Pane:
   id?: string
   className?: string
   style?: "React.CSSProperties"
-  onResizeEnd?: "(width: number) => void"
-  currentWidth?: number
+  onResizeEnd: "(width: number) => void"
+  currentWidth: number
 PageLayout.Sidebar:
   pkg: "@primer/react"
   aria-label?: "React.AriaAttributes['aria-label']"
@@ -629,7 +658,7 @@ PageLayout.Sidebar:
   minWidth?: number
   resizable?: bool
   widthStorageKey?: string
-  padding?: keyof typeof SPACING_MAP
+  padding?: [none, condensed, normal]
   divider?: [none, line]
   sticky?: bool
   responsiveVariant?: [default, fullscreen]
@@ -641,7 +670,7 @@ PageLayout.Footer:
   pkg: "@primer/react"
   aria-label?: "React.AriaAttributes['aria-label']"
   aria-labelledby?: "React.AriaAttributes['aria-labelledby']"
-  padding?: keyof typeof SPACING_MAP
+  padding?: [none, condensed, normal]
   divider?: "'none' | 'line' | ResponsiveValue<'none' | 'line', 'none' | 'line' | 'filled'>"
   dividerWhenNarrow?: [inherit, none, line, filled]
   hidden?: "bool | ResponsiveValue<bool>"
@@ -651,7 +680,7 @@ SplitPageLayout.Header:
   pkg: "@primer/react"
   aria-label?: "React.AriaAttributes['aria-label']"
   aria-labelledby?: "React.AriaAttributes['aria-labelledby']"
-  padding?: keyof typeof SPACING_MAP
+  padding?: [none, condensed, normal]
   divider?: "'none' | 'line' | ResponsiveValue<'none' | 'line', 'none' | 'line' | 'filled'>"
   dividerWhenNarrow?: [inherit, none, line, filled]
   hidden?: "bool | ResponsiveValue<bool>"
@@ -663,7 +692,7 @@ SplitPageLayout.Content:
   aria-label?: "React.AriaAttributes['aria-label']"
   aria-labelledby?: "React.AriaAttributes['aria-labelledby']"
   width?: [full, medium, large, xlarge]
-  padding?: keyof typeof SPACING_MAP
+  padding?: [none, condensed, normal]
   hidden?: "bool | ResponsiveValue<bool>"
   className?: string
   style?: "React.CSSProperties"
@@ -676,7 +705,7 @@ SplitPageLayout.Pane:
   width?: PaneWidthValue
   minWidth?: number
   widthStorageKey?: string
-  padding?: keyof typeof SPACING_MAP
+  padding?: [none, condensed, normal]
   divider?: "'none' | 'line' | ResponsiveValue<'none' | 'line', 'none' | 'line' | 'filled'>"
   dividerWhenNarrow?: [inherit, none, line, filled]
   sticky?: bool
@@ -686,8 +715,8 @@ SplitPageLayout.Pane:
   id?: string
   className?: string
   style?: "React.CSSProperties"
-  onResizeEnd?: "(width: number) => void"
-  currentWidth?: number
+  onResizeEnd: "(width: number) => void"
+  currentWidth: number
 SplitPageLayout.Sidebar:
   pkg: "@primer/react"
   aria-label?: "React.AriaAttributes['aria-label']"
@@ -697,7 +726,7 @@ SplitPageLayout.Sidebar:
   minWidth?: number
   resizable?: bool
   widthStorageKey?: string
-  padding?: keyof typeof SPACING_MAP
+  padding?: [none, condensed, normal]
   divider?: [none, line]
   sticky?: bool
   responsiveVariant?: [default, fullscreen]
@@ -709,7 +738,7 @@ SplitPageLayout.Footer:
   pkg: "@primer/react"
   aria-label?: "React.AriaAttributes['aria-label']"
   aria-labelledby?: "React.AriaAttributes['aria-labelledby']"
-  padding?: keyof typeof SPACING_MAP
+  padding?: [none, condensed, normal]
   divider?: "'none' | 'line' | ResponsiveValue<'none' | 'line', 'none' | 'line' | 'filled'>"
   dividerWhenNarrow?: [inherit, none, line, filled]
   hidden?: "bool | ResponsiveValue<bool>"
@@ -722,7 +751,7 @@ ActionList.Group:
   variant?: [filled, subtle]
   title?: string
   auxiliaryText?: string
-  selectionVariant?: "ActionListProps['selectionVariant'] | false"
+  selectionVariant?: [false, radio, single, multiple]
 ActionList.Item:
   pkg: "@primer/react"
   children?: ReactNode
@@ -753,7 +782,7 @@ ActionList.LinkItem:
   rel?: string
   target?: string
   type?: string
-  referrerPolicy?: "React.AnchorHTMLAttributes<HTMLAnchorElement>['referrerPolicy']"
+  referrerPolicy?: ["", "no-referrer", "no-referrer-when-downgrade", origin, "origin-when-cross-origin", "same-origin", "strict-origin", "strict-origin-when-cross-origin", "unsafe-url"]
   className?: string
 ActionList.Divider:
   pkg: "@primer/react"
@@ -792,17 +821,13 @@ ActionList.GroupHeading:
   variant?: [filled, subtle]
 ActionList.TrailingAction:
   pkg: "@primer/react"
-  variants:
-    - as?: [button]
-      href?: never
-      loading?: bool
-    - as: [a]
-      href: string
-      loading?: never
-      icon?: "React.ElementType"
-      label: string
-      className?: string
-      style?: "React.CSSProperties"
+  as?: [button]
+  href?: never
+  loading?: bool
+  icon?: "React.ElementType"
+  label: string
+  className?: string
+  style?: "React.CSSProperties"
 ActionMenu.Button:
   pkg: "@primer/react"
   spreads: [React.ButtonHTMLAttributes<HTMLButtonElement>]
@@ -831,7 +856,8 @@ ActionMenu.Divider: { pkg: "@primer/react" }
 Autocomplete.Context: { pkg: "@primer/react" }
 Autocomplete.Input:
   pkg: "@primer/react"
-  spreads: ["ComponentProps<typeof AutocompleteInput>"]
+  as?: "React.ComponentType<React.PropsWithChildren<any>>"
+  openOnFocus?: bool
 Autocomplete.Menu:
   pkg: "@primer/react"
   addNewItem?: "T & { handleAddItem: (item: Omit<T, 'onAction' | 'leadingVisual'>) => void; }"
@@ -868,7 +894,23 @@ CircleBadge.Icon:
 Details.Summary: { pkg: "@primer/react" }
 Dialog.Header:
   pkg: "@primer/react"
-  spreads: [DialogProps]
+  data-component?: string
+  title?: ReactNode
+  subtitle?: ReactNode
+  renderHeader?: "React.FunctionComponent<React.PropsWithChildren<DialogHeaderProps>>"
+  renderBody?: "React.FunctionComponent<React.PropsWithChildren<DialogProps>>"
+  renderFooter?: "React.FunctionComponent<React.PropsWithChildren<DialogProps>>"
+  footerButtons?: "DialogButtonProps[]"
+  onClose: "(gesture: 'close-button' | 'escape') => void"
+  role?: [dialog, alertdialog]
+  width?: "keyof typeof widthMap | Exclude<CSSProperties['width'], undefined>"
+  height?: [small, auto, large]
+  position?: "'center' | 'left' | 'right' | ResponsiveValue<'left' | 'right' | 'bottom' | 'fullscreen' | 'center'>"
+  align?: [top, center, bottom]
+  returnFocusRef?: "React.RefObject<HTMLElement | null>"
+  initialFocusRef?: "React.RefObject<HTMLElement | null>"
+  className?: string
+  style?: "React.CSSProperties"
   dialogLabelId: string
   dialogDescriptionId: string
 Dialog.Title: { pkg: "@primer/react" }
@@ -912,17 +954,13 @@ NavList.TrailingVisual:
   spreads: [React.HTMLAttributes<HTMLSpanElement>]
 NavList.TrailingAction:
   pkg: "@primer/react"
-  variants:
-    - as?: [button]
-      href?: never
-      loading?: bool
-    - as: [a]
-      href: string
-      loading?: never
-      icon?: "React.ElementType"
-      label: string
-      className?: string
-      style?: "React.CSSProperties"
+  as?: [button]
+  href?: never
+  loading?: bool
+  icon?: "React.ElementType"
+  label: string
+  className?: string
+  style?: "React.CSSProperties"
 NavList.Divider:
   pkg: "@primer/react"
   className?: string
@@ -963,7 +1001,6 @@ ProgressBar.Item:
   spreads: [React.HTMLAttributes<HTMLSpanElement>]
   aria-label?: string
   className?: string
-  className?: string
   progress?: "string | number"
   bg?: string
 RadioGroup.Caption: { pkg: "@primer/react" }
@@ -996,14 +1033,15 @@ SelectPanel.SecondaryActionLink: { pkg: "@primer/react" }
 SelectPanel.Message:
   pkg: "@primer/react"
   children: ReactNode
+  size?: [full]
   title: string
-  variant: [empty, error, warning]
-  className?: string
-  icon?: "React.ComponentType<IconProps>"
-  action?: "React.ReactElement<any>"
+  variant: [warning, error, empty]
 SideNav.Link:
   pkg: "@primer/react"
-  spreads: ["ComponentProps<typeof SideNavLink>"]
+  spreads: [LinkProps]
+  to?: To
+  selected?: bool
+  variant?: [full, normal]
 SubNav.Link:
   pkg: "@primer/react"
   spreads: ["React.ComponentProps<'a'>"]
@@ -1019,7 +1057,7 @@ TextInput.Action:
   ['aria-label']?: string
   tooltipDirection?: [n, ne, e, se, s, sw, w, nw]
   icon?: "React.FunctionComponent<React.PropsWithChildren<IconProps>>"
-  variant?: "ButtonProps['variant']"
+  variant?: [link, default, primary, invisible, danger]
 Timeline.Item:
   pkg: "@primer/react"
   spreads: ["React.ComponentPropsWithoutRef<'div'>"]
@@ -1073,55 +1111,46 @@ UnderlineNav.Item: { pkg: "@primer/react" }
 ActionBar.IconButton:
   pkg: "@primer/react"
   spreads: ["Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, \"aria-label\" | \"aria-labelledby\">"]
-  variants:
-    - disabled?: bool
-      aria-label: string
-      aria-labelledby?: undefined
-    - aria-label?: undefined
-      aria-labelledby: string
-      icon: "React.ElementType"
-      unsafeDisableTooltip?: bool
-      description?: string
-      tooltipDirection?: [s, nw, n, ne, e, se, sw, w]
-      keyshortcuts?: string
-      keybindingHint?: "string | string[]"
-      variant?: [link, default, primary, invisible, danger]
-      size?: [small, medium, large]
-      disabled?: bool
-      block?: bool
-      loading?: bool
-      loadingAnnouncement?: string
-      inactive?: bool
-      labelWrap?: bool
+  disabled?: bool
+  aria-label: string
+  aria-labelledby?: undefined
+  icon: "React.ElementType"
+  unsafeDisableTooltip?: bool
+  description?: string
+  tooltipDirection?: [s, nw, n, ne, e, se, sw, w]
+  keyshortcuts?: string
+  keybindingHint?: "string | string[]"
+  variant?: [link, default, primary, invisible, danger]
+  size?: [small, medium, large]
+  block?: bool
+  loading?: bool
+  loadingAnnouncement?: string
+  inactive?: bool
+  labelWrap?: bool
 ActionBar.Divider: { pkg: "@primer/react" }
 ActionBar.Group: { pkg: "@primer/react" }
 ActionBar.Menu:
   pkg: "@primer/react"
   spreads: ["Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, \"aria-label\" | \"aria-labelledby\">"]
-  variants:
-    - aria-label: string
-      icon: "ActionBarIconButtonProps['icon']"
-      items: "ActionBarMenuItemProps[]"
-      overflowIcon?: "ActionBarIconButtonProps['icon'] | 'none'"
-      returnFocusRef?: "React.RefObject<HTMLElement>"
-      aria-label: string
-      aria-labelledby?: undefined
-    - aria-label?: undefined
-      aria-labelledby: string
-      icon: "React.ElementType"
-      unsafeDisableTooltip?: bool
-      description?: string
-      tooltipDirection?: [s, nw, n, ne, e, se, sw, w]
-      keyshortcuts?: string
-      keybindingHint?: "string | string[]"
-      variant?: [link, default, primary, invisible, danger]
-      size?: [small, medium, large]
-      disabled?: bool
-      block?: bool
-      loading?: bool
-      loadingAnnouncement?: string
-      inactive?: bool
-      labelWrap?: bool
+  aria-label: string
+  icon: "ActionBarIconButtonProps['icon']"
+  items: "ActionBarMenuItemProps[]"
+  overflowIcon?: "ActionBarIconButtonProps['icon'] | 'none'"
+  returnFocusRef?: "React.RefObject<HTMLElement>"
+  aria-labelledby?: undefined
+  unsafeDisableTooltip?: bool
+  description?: string
+  tooltipDirection?: [s, nw, n, ne, e, se, sw, w]
+  keyshortcuts?: string
+  keybindingHint?: "string | string[]"
+  variant?: [link, default, primary, invisible, danger]
+  size?: [small, medium, large]
+  disabled?: bool
+  block?: bool
+  loading?: bool
+  loadingAnnouncement?: string
+  inactive?: bool
+  labelWrap?: bool
 Stack.Item:
   pkg: "@primer/react"
   spreads: ["React.PropsWithChildren<{ as?: As; grow?: bool | ResponsiveValue<bool>; shrink?: bool | ResponsiveValue<bool>; className?: string; }>"]
@@ -1148,7 +1177,7 @@ PageLayoutPaneBase:
   width?: PaneWidthValue
   minWidth?: number
   widthStorageKey?: string
-  padding?: keyof typeof SPACING_MAP
+  padding?: [none, condensed, normal]
   divider?: "'none' | 'line' | ResponsiveValue<'none' | 'line', 'none' | 'line' | 'filled'>"
   dividerWhenNarrow?: [inherit, none, line, filled]
   sticky?: bool
@@ -1195,16 +1224,14 @@ TreeViewActionDialog:
   onClose?: "() => void"
 ActionBarMenuItem:
   pkg: "@primer/react"
-  variants:
-    - type?: [action]
-      disabled?: bool
-      leadingVisual?: "ActionBarIconButtonProps['icon']"
-      trailingVisual?: "ActionBarIconButtonProps['icon'] | string"
-      label: string
-      onClick?: "ActionListItemProps['onSelect']"
-      items?: "ActionBarMenuItemProps[]"
-      variant?: [default, danger]
-    - type: [divider]
+  spreads: ["Pick<ActionListItemProps, 'variant'>"]
+  type?: [action, divider]
+  disabled?: bool
+  leadingVisual?: "ActionBarIconButtonProps['icon']"
+  trailingVisual?: "ActionBarIconButtonProps['icon'] | string"
+  label: string
+  onClick?: "ActionListItemProps['onSelect']"
+  items?: "ActionBarMenuItemProps[]"
 ParentLink:
   pkg: "@primer/react"
   spreads: ["React.PropsWithChildren<ChildrenPropTypes & LinkProps>"]
@@ -1235,12 +1262,9 @@ VisualOrIndicator: { pkg: "@primer/react" }
 TrailingAction: { pkg: "@primer/react" }
 AnchoredOverlayWrapperAnchor:
   pkg: "@primer/react"
-  spreads: [Partial<AnchoredOverlayPropsWithAnchor>]
-  variants:
-    - {}
-    - renderAnchor: null
-      anchorRef: "React.RefObject<HTMLElement | null>"
-      anchorId?: string
+  renderAnchor: "<T extends Omit<React.HTMLAttributes<HTMLElement>, 'aria-label' | 'aria-labelledby'>>(props: T) => JSX.Element"
+  anchorRef?: "React.RefObject<HTMLElement | null>"
+  anchorId?: string
 Summary:
   pkg: "@primer/react"
   spreads: ["React.ComponentPropsWithoutRef<React.ElementType extends As ? As : 'summary'>"]
@@ -1253,7 +1277,7 @@ BaseOverlay:
   pkg: "@primer/react"
   visibility?: [visible, hidden]
   data-test-id?: unknown
-  position?: "React.CSSProperties['position']"
+  position?: [initial, "-moz-initial", inherit, revert, "revert-layer", unset, "-webkit-sticky", absolute, fixed, relative, static, sticky]
   top?: "React.CSSProperties['top']"
   left?: "React.CSSProperties['left']"
   right?: "React.CSSProperties['right']"
@@ -1272,7 +1296,16 @@ Page:
   data-component: ["Pagination.Page"]
 FilteredActionList:
   pkg: "@primer/react"
-  spreads: ["Partial<Omit<GroupedListProps, keyof ListPropsBase>>", ListPropsBase]
+  spreads: ["Partial<Omit<GroupedListProps, keyof ListPropsBase>>"]
+  items: "ItemInput[]"
+  role?: [article, button, dialog, figure, form, img, link, main, menu, menuitem, option, search, table, switch, none, alert, alertdialog, application, banner, cell, checkbox, columnheader, combobox, complementary, contentinfo, definition, directory, document, feed, grid, gridcell, group, heading, list, listbox, listitem, log, marquee, math, menubar, menuitemcheckbox, menuitemradio, navigation, note, presentation, progressbar, radio, radiogroup, region, row, rowgroup, rowheader, scrollbar, searchbox, separator, slider, spinbutton, status, tab, tablist, tabpanel, term, textbox, timer, toolbar, tooltip, tree, treegrid, treeitem]
+  id?: string
+  aria-label?: string
+  renderItem?: RenderItemFn
+  renderGroup?: typeof Group
+  variant?: [inset, "horizontal-inset", full]
+  selectionVariant?: [single, multiple, radio]
+  showItemDividers?: bool
   loading?: bool
   loadingType?: FilteredActionListLoadingType
   placeholderText?: string
@@ -1358,10 +1391,10 @@ AutocompleteMenuInternal:
   onSelectedChange?: "(item: T | T[]) => void"
   customScrollContainerRef?: "React.MutableRefObject<HTMLElement | null>"
   ['aria-labelledby']: string
-Blankslate: { pkg: "@primer/react/experimental" }
-Card: { pkg: "@primer/react/experimental" }
+Blankslate: { pkg: "@primer/react" }
+Card: { pkg: "@primer/react" }
 DataTable:
-  pkg: "@primer/react/experimental"
+  pkg: "@primer/react"
   aria-describedby?: string
   aria-labelledby?: string
   cellPadding?: [condensed, normal, spacious]
@@ -1373,37 +1406,34 @@ DataTable:
   getRowId?: "(rowData: Data) => string | number"
   onToggleSort?: "(columnId: ObjectPaths<Data> | string | number, direction: Exclude<SortDirection, 'NONE'>) => void"
 Table:
-  pkg: "@primer/react/experimental"
+  pkg: "@primer/react"
   spreads: ["React.ComponentPropsWithoutRef<'table'>"]
   aria-describedby?: string
   aria-labelledby?: string
   gridTemplateColumns?: "React.CSSProperties['gridTemplateColumns']"
   cellPadding?: [condensed, normal, spacious]
 InlineMessage:
-  pkg: "@primer/react/experimental"
+  pkg: "@primer/react"
   spreads: ["React.ComponentPropsWithoutRef<'div'>"]
   size?: [small, medium]
   variant: [critical, success, unavailable, warning]
   leadingVisual?: "React.ElementType | ReactNode"
 ScrollableRegion:
-  pkg: "@primer/react/experimental"
+  pkg: "@primer/react"
   spreads: ["React.ComponentPropsWithoutRef<'div'>"]
-  variants:
-    - aria-label: string
-      aria-labelledby?: never
-    - aria-label?: never
-      aria-labelledby: string
+  aria-label: string
+  aria-labelledby?: never
 Announce:
-  pkg: "@primer/react/experimental"
+  pkg: "@primer/react"
   spreads: ["PolymorphicProps<As, 'div', { announceOnShow?: bool; hidden?: bool; delayMs?: number; politeness?: 'assertive' | 'polite'; }>"]
 AriaStatus:
-  pkg: "@primer/react/experimental"
+  pkg: "@primer/react"
   spreads: ["PolymorphicProps<As, 'div', { announceOnShow?: bool; hidden?: bool; delayMs?: number; }>"]
 AriaAlert:
-  pkg: "@primer/react/experimental"
+  pkg: "@primer/react"
   spreads: ["PolymorphicProps<As, 'div', { announceOnShow?: bool; hidden?: bool; }>"]
 UnderlinePanels:
-  pkg: "@primer/react/experimental"
+  pkg: "@primer/react"
   children: ReactNode
   aria-label?: "React.AriaAttributes['aria-label']"
   aria-labelledby?: "React.AriaAttributes['aria-labelledby']"
@@ -1412,424 +1442,138 @@ UnderlinePanels:
   className?: string
   as?: "React.ElementType"
 SkeletonText:
-  pkg: "@primer/react/experimental"
+  pkg: "@primer/react"
   spreads: ["Omit<HTMLProps<HTMLElement>, 'size'>"]
   size?: [display, titleLarge, titleMedium, titleSmall, bodyLarge, bodyMedium, bodySmall, subtitle]
   lines?: number
   maxWidth?: "React.CSSProperties['maxWidth']"
   className?: string
 SkeletonAvatar:
-  pkg: "@primer/react/experimental"
+  pkg: "@primer/react"
   spreads: ["Omit<React.HTMLProps<HTMLElement>, 'size'>"]
   className?: string
   size?: "AvatarProps['size']"
-  square?: "AvatarProps['square']"
+  square?: bool
 FeatureFlags:
-  pkg: "@primer/react/experimental"
+  pkg: "@primer/react"
   spreads: ["React.PropsWithChildren<{ flags: FeatureFlags; }>"]
 IssueLabel:
-  pkg: "@primer/react/experimental"
+  pkg: "@primer/react"
   spreads: ["Omit<React.ComponentPropsWithoutRef<'span'>, 'onClick'>", "React.ComponentPropsWithoutRef<'a'>", "React.ComponentPropsWithoutRef<'button'>", "Omit<React.ComponentPropsWithoutRef<As>, keyof BaseProps>"]
-  variants:
-    - className?: string
-      fillColor?: "`#${string}`"
-      variant?: [auburn, blue, brown, coral, cyan, gray, green, indigo, lemon, lime, olive, orange, pine, pink, plum, purple, red, teal, yellow]
-      as?: never
-      onClick?: never
-      href?: never
-    - className?: string
-      fillColor?: "`#${string}`"
-      variant?: [auburn, blue, brown, coral, cyan, gray, green, indigo, lemon, lime, olive, orange, pine, pink, plum, purple, red, teal, yellow]
-      as?: never
-      href: string
-    - className?: string
-      fillColor?: "`#${string}`"
-      variant?: [auburn, blue, brown, coral, cyan, gray, green, indigo, lemon, lime, olive, orange, pine, pink, plum, purple, red, teal, yellow]
-      as?: never
-      onClick: "React.MouseEventHandler<HTMLButtonElement>"
-    - as: As
-      className?: string
-      fillColor?: "`#${string}`"
-      variant?: [auburn, blue, brown, coral, cyan, gray, green, indigo, lemon, lime, olive, orange, pine, pink, plum, purple, red, teal, yellow]
-TopicTag: { pkg: "@primer/react/experimental" }
+  className?: string
+  fillColor?: "`#${string}`"
+  variant?: [auburn, blue, brown, coral, cyan, gray, green, indigo, lemon, lime, olive, orange, pine, pink, plum, purple, red, teal, yellow]
+  as?: never
+  onClick?: never
+  href?: never
+TopicTag: { pkg: "@primer/react" }
 Hidden:
-  pkg: "@primer/react/experimental"
+  pkg: "@primer/react"
   when: "Array<Viewport> | Viewport"
   children: ReactNode
   className?: string
   style?: CSSProperties
 KeybindingHint:
-  pkg: "@primer/react/experimental"
+  pkg: "@primer/react"
   keys: string
   format?: [condensed, full]
   variant?: [normal, onEmphasis, onPrimary]
   size?: [small, normal]
   className?: string
 Tabs:
-  pkg: "@primer/react/experimental"
+  pkg: "@primer/react"
   spreads: ["PropsWithChildren<ControlledTabsProps | UncontrolledTabsProps>"]
 TabList:
-  pkg: "@primer/react/experimental"
+  pkg: "@primer/react"
   spreads: [React.HTMLAttributes<HTMLElement>]
-  variants:
-    - aria-label: string
-    - aria-labelledby: string
+  aria-label: string
+  aria-labelledby: string
 Tab:
-  pkg: "@primer/react/experimental"
+  pkg: "@primer/react"
   spreads: ["PropsWithChildren<{ 'aria-selected'?: bool; onSelect?: (event: React.KeyboardEvent<HTMLButtonElement> | React.MouseEvent<HTMLButtonElement>) => void; counter?: number | string; icon?: FC<IconProps>; }>"]
 TabPanel:
-  pkg: "@primer/react/experimental"
+  pkg: "@primer/react"
   value: string
-DefaultFeatureFlags: { pkg: "@primer/react/experimental" }
-Blankslate.Visual: { pkg: "@primer/react/experimental" }
-Blankslate.Heading: { pkg: "@primer/react/experimental" }
-Blankslate.Description: { pkg: "@primer/react/experimental" }
-Blankslate.PrimaryAction: { pkg: "@primer/react/experimental" }
-Blankslate.SecondaryAction: { pkg: "@primer/react/experimental" }
-Card.Icon: { pkg: "@primer/react/experimental" }
-Card.Image: { pkg: "@primer/react/experimental" }
-Card.Heading: { pkg: "@primer/react/experimental" }
-Card.Description: { pkg: "@primer/react/experimental" }
-Card.Menu: { pkg: "@primer/react/experimental" }
-Card.Metadata: { pkg: "@primer/react/experimental" }
+DefaultFeatureFlags: { pkg: "@primer/react" }
+Blankslate.Visual: { pkg: "@primer/react" }
+Blankslate.Heading: { pkg: "@primer/react" }
+Blankslate.Description: { pkg: "@primer/react" }
+Blankslate.PrimaryAction: { pkg: "@primer/react" }
+Blankslate.SecondaryAction: { pkg: "@primer/react" }
+Card.Icon: { pkg: "@primer/react" }
+Card.Image: { pkg: "@primer/react" }
+Card.Heading: { pkg: "@primer/react" }
+Card.Description: { pkg: "@primer/react" }
+Card.Menu: { pkg: "@primer/react" }
+Card.Metadata: { pkg: "@primer/react" }
 Table.Container:
-  pkg: "@primer/react/experimental"
+  pkg: "@primer/react"
   spreads: ["PolymorphicProps<As, 'div'>", React.PropsWithChildren]
 Table.Title:
-  pkg: "@primer/react/experimental"
+  pkg: "@primer/react"
   spreads: ["React.PropsWithChildren<{ as?: keyof JSX.IntrinsicElements | React.ComponentType; id: string; } & React.HTMLAttributes<HTMLElement> & React.RefAttributes<HTMLElement>>"]
 Table.Subtitle:
-  pkg: "@primer/react/experimental"
+  pkg: "@primer/react"
   spreads: ["React.PropsWithChildren<{ as?: keyof JSX.IntrinsicElements | React.ComponentType; id: string; } & React.HTMLAttributes<HTMLElement>>"]
 Table.Actions:
-  pkg: "@primer/react/experimental"
+  pkg: "@primer/react"
   spreads: [React.PropsWithChildren]
-Table.Divider: { pkg: "@primer/react/experimental" }
+Table.Divider: { pkg: "@primer/react" }
 Table.Skeleton:
-  pkg: "@primer/react/experimental"
+  pkg: "@primer/react"
   spreads: ["React.ComponentPropsWithoutRef<'table'>"]
   cellPadding?: [condensed, normal, spacious]
   columns: Array<Column<Data>>
   rows?: number
 Table.Head:
-  pkg: "@primer/react/experimental"
+  pkg: "@primer/react"
   spreads: ["React.ComponentPropsWithoutRef<'thead'>"]
 Table.Body:
-  pkg: "@primer/react/experimental"
+  pkg: "@primer/react"
   spreads: ["React.ComponentPropsWithoutRef<'tbody'>"]
 Table.Header:
-  pkg: "@primer/react/experimental"
+  pkg: "@primer/react"
   spreads: ["Omit<React.ComponentPropsWithoutRef<'th'>, 'align'>"]
   align?: [start, end]
 Table.Row:
-  pkg: "@primer/react/experimental"
+  pkg: "@primer/react"
   spreads: ["React.ComponentPropsWithoutRef<'tr'>"]
 Table.Cell:
-  pkg: "@primer/react/experimental"
+  pkg: "@primer/react"
   spreads: ["Omit<React.ComponentPropsWithoutRef<'td'>, 'align'>"]
   align?: [start, end]
   scope?: [row]
 Table.CellPlaceholder:
-  pkg: "@primer/react/experimental"
+  pkg: "@primer/react"
   spreads: [React.PropsWithChildren]
-Table.Pagination: { pkg: "@primer/react/experimental" }
-Table.ErrorDialog: { pkg: "@primer/react/experimental" }
-UnderlinePanels.Panel: { pkg: "@primer/react/experimental" }
-UnderlinePanels.Tab: { pkg: "@primer/react/experimental" }
-TopicTag.Group: { pkg: "@primer/react/experimental" }
-SelectPanel.Button: { pkg: "@primer/react/experimental" }
-SelectPanel.Header: { pkg: "@primer/react/experimental" }
-SelectPanel.SearchInput: { pkg: "@primer/react/experimental" }
-SelectPanel.Footer: { pkg: "@primer/react/experimental" }
-SelectPanel.Loading: { pkg: "@primer/react/experimental" }
+Table.Pagination: { pkg: "@primer/react" }
+Table.ErrorDialog: { pkg: "@primer/react" }
+UnderlinePanels.Panel: { pkg: "@primer/react" }
+UnderlinePanels.Tab: { pkg: "@primer/react" }
+TopicTag.Group: { pkg: "@primer/react" }
+SelectPanel.Button: { pkg: "@primer/react" }
+SelectPanel.Header: { pkg: "@primer/react" }
+SelectPanel.SearchInput: { pkg: "@primer/react" }
+SelectPanel.Footer: { pkg: "@primer/react" }
+SelectPanel.Loading: { pkg: "@primer/react" }
 SelectPanel.SecondaryAction:
-  pkg: "@primer/react/experimental"
+  pkg: "@primer/react"
+  spreads: ["Partial<Omit<ButtonProps, 'variant'>>", Partial<LinkProps>, "Exclude<InputHTMLAttributes<HTMLInputElement>, 'value'>"]
   children: ReactNode
   variant: [button]
-  slot?: string
-  style?: CSSProperties
-  title?: string
-  role?: AriaRole
-  children?: ReactNode
-  className?: string
-  defaultChecked?: bool
-  defaultValue?: "string | number | readonly string[]"
-  suppressContentEditableWarning?: bool
-  suppressHydrationWarning?: bool
-  accessKey?: string
-  autoCapitalize?: "\"off\" | \"none\" | \"on\" | \"sentences\" | \"words\" | \"characters\" | undefined | (string & {})"
-  autoFocus?: bool
-  contentEditable?: "Booleanish | \"inherit\" | \"plaintext-only\""
-  contextMenu?: string
-  dir?: string
-  draggable?: Booleanish
-  enterKeyHint?: [enter, done, go, next, previous, search, send]
-  hidden?: bool
   id?: string
-  lang?: string
-  nonce?: string
-  spellCheck?: Booleanish
-  tabIndex?: number
-  translate?: [yes, no]
-  radioGroup?: string
-  about?: string
-  content?: string
-  datatype?: string
-  inlist?: any
-  prefix?: string
-  property?: string
-  rel?: string
-  resource?: string
-  rev?: string
-  typeof?: string
-  vocab?: string
-  autoCorrect?: string
-  autoSave?: string
-  color?: string
-  itemProp?: string
-  itemScope?: bool
-  itemType?: string
-  itemID?: string
-  itemRef?: string
-  results?: number
-  security?: string
-  unselectable?: [on, off]
-  popover?: ["", auto, manual, hint]
-  popoverTargetAction?: [toggle, show, hide]
-  popoverTarget?: string
-  inert?: bool
-  inputMode?: [none, text, tel, url, email, numeric, decimal, search]
-  is?: string
-  exportparts?: string
-  part?: string
-  aria-activedescendant?: string
-  aria-atomic?: Booleanish
-  aria-autocomplete?: [none, inline, list, both]
-  aria-braillelabel?: string
-  aria-brailleroledescription?: string
-  aria-busy?: Booleanish
-  aria-checked?: "bool | \"false\" | \"mixed\" | \"true\""
-  aria-colcount?: number
-  aria-colindex?: number
-  aria-colindextext?: string
-  aria-colspan?: number
-  aria-controls?: string
-  aria-current?: "bool | \"false\" | \"true\" | \"page\" | \"step\" | \"location\" | \"date\" | \"time\""
-  aria-describedby?: string
-  aria-description?: string
-  aria-details?: string
-  aria-disabled?: Booleanish
-  aria-dropeffect?: [none, copy, execute, link, move, popup]
-  aria-errormessage?: string
-  aria-expanded?: Booleanish
-  aria-flowto?: string
-  aria-grabbed?: Booleanish
-  aria-haspopup?: "bool | \"false\" | \"true\" | \"menu\" | \"listbox\" | \"tree\" | \"grid\" | \"dialog\""
-  aria-hidden?: Booleanish
-  aria-invalid?: "bool | \"false\" | \"true\" | \"grammar\" | \"spelling\""
-  aria-keyshortcuts?: string
-  aria-label?: string
-  aria-labelledby?: string
-  aria-level?: number
-  aria-live?: [off, assertive, polite]
-  aria-modal?: Booleanish
-  aria-multiline?: Booleanish
-  aria-multiselectable?: Booleanish
-  aria-orientation?: [horizontal, vertical]
-  aria-owns?: string
-  aria-placeholder?: string
-  aria-posinset?: number
-  aria-pressed?: "bool | \"false\" | \"mixed\" | \"true\""
-  aria-readonly?: Booleanish
-  aria-relevant?: [additions, "additions removals", "additions text", all, removals, "removals additions", "removals text", text, "text additions", "text removals"]
-  aria-required?: Booleanish
-  aria-roledescription?: string
-  aria-rowcount?: number
-  aria-rowindex?: number
-  aria-rowindextext?: string
-  aria-rowspan?: number
-  aria-selected?: Booleanish
-  aria-setsize?: number
-  aria-sort?: [none, ascending, descending, other]
-  aria-valuemax?: number
-  aria-valuemin?: number
-  aria-valuenow?: number
-  aria-valuetext?: string
-  dangerouslySetInnerHTML?: "{ // Should be InnerHTML['innerHTML']. // But unfortunately we're mixing renderer-specific type declarations. __html: string | TrustedHTML; }"
-  onCopy?: ClipboardEventHandler<T>
-  onCopyCapture?: ClipboardEventHandler<T>
-  onCut?: ClipboardEventHandler<T>
-  onCutCapture?: ClipboardEventHandler<T>
-  onPaste?: ClipboardEventHandler<T>
-  onPasteCapture?: ClipboardEventHandler<T>
-  onCompositionEnd?: CompositionEventHandler<T>
-  onCompositionEndCapture?: CompositionEventHandler<T>
-  onCompositionStart?: CompositionEventHandler<T>
-  onCompositionStartCapture?: CompositionEventHandler<T>
-  onCompositionUpdate?: CompositionEventHandler<T>
-  onCompositionUpdateCapture?: CompositionEventHandler<T>
-  onFocus?: FocusEventHandler<T>
-  onFocusCapture?: FocusEventHandler<T>
-  onBlur?: FocusEventHandler<T>
-  onBlurCapture?: FocusEventHandler<T>
-  onChange?: ChangeEventHandler<T>
-  onChangeCapture?: ChangeEventHandler<T>
-  onBeforeInput?: InputEventHandler<T>
-  onBeforeInputCapture?: InputEventHandler<T>
-  onInput?: InputEventHandler<T>
-  onInputCapture?: InputEventHandler<T>
-  onReset?: ReactEventHandler<T>
-  onResetCapture?: ReactEventHandler<T>
-  onSubmit?: SubmitEventHandler<T>
-  onSubmitCapture?: SubmitEventHandler<T>
-  onInvalid?: ReactEventHandler<T>
-  onInvalidCapture?: ReactEventHandler<T>
-  onLoad?: ReactEventHandler<T>
-  onLoadCapture?: ReactEventHandler<T>
-  onError?: ReactEventHandler<T>
-  onErrorCapture?: ReactEventHandler<T>
-  onKeyDown?: KeyboardEventHandler<T>
-  onKeyDownCapture?: KeyboardEventHandler<T>
-  onKeyPress?: KeyboardEventHandler<T>
-  onKeyPressCapture?: KeyboardEventHandler<T>
-  onKeyUp?: KeyboardEventHandler<T>
-  onKeyUpCapture?: KeyboardEventHandler<T>
-  onAbort?: ReactEventHandler<T>
-  onAbortCapture?: ReactEventHandler<T>
-  onCanPlay?: ReactEventHandler<T>
-  onCanPlayCapture?: ReactEventHandler<T>
-  onCanPlayThrough?: ReactEventHandler<T>
-  onCanPlayThroughCapture?: ReactEventHandler<T>
-  onDurationChange?: ReactEventHandler<T>
-  onDurationChangeCapture?: ReactEventHandler<T>
-  onEmptied?: ReactEventHandler<T>
-  onEmptiedCapture?: ReactEventHandler<T>
-  onEncrypted?: ReactEventHandler<T>
-  onEncryptedCapture?: ReactEventHandler<T>
-  onEnded?: ReactEventHandler<T>
-  onEndedCapture?: ReactEventHandler<T>
-  onLoadedData?: ReactEventHandler<T>
-  onLoadedDataCapture?: ReactEventHandler<T>
-  onLoadedMetadata?: ReactEventHandler<T>
-  onLoadedMetadataCapture?: ReactEventHandler<T>
-  onLoadStart?: ReactEventHandler<T>
-  onLoadStartCapture?: ReactEventHandler<T>
-  onPause?: ReactEventHandler<T>
-  onPauseCapture?: ReactEventHandler<T>
-  onPlay?: ReactEventHandler<T>
-  onPlayCapture?: ReactEventHandler<T>
-  onPlaying?: ReactEventHandler<T>
-  onPlayingCapture?: ReactEventHandler<T>
-  onProgress?: ReactEventHandler<T>
-  onProgressCapture?: ReactEventHandler<T>
-  onRateChange?: ReactEventHandler<T>
-  onRateChangeCapture?: ReactEventHandler<T>
-  onSeeked?: ReactEventHandler<T>
-  onSeekedCapture?: ReactEventHandler<T>
-  onSeeking?: ReactEventHandler<T>
-  onSeekingCapture?: ReactEventHandler<T>
-  onStalled?: ReactEventHandler<T>
-  onStalledCapture?: ReactEventHandler<T>
-  onSuspend?: ReactEventHandler<T>
-  onSuspendCapture?: ReactEventHandler<T>
-  onTimeUpdate?: ReactEventHandler<T>
-  onTimeUpdateCapture?: ReactEventHandler<T>
-  onVolumeChange?: ReactEventHandler<T>
-  onVolumeChangeCapture?: ReactEventHandler<T>
-  onWaiting?: ReactEventHandler<T>
-  onWaitingCapture?: ReactEventHandler<T>
-  onAuxClick?: MouseEventHandler<T>
-  onAuxClickCapture?: MouseEventHandler<T>
-  onClick?: MouseEventHandler<T>
-  onClickCapture?: MouseEventHandler<T>
-  onContextMenu?: MouseEventHandler<T>
-  onContextMenuCapture?: MouseEventHandler<T>
-  onDoubleClick?: MouseEventHandler<T>
-  onDoubleClickCapture?: MouseEventHandler<T>
-  onDrag?: DragEventHandler<T>
-  onDragCapture?: DragEventHandler<T>
-  onDragEnd?: DragEventHandler<T>
-  onDragEndCapture?: DragEventHandler<T>
-  onDragEnter?: DragEventHandler<T>
-  onDragEnterCapture?: DragEventHandler<T>
-  onDragExit?: DragEventHandler<T>
-  onDragExitCapture?: DragEventHandler<T>
-  onDragLeave?: DragEventHandler<T>
-  onDragLeaveCapture?: DragEventHandler<T>
-  onDragOver?: DragEventHandler<T>
-  onDragOverCapture?: DragEventHandler<T>
-  onDragStart?: DragEventHandler<T>
-  onDragStartCapture?: DragEventHandler<T>
-  onDrop?: DragEventHandler<T>
-  onDropCapture?: DragEventHandler<T>
-  onMouseDown?: MouseEventHandler<T>
-  onMouseDownCapture?: MouseEventHandler<T>
-  onMouseEnter?: MouseEventHandler<T>
-  onMouseLeave?: MouseEventHandler<T>
-  onMouseMove?: MouseEventHandler<T>
-  onMouseMoveCapture?: MouseEventHandler<T>
-  onMouseOut?: MouseEventHandler<T>
-  onMouseOutCapture?: MouseEventHandler<T>
-  onMouseOver?: MouseEventHandler<T>
-  onMouseOverCapture?: MouseEventHandler<T>
-  onMouseUp?: MouseEventHandler<T>
-  onMouseUpCapture?: MouseEventHandler<T>
-  onSelect?: ReactEventHandler<T>
-  onSelectCapture?: ReactEventHandler<T>
-  onTouchCancel?: TouchEventHandler<T>
-  onTouchCancelCapture?: TouchEventHandler<T>
-  onTouchEnd?: TouchEventHandler<T>
-  onTouchEndCapture?: TouchEventHandler<T>
-  onTouchMove?: TouchEventHandler<T>
-  onTouchMoveCapture?: TouchEventHandler<T>
-  onTouchStart?: TouchEventHandler<T>
-  onTouchStartCapture?: TouchEventHandler<T>
-  onPointerDown?: PointerEventHandler<T>
-  onPointerDownCapture?: PointerEventHandler<T>
-  onPointerMove?: PointerEventHandler<T>
-  onPointerMoveCapture?: PointerEventHandler<T>
-  onPointerUp?: PointerEventHandler<T>
-  onPointerUpCapture?: PointerEventHandler<T>
-  onPointerCancel?: PointerEventHandler<T>
-  onPointerCancelCapture?: PointerEventHandler<T>
-  onPointerEnter?: PointerEventHandler<T>
-  onPointerLeave?: PointerEventHandler<T>
-  onPointerOver?: PointerEventHandler<T>
-  onPointerOverCapture?: PointerEventHandler<T>
-  onPointerOut?: PointerEventHandler<T>
-  onPointerOutCapture?: PointerEventHandler<T>
-  onGotPointerCapture?: PointerEventHandler<T>
-  onGotPointerCaptureCapture?: PointerEventHandler<T>
-  onLostPointerCapture?: PointerEventHandler<T>
-  onLostPointerCaptureCapture?: PointerEventHandler<T>
-  onScroll?: UIEventHandler<T>
-  onScrollCapture?: UIEventHandler<T>
-  onScrollEnd?: UIEventHandler<T>
-  onScrollEndCapture?: UIEventHandler<T>
-  onWheel?: WheelEventHandler<T>
-  onWheelCapture?: WheelEventHandler<T>
-  onAnimationStart?: AnimationEventHandler<T>
-  onAnimationStartCapture?: AnimationEventHandler<T>
-  onAnimationEnd?: AnimationEventHandler<T>
-  onAnimationEndCapture?: AnimationEventHandler<T>
-  onAnimationIteration?: AnimationEventHandler<T>
-  onAnimationIterationCapture?: AnimationEventHandler<T>
-  onToggle?: ToggleEventHandler<T>
-  onBeforeToggle?: ToggleEventHandler<T>
-  onTransitionCancel?: TransitionEventHandler<T>
-  onTransitionCancelCapture?: TransitionEventHandler<T>
-  onTransitionEnd?: TransitionEventHandler<T>
-  onTransitionEndCapture?: TransitionEventHandler<T>
-  onTransitionRun?: TransitionEventHandler<T>
-  onTransitionRunCapture?: TransitionEventHandler<T>
-  onTransitionStart?: TransitionEventHandler<T>
-  onTransitionStartCapture?: TransitionEventHandler<T>
-  type?: [submit, reset, button]
+  indeterminate?: bool
+  disabled?: bool
+  ref?: "React.RefObject<HTMLInputElement>"
+  required?: bool
+  validationStatus?: [success, error]
+  value?: string
+  data-component?: string
 Panel:
-  pkg: "@primer/react/experimental"
+  pkg: "@primer/react"
   spreads: [React.HTMLAttributes<HTMLDivElement>]
 TableSortHeader:
-  pkg: "@primer/react/experimental"
+  pkg: "@primer/react"
   spreads: ["Omit<React.ComponentPropsWithoutRef<'th'>, 'align'>"]
   align?: [start, end]
   direction: [ASC, DESC, NONE]
