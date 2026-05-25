@@ -1,4 +1,4 @@
-> *This example uses GitHub Primer (`@primer/react`) as a reference design system to demonstrate pastiche. It is not affiliated with, endorsed by, or sponsored by GitHub. Primer is a trademark of GitHub, Inc. All Primer atom names, tokens, and component shapes appearing in this example or in `KNOWLEDGE.md` / `WISDOM.md` are property of GitHub, Inc.*
+> *This example uses GitHub Primer (`@primer/react`) as a reference design system to demonstrate pastiche. It is not affiliated with, endorsed by, or sponsored by GitHub. Primer is a trademark of GitHub, Inc. All Primer atom names, tokens, and component shapes appearing in this example or in **KNOWLEDGE.md** / **WISDOM.md** are property of GitHub, Inc.*
 
 <!-- WISDOM — atom-intrinsic rules. Hand-curated. -->
 <!-- Format: `- [Tag1,Tag2,...] rule text.` (comma-separated tags inside one bracket pair). -->
