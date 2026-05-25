@@ -65,7 +65,7 @@ const WORKFLOWS: Workflow[] = [
         duration: "3m 42s",
       },
       {
-        id: 2,
+        id: 247,
         title: "feat: add user profile API endpoint",
         status: "failure",
         event: "pull_request",
@@ -447,7 +447,7 @@ export default function ActionsPage() {
             {filteredRuns.map((run) => {
               const sl = statusLabel(run.status);
               return (
-                <ActionList.Item key={run.id}>
+                <ActionList.LinkItem key={run.id} href={`/actions/runs/${run.id}`}>
                   <ActionList.LeadingVisual>
                     {statusIcon(run.status)}
                   </ActionList.LeadingVisual>
@@ -476,7 +476,7 @@ export default function ActionsPage() {
                       </Text>
                     </Stack>
                   </ActionList.TrailingVisual>
-                </ActionList.Item>
+                </ActionList.LinkItem>
               );
             })}
           </ActionList>
