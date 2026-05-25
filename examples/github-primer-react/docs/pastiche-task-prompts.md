@@ -6,7 +6,7 @@ Four prompts to run via `/pastiche` from the example app root. Run each in a sep
 
 ## 0. App Layout
 
-Build the shared app layout that wraps all pages. Model it after GitHub's repository view.
+Build the shared app layout that wraps all pages.
 
 The app has a persistent global header at the top of every page. It includes the organization and repository name as a breadcrumb path (use "acme-corp / issue-tracker" as the project name), a search field, and user-facing controls on the right side.
 
@@ -22,7 +22,7 @@ This layout is shared across all pages. The three page prompts below assume it's
 
 ## 1. Issues List (`/issues`)
 
-Build the Issues List page at `/issues`. Model it after GitHub's real issues list.
+Build the Issues List page at `/issues`.
 
 The page lets users browse issues in a repository. At the top, a search/filter bar and a "New issue" button. Below that, Open/Closed tabs with counts so users can toggle between the two sets. The main body is the issue list — each row surfaces the issue title (linked to its detail page), any labels as colored tags, the issue number, who opened it, when, and how many comments it has. Open and closed issues should be visually distinguishable.
 
@@ -34,7 +34,7 @@ Use hardcoded mock data — 8–12 issues with a mix of open/closed, varied labe
 
 ## 2. New Issue (`/issues/new`)
 
-Build the New Issue composer page at `/issues/new`. Model it after GitHub's real new issue form.
+Build the New Issue composer page at `/issues/new`.
 
 This is a two-column layout. The main column has a title field (required) and a large body textarea for the description. The sidebar column has metadata sections — Assignees, Labels, Projects — each showing a placeholder state ("No one", "None yet") since nothing is selected. The sections are visually separated.
 
@@ -46,7 +46,7 @@ No real persistence — submitting just navigates back to `/issues`.
 
 ## 3. Issue Detail (`/issues/[id]`)
 
-Build the Issue Detail page at `/issues/[id]`. Model it after GitHub's real issue detail view.
+Build the Issue Detail page at `/issues/[id]`.
 
 The page header shows the issue title alongside its number, plus a status indicator (open or closed) and a byline ("opened this issue 3 days ago · 4 comments").
 
@@ -62,7 +62,7 @@ Use hardcoded mock data matching one of the issues from the list page. Nothing n
 
 ## 4. Pull Requests List (`/pulls`)
 
-Build the Pull Requests List page at `/pulls`. Model it after GitHub's real pull requests list.
+Build the Pull Requests List page at `/pulls`.
 
 The page lets users browse pull requests in a repository. At the top, a search/filter bar and a "New pull request" button. Below that, Open/Closed tabs with counts. Each row in the list shows the PR title (linked to its detail page), the PR number, who opened it, when, and how many comments it has. Each PR also surfaces its source branch name, any labels, and review status — whether reviews have been requested, approved, or changes requested. Some PRs should show CI check status indicators (passing, failing, pending).
 
@@ -74,7 +74,7 @@ Use hardcoded mock data — 8–12 pull requests with a mix of open/closed/merge
 
 ## 5. Pull Request Detail — Conversation (`/pulls/[id]`)
 
-Build the Pull Request Conversation page at `/pulls/[id]`. Model it after GitHub's real PR conversation tab.
+Build the Pull Request Conversation page at `/pulls/[id]`.
 
 The page header shows the PR title alongside its number, a status indicator (open, closed, or merged), and a byline with who opened it, the source and target branch names, and how many commits and files changed.
 
@@ -92,7 +92,9 @@ Use hardcoded mock data matching one of the PRs from the pull requests list page
 
 ## 6. Code File Viewer (`/blob/[...path]`)
 
-Build the Code File Viewer page at `/blob/[...path]`. Model it after GitHub's real file view.
+Build the Code File Viewer page at `/blob/[...path]`.
+
+The page should be in fullbleed layout. fill in the full width of the screen. also, wire the page with layout's navigation bar "Code". If user clicks "Code", then navigate to blob page.
 
 The top of the page shows a breadcrumb path reflecting the file's location in the repo tree (e.g., `src / components / Button.tsx`). Each segment of the path is a link.
 
@@ -108,7 +110,7 @@ Use hardcoded mock data — a realistic source file of 40–60 lines (a React co
 
 ## 7. Repository Home (`/`)
 
-Build the Repository Home page at `/`. Model it after GitHub's real repository landing page (the Code tab).
+Build the Repository Home page at `/`.
 
 The top area shows repository metadata: the repo name, visibility badge (public/private), and star/fork/watch counts with action buttons for each.
 
@@ -126,7 +128,7 @@ Use hardcoded mock data for the file tree (10–15 entries with a mix of files a
 
 ## 8. Actions — Workflow Runs (`/actions`)
 
-Build the Actions page at `/actions`. Model it after GitHub's real Actions tab.
+Build the Actions page at `/actions`.
 
 A sidebar lists the repository's workflows by name (e.g., "CI", "Deploy", "Lint"). One workflow is selected. The sidebar also shows a search field to filter workflows, and a "New workflow" link.
 
@@ -142,7 +144,7 @@ Use hardcoded mock data — 3–4 workflows in the sidebar, 8–10 runs for the 
 
 ## 9. Workflow Run Detail (`/actions/runs/[id]`)
 
-Build the Workflow Run Detail page at `/actions/runs/[id]`. Model it after GitHub's real workflow run detail.
+Build the Workflow Run Detail page at `/actions/runs/[id]`.
 
 The page header shows the run title (usually the commit message), the workflow name, the run status, and metadata — who triggered it, from which branch, the triggering event, and when it started.
 
@@ -160,7 +162,7 @@ Use hardcoded mock data — one run with 3–4 jobs, each having 4–6 steps wit
 
 ## 10. Settings — General (`/settings`)
 
-Build the General Settings page at `/settings`. Model it after GitHub's real repository settings page.
+Build the General Settings page at `/settings`.
 
 The page has a sidebar navigation listing settings sections — General, Access, Branches, Tags, Actions, Pages, and others. General is the currently active section.
 
@@ -180,7 +182,7 @@ No persistence — interacting with controls does not need to save anything. The
 
 ## 11. Compare / Open PR (`/compare/[base]...[head]`)
 
-Build the Compare page at `/compare/[base]...[head]`. Model it after GitHub's real compare view used to open a pull request.
+Build the Compare page at `/compare/[base]...[head]`.
 
 The top area has two branch selectors — a base branch and a compare (head) branch. Changing either branch would update the comparison. Between them, a directional indicator shows the merge direction.
 
