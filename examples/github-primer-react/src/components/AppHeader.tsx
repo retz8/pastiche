@@ -108,9 +108,9 @@ export function AppHeader() {
         </UnderlineNav.Item>
         <UnderlineNav.Item
           as={Link}
-          href="/"
+          href="/actions"
           icon={PlayIcon}
-          aria-current={undefined}
+          aria-current={pathname.startsWith("/actions") ? "page" : undefined}
         >
           Actions
         </UnderlineNav.Item>
