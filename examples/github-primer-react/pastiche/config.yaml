@@ -8,8 +8,6 @@ packages:
   - name: "@primer/react"
     types:
       - "node_modules/@primer/react/dist/index.d.ts"
-  - name: "@primer/react/experimental"
-    types:
       - "node_modules/@primer/react/dist/experimental/index.d.ts"
 
 tokens:
