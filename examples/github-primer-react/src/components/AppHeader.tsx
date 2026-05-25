@@ -37,7 +37,7 @@ export function AppHeader() {
           <Header.Link href="/">
             acme-corp
           </Header.Link>
-          <span style={{ color: "var(--fgColor-onEmphasis)", margin: "0 var(--base-size-4)" }}>
+          <span style={{ color: "var(--fgColor-onEmphasis)", margin: "0 var(--space-xxs)" }}>
             /
           </span>
           <Header.Link href="/">
@@ -73,65 +73,65 @@ export function AppHeader() {
       </Header>
 
       {/* Repository tab navigation */}
-      <nav
+      <div
         style={{
           backgroundColor: "var(--bgColor-default)",
           borderBottom: "var(--borderWidth-thin) solid var(--borderColor-default)",
         }}
       >
-        <UnderlineNav aria-label="Repository navigation">
-          <UnderlineNav.Item
-            as={Link}
-            href="/"
-            icon={CodeIcon}
-            aria-current={pathname === "/" ? "page" : undefined}
-          >
-            Code
-          </UnderlineNav.Item>
-          <UnderlineNav.Item
-            as={Link}
-            href="/issues"
-            icon={IssueOpenedIcon}
-            counter={24}
-            aria-current={pathname.startsWith("/issues") ? "page" : undefined}
-          >
-            Issues
-          </UnderlineNav.Item>
-          <UnderlineNav.Item
-            as={Link}
-            href="/pulls"
-            icon={GitPullRequestIcon}
-            counter={3}
-            aria-current={pathname.startsWith("/pulls") ? "page" : undefined}
-          >
-            Pull requests
-          </UnderlineNav.Item>
-          <UnderlineNav.Item
-            as={Link}
-            href="/"
-            icon={PlayIcon}
-            aria-current={undefined}
-          >
-            Actions
-          </UnderlineNav.Item>
-          <UnderlineNav.Item
-            as={Link}
-            href="/"
-            icon={ProjectIcon}
-            aria-current={undefined}
-          >
-            Projects
-          </UnderlineNav.Item>
-          <UnderlineNav.Item
-            as={Link}
-            href="/"
-            icon={GearIcon}
-            aria-current={undefined}
-          >
-            Settings
-          </UnderlineNav.Item>
-        </UnderlineNav>
-      </nav>
+      <UnderlineNav aria-label="Repository navigation">
+        <UnderlineNav.Item
+          as={Link}
+          href="/blob/src/components/Button.tsx"
+          icon={CodeIcon}
+          aria-current={pathname.startsWith("/blob") ? "page" : undefined}
+        >
+          Code
+        </UnderlineNav.Item>
+        <UnderlineNav.Item
+          as={Link}
+          href="/issues"
+          icon={IssueOpenedIcon}
+          counter={24}
+          aria-current={pathname.startsWith("/issues") ? "page" : undefined}
+        >
+          Issues
+        </UnderlineNav.Item>
+        <UnderlineNav.Item
+          as={Link}
+          href="/pulls"
+          icon={GitPullRequestIcon}
+          counter={3}
+          aria-current={pathname.startsWith("/pulls") ? "page" : undefined}
+        >
+          Pull requests
+        </UnderlineNav.Item>
+        <UnderlineNav.Item
+          as={Link}
+          href="/"
+          icon={PlayIcon}
+          aria-current={undefined}
+        >
+          Actions
+        </UnderlineNav.Item>
+        <UnderlineNav.Item
+          as={Link}
+          href="/"
+          icon={ProjectIcon}
+          aria-current={undefined}
+        >
+          Projects
+        </UnderlineNav.Item>
+        <UnderlineNav.Item
+          as={Link}
+          href="/"
+          icon={GearIcon}
+          aria-current={undefined}
+        >
+          Settings
+        </UnderlineNav.Item>
+      </UnderlineNav>
+      </div>
     </div>
   );
 }
