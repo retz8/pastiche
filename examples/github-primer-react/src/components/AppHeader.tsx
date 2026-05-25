@@ -99,10 +99,10 @@ export function AppHeader() {
           </UnderlineNav.Item>
           <UnderlineNav.Item
             as={Link}
-            href="/"
+            href="/pulls"
             icon={GitPullRequestIcon}
             counter={3}
-            aria-current={undefined}
+            aria-current={pathname.startsWith("/pulls") ? "page" : undefined}
           >
             Pull requests
           </UnderlineNav.Item>
