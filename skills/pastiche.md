@@ -22,7 +22,8 @@ Run `ls pastiche/FACT.md pastiche/KNOWLEDGE.md pastiche/WISDOM.md`. If any are m
 4. Dispatch `pastiche-implementer-round2` with `{task, r1_report, doubts}` → capture `{r2_report}`.
 5. **Failsafe.** For each record in `{r2_report}`'s `unresolved:` block (skip if `unresolved: -`): Read the file, then Edit to insert a comment in the file's native comment syntax above the targeted `<line>` (matching surrounding indentation). Comment text: `pastiche-unresolved-doubt: <comment from the unresolved: record>`.
 6. **Build check.** Read `build_command` from `pastiche/config.yaml`. If null or absent, skip. Otherwise run it. For each error, patch using the build output as source of truth. Bounded to **3 patch attempts per error**. If an error persists after 3 attempts, leave it and note it in Follow-ups.
-7. Emit the final response.
+7. **Runtime review.** Scan the changed files for common sources of runtime and console errors. Patch any issues found. Bounded to **one pass**.
+8. Emit the final response.
 
 ## Final response
 
