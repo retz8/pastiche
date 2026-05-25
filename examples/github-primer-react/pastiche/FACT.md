@@ -848,10 +848,14 @@ ActionMenu.Button:
   labelWrap?: bool
 ActionMenu.Anchor:
   pkg: "@primer/react"
-  spreads: [React.HTMLAttributes<HTMLElement>]
+  spreads: [React.HTMLAttributes<HTMLElement>, React.RefAttributes<HTMLElement>]
   children: "React.ReactElement<any>"
   id?: string
-ActionMenu.Overlay: { pkg: "@primer/react" }
+ActionMenu.Overlay:
+  pkg: "@primer/react"
+  spreads: [Partial<OverlayProps>, "Pick<AnchoredOverlayProps, 'align' | 'side' | 'variant' | 'displayInViewport'>"]
+  children: ReactNode
+  onPositionChange?: "({ position }: { position: AnchorPosition; }) => void"
 ActionMenu.Divider: { pkg: "@primer/react" }
 Autocomplete.Context: { pkg: "@primer/react" }
 Autocomplete.Input:
@@ -885,7 +889,10 @@ Breadcrumbs.Item:
 Breadcrumb.Item:
   pkg: "@primer/react"
   spreads: ["PolymorphicProps<As, 'a', { to?: To; selected?: bool; }>"]
-CheckboxGroup.Caption: { pkg: "@primer/react" }
+CheckboxGroup.Caption:
+  pkg: "@primer/react"
+  className?: string
+  children?: ReactNode
 CheckboxGroup.Label: { pkg: "@primer/react" }
 CheckboxGroup.Validation: { pkg: "@primer/react" }
 CircleBadge.Icon:
@@ -913,12 +920,20 @@ Dialog.Header:
   style?: "React.CSSProperties"
   dialogLabelId: string
   dialogDescriptionId: string
-Dialog.Title: { pkg: "@primer/react" }
-Dialog.Subtitle: { pkg: "@primer/react" }
+Dialog.Title:
+  pkg: "@primer/react"
+  spreads: ["Omit<React.DetailedHTMLProps<React.HTMLAttributes<HTMLHeadingElement>, HTMLHeadingElement>, \"ref\">", React.RefAttributes<HTMLHeadingElement>]
+Dialog.Subtitle:
+  pkg: "@primer/react"
+  spreads: ["Omit<React.DetailedHTMLProps<React.HTMLAttributes<HTMLHeadingElement>, HTMLHeadingElement>, \"ref\">", React.RefAttributes<HTMLHeadingElement>]
 Dialog.Body: { pkg: "@primer/react" }
 Dialog.Footer: { pkg: "@primer/react" }
-Dialog.Buttons: { pkg: "@primer/react" }
-Dialog.CloseButton: { pkg: "@primer/react" }
+Dialog.Buttons:
+  pkg: "@primer/react"
+  buttons: "DialogButtonProps[]"
+Dialog.CloseButton:
+  pkg: "@primer/react"
+  onClose: "() => void"
 FormControl.Caption:
   pkg: "@primer/react"
   spreads: ["React.PropsWithChildren<{ id?: string; className?: string; style?: React.CSSProperties; }>"]
@@ -932,12 +947,12 @@ FormControl.Validation:
   style?: "React.CSSProperties"
 Header.Link:
   pkg: "@primer/react"
-  spreads: ["React.ComponentProps<'a'>"]
+  spreads: ["Omit<React.ComponentProps<'a'>, \"ref\">", React.RefAttributes<HTMLAnchorElement>]
   to?: "Location | Pathname"
   as?: "React.ElementType"
 Header.Item:
   pkg: "@primer/react"
-  spreads: ["React.ComponentProps<'div'>"]
+  spreads: ["Omit<React.ComponentProps<'div'>, \"ref\">", React.RefAttributes<HTMLDivElement>]
   full?: bool
 NavList.Description: { pkg: "@primer/react" }
 NavList.Item:
@@ -972,6 +987,7 @@ NavList.Group:
   title?: string
 NavList.GroupExpand:
   pkg: "@primer/react"
+  spreads: [React.RefAttributes<HTMLButtonElement>]
   label?: string
   pages?: number
   items: "GroupItem[]"
@@ -1026,10 +1042,39 @@ SegmentedControl.IconButton:
   description?: string
   tooltipDirection?: [s, nw, n, ne, e, se, sw, w]
   disabled?: bool
-Select.Option: { pkg: "@primer/react" }
+Select.Option:
+  pkg: "@primer/react"
+  spreads: [React.HTMLProps<HTMLOptionElement>]
+  value: string
 Select.OptGroup: { pkg: "@primer/react" }
 SelectPanel.SecondaryActionButton: { pkg: "@primer/react" }
-SelectPanel.SecondaryActionLink: { pkg: "@primer/react" }
+SelectPanel.SecondaryActionLink:
+  pkg: "@primer/react"
+  spreads: [React.ButtonHTMLAttributes<HTMLButtonElement>]
+  download?: string
+  href?: string
+  hrefLang?: string
+  media?: string
+  ping?: string
+  rel?: string
+  target?: string
+  type?: string
+  referrerPolicy?: ["", "no-referrer", "no-referrer-when-downgrade", origin, "origin-when-cross-origin", "same-origin", "strict-origin", "strict-origin-when-cross-origin", "unsafe-url"]
+  alignContent?: [center, start]
+  icon?: "React.FunctionComponent<IconProps> | React.ElementType | React.ReactElement<any>"
+  leadingVisual?: "React.ElementType | React.ReactElement<any>"
+  trailingVisual?: "React.ElementType | React.ReactElement<any>"
+  trailingAction?: "React.ElementType"
+  children?: ReactNode
+  count?: "number | string"
+  variant?: [link, default, primary, invisible, danger]
+  size?: [small, medium, large]
+  disabled?: bool
+  block?: bool
+  loading?: bool
+  loadingAnnouncement?: string
+  inactive?: bool
+  labelWrap?: bool
 SelectPanel.Message:
   pkg: "@primer/react"
   children: ReactNode
@@ -1049,18 +1094,18 @@ SubNav.Link:
   selected?: bool
 SubNav.Links:
   pkg: "@primer/react"
-  spreads: ["React.ComponentProps<'div'>"]
+  spreads: ["Omit<React.DetailedHTMLProps<React.HTMLAttributes<HTMLDivElement>, HTMLDivElement>, \"ref\">", React.RefAttributes<HTMLDivElement>]
 TextInput.Action:
   pkg: "@primer/react"
-  spreads: ["Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, 'aria-label' | 'size' | 'tooltipDirection'>"]
+  spreads: ["Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, \"aria-label\" | \"size\" | \"tooltipDirection\">", React.RefAttributes<HTMLButtonElement>]
   children?: ReactNode
-  ['aria-label']?: string
+  aria-label?: string
   tooltipDirection?: [n, ne, e, se, s, sw, w, nw]
-  icon?: "React.FunctionComponent<React.PropsWithChildren<IconProps>>"
+  icon?: "React.FunctionComponent<React.PropsWithChildren<import(\"@primer/octicons-react\").IconProps>>"
   variant?: [link, default, primary, invisible, danger]
 Timeline.Item:
   pkg: "@primer/react"
-  spreads: ["React.ComponentPropsWithoutRef<'div'>"]
+  spreads: ["Omit<React.DetailedHTMLProps<React.HTMLAttributes<HTMLDivElement>, HTMLDivElement>, \"ref\">", React.RefAttributes<HTMLDivElement>]
   condensed?: bool
   className?: string
 Timeline.Badge:
@@ -1071,14 +1116,15 @@ Timeline.Badge:
   variant?: [accent, success, attention, severe, danger, done, open, closed, sponsors]
 Timeline.Body:
   pkg: "@primer/react"
-  spreads: ["React.ComponentPropsWithoutRef<'div'>"]
+  spreads: ["Omit<React.DetailedHTMLProps<React.HTMLAttributes<HTMLDivElement>, HTMLDivElement>, \"ref\">", React.RefAttributes<HTMLDivElement>]
   className?: string
 Timeline.Break:
   pkg: "@primer/react"
-  spreads: ["React.ComponentPropsWithoutRef<'div'>"]
+  spreads: ["Omit<React.DetailedHTMLProps<React.HTMLAttributes<HTMLDivElement>, HTMLDivElement>, \"ref\">", React.RefAttributes<HTMLDivElement>]
   className?: string
 TreeView.Item:
   pkg: "@primer/react"
+  spreads: [React.RefAttributes<HTMLElement>]
   aria-label?: "React.AriaAttributes['aria-label']"
   aria-labelledby?: "React.AriaAttributes['aria-labelledby']"
   id: string
@@ -1097,9 +1143,18 @@ TreeView.SubTree:
   state?: [initial, loading, done, error]
   count?: number
   aria-label?: string
-TreeView.LeadingAction: { pkg: "@primer/react" }
-TreeView.LeadingVisual: { pkg: "@primer/react" }
-TreeView.TrailingVisual: { pkg: "@primer/react" }
+TreeView.LeadingAction:
+  pkg: "@primer/react"
+  children: "ReactNode | ((props: { isExpanded: bool; }) => ReactNode)"
+  label?: string
+TreeView.LeadingVisual:
+  pkg: "@primer/react"
+  children: "ReactNode | ((props: { isExpanded: bool; }) => ReactNode)"
+  label?: string
+TreeView.TrailingVisual:
+  pkg: "@primer/react"
+  children: "ReactNode | ((props: { isExpanded: bool; }) => ReactNode)"
+  label?: string
 TreeView.DirectoryIcon: { pkg: "@primer/react" }
 TreeView.ErrorDialog:
   pkg: "@primer/react"
@@ -1154,20 +1209,63 @@ ActionBar.Menu:
 Stack.Item:
   pkg: "@primer/react"
   spreads: ["React.PropsWithChildren<{ as?: As; grow?: bool | ResponsiveValue<bool>; shrink?: bool | ResponsiveValue<bool>; className?: string; }>"]
-PageHeader.ContextArea: { pkg: "@primer/react" }
-PageHeader.ParentLink: { pkg: "@primer/react" }
-PageHeader.ContextBar: { pkg: "@primer/react" }
-PageHeader.TitleArea: { pkg: "@primer/react" }
-PageHeader.ContextAreaActions: { pkg: "@primer/react" }
-PageHeader.LeadingAction: { pkg: "@primer/react" }
-PageHeader.Breadcrumbs: { pkg: "@primer/react" }
-PageHeader.LeadingVisual: { pkg: "@primer/react" }
-PageHeader.Title: { pkg: "@primer/react" }
-PageHeader.TrailingVisual: { pkg: "@primer/react" }
-PageHeader.TrailingAction: { pkg: "@primer/react" }
+PageHeader.ContextArea:
+  pkg: "@primer/react"
+  className?: string
+  hidden?: "bool | ResponsiveValue<bool>"
+PageHeader.ParentLink:
+  pkg: "@primer/react"
+  spreads: ["React.PropsWithChildren<ChildrenPropTypes & LinkProps>"]
+PageHeader.ContextBar:
+  pkg: "@primer/react"
+  className?: string
+  hidden?: "bool | ResponsiveValue<bool>"
+PageHeader.TitleArea:
+  pkg: "@primer/react"
+  variant?: "'subtitle' | 'medium' | 'large' | ResponsiveValue<'subtitle' | 'medium' | 'large'>"
+  className?: string
+  hidden?: "bool | ResponsiveValue<bool>"
+PageHeader.ContextAreaActions:
+  pkg: "@primer/react"
+  className?: string
+  hidden?: "bool | ResponsiveValue<bool>"
+PageHeader.LeadingAction:
+  pkg: "@primer/react"
+  className?: string
+  hidden?: "bool | ResponsiveValue<bool>"
+PageHeader.Breadcrumbs:
+  pkg: "@primer/react"
+  className?: string
+  hidden?: "bool | ResponsiveValue<bool>"
+PageHeader.LeadingVisual:
+  pkg: "@primer/react"
+  className?: string
+  hidden?: "bool | ResponsiveValue<bool>"
+PageHeader.Title:
+  pkg: "@primer/react"
+  as?: [h1, h2, h3, h4, h5, h6]
+  className?: string
+  hidden?: "bool | ResponsiveValue<bool>"
+PageHeader.TrailingVisual:
+  pkg: "@primer/react"
+  className?: string
+  hidden?: "bool | ResponsiveValue<bool>"
+PageHeader.TrailingAction:
+  pkg: "@primer/react"
+  className?: string
+  hidden?: "bool | ResponsiveValue<bool>"
 PageHeader.Actions: { pkg: "@primer/react" }
-PageHeader.Description: { pkg: "@primer/react" }
-PageHeader.Navigation: { pkg: "@primer/react" }
+PageHeader.Description:
+  pkg: "@primer/react"
+  className?: string
+  hidden?: "bool | ResponsiveValue<bool>"
+PageHeader.Navigation:
+  pkg: "@primer/react"
+  as?: [nav, div]
+  aria-label?: "React.AriaAttributes['aria-label']"
+  aria-labelledby?: "React.AriaAttributes['aria-labelledby']"
+  className?: string
+  hidden?: "bool | ResponsiveValue<bool>"
 PageLayoutPaneBase:
   pkg: "@primer/react"
   position?: "'start' | 'end' | ResponsiveValue<'start' | 'end'>"
@@ -1551,8 +1649,28 @@ Table.ErrorDialog: { pkg: "@primer/react" }
 UnderlinePanels.Panel: { pkg: "@primer/react" }
 UnderlinePanels.Tab: { pkg: "@primer/react" }
 TopicTag.Group: { pkg: "@primer/react" }
-SelectPanel.Button: { pkg: "@primer/react" }
-SelectPanel.Header: { pkg: "@primer/react" }
+SelectPanel.Button:
+  pkg: "@primer/react"
+  spreads: [React.ButtonHTMLAttributes<HTMLButtonElement>, React.RefAttributes<HTMLButtonElement>]
+  alignContent?: [center, start]
+  icon?: "React.FunctionComponent<import(\"@primer/octicons-react\").IconProps> | React.ElementType | React.ReactElement<any>"
+  leadingVisual?: "React.ElementType | React.ReactElement<any>"
+  trailingVisual?: "React.ElementType | React.ReactElement<any>"
+  trailingAction?: "React.ElementType"
+  children?: ReactNode
+  count?: "number | string"
+  variant?: [link, default, primary, invisible, danger]
+  size?: [small, medium, large]
+  disabled?: bool
+  block?: bool
+  loading?: bool
+  loadingAnnouncement?: string
+  inactive?: bool
+  labelWrap?: bool
+SelectPanel.Header:
+  pkg: "@primer/react"
+  spreads: ["Omit<React.DetailedHTMLProps<React.HTMLAttributes<HTMLDivElement>, HTMLDivElement>, \"ref\">"]
+  onBack?: "() => void"
 SelectPanel.SearchInput: { pkg: "@primer/react" }
 SelectPanel.Footer: { pkg: "@primer/react" }
 SelectPanel.Loading: { pkg: "@primer/react" }

@@ -787,8 +787,8 @@ function renderPropsSegments(propsTypeNode: TypeNode, ctx: ResolveCtx, flattenUn
 // ---------------------------------------------------------------------------
 
 interface CompoundInfo {
-  rootName: string;                                       // e.g. "Form"
-  members: Array<{ memberName: string; innerName: string }>; // [{ "Input", "FormInput" }, ...]
+  rootName: string;
+  members: Array<{ memberName: string; innerName: string; memberTypeNode: TypeNode }>;
 }
 
 /**
@@ -817,10 +817,39 @@ function detectCompound(decls: readonly Node[], rootName: string): CompoundInfo[
         } else {
           innerName = rootName + memberName;
         }
-        members.push({ memberName, innerName });
+        members.push({ memberName, innerName, memberTypeNode });
       }
     }
     if (members.length > 0) return members;
+  }
+  return null;
+}
+
+function extractPropsFromMemberType(
+  memberTypeNode: TypeNode,
+  localTypeAliases: Map<string, TypeNode>,
+  localInterfaces: Map<string, { decl: InterfaceDeclaration; pos: number }>,
+): { propsTypeNode?: TypeNode; propsInterface?: InterfaceDeclaration } | null {
+  const queue: TypeNode[] = [memberTypeNode];
+  const visited = new Set<string>();
+  while (queue.length > 0) {
+    const node = queue.shift()!;
+    const text = node.getText().slice(0, 100);
+    if (visited.has(text)) continue;
+    visited.add(text);
+    if (!Node.isTypeReference(node)) continue;
+    for (const arg of node.getTypeArguments()) {
+      if (Node.isTypeLiteral(arg)) return { propsTypeNode: arg };
+      if (Node.isIntersectionTypeNode(arg)) return { propsTypeNode: arg };
+      if (Node.isTypeReference(arg)) {
+        const name = arg.getTypeName().getText();
+        const localAlias = localTypeAliases.get(name);
+        if (localAlias) return { propsTypeNode: localAlias };
+        const localIface = localInterfaces.get(name);
+        if (localIface) return { propsInterface: localIface.decl };
+        queue.push(arg);
+      }
+    }
   }
   return null;
 }
@@ -948,13 +977,20 @@ function discoverComponents(sf: SourceFile, packageName: string, knownPaths: Set
   for (const compound of compounds) {
     const rootPos = candidatePositions.get(compound.rootName) ?? Infinity;
     compound.members.forEach((m, i) => {
-      const propsAlias = localTypeAliases.get(`${m.innerName}Props`);
-      const propsIface = localInterfaces.get(`${m.innerName}Props`);
+      let propsTypeNode = localTypeAliases.get(`${m.innerName}Props`)?.node;
+      let propsInterface = localInterfaces.get(`${m.innerName}Props`)?.decl;
+      if (!propsTypeNode && !propsInterface) {
+        const extracted = extractPropsFromMemberType(m.memberTypeNode, localTypeAliasNodes, localInterfaces);
+        if (extracted) {
+          propsTypeNode = extracted.propsTypeNode;
+          propsInterface = extracted.propsInterface;
+        }
+      }
       components.push({
         name: `${compound.rootName}.${m.memberName}`,
         pkg: packageName,
-        propsTypeNode: propsAlias?.node,
-        propsInterface: propsIface?.decl,
+        propsTypeNode,
+        propsInterface,
         position: rootPos + (i + 1) / 1000,
         ctx,
       });
