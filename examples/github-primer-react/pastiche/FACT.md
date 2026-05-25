@@ -43,11 +43,17 @@ ActionList:
   spreads: ["PolymorphicProps<As, 'ul', React.PropsWithChildren<{ variant?: 'inset' | 'horizontal-inset' | 'full'; selectionVariant?: 'single' | 'radio' | 'multiple'; showDividers?: bool; role?: AriaRole; disableFocusZone?: bool; className?: string; }>>"]
 ActionListGroupHeadingTrailingAction:
   pkg: "@primer/react"
-  spreads: ["Omit<ElementProps, \"icon\">"]
-  label: string
-  className?: string
-  style?: "React.CSSProperties"
-  icon: ElementType
+  variants:
+    - as?: [button]
+      href?: never
+      loading?: bool
+    - as: [a]
+      href: string
+      loading?: never
+      label: string
+      className?: string
+      style?: "React.CSSProperties"
+      icon: ElementType
 ActionMenu:
   pkg: "@primer/react"
   spreads: ["Pick<AnchoredOverlayProps, 'anchorRef'>"]
@@ -56,7 +62,21 @@ ActionMenu:
   onOpenChange?: "(s: bool) => void"
 AnchoredOverlay:
   pkg: "@primer/react"
-  spreads: [AnchoredOverlayBaseProps, "Partial<Pick<PositionSettings, 'align' | 'side' | 'anchorOffset' | 'alignmentOffset' | 'displayInViewport'>>"]
+  spreads: ["Pick<OverlayProps, 'height' | 'width'>", "Partial<Pick<PositionSettings, 'align' | 'side' | 'anchorOffset' | 'alignmentOffset' | 'displayInViewport'>>"]
+  open: bool
+  onOpen?: "(gesture: 'anchor-click' | 'anchor-key-press', event?: React.KeyboardEvent<HTMLElement>) => unknown"
+  onClose?: "(gesture: 'anchor-click' | 'click-outside' | 'escape' | 'close') => unknown"
+  overlayProps?: Partial<OverlayProps>
+  focusTrapSettings?: Partial<FocusTrapHookSettings>
+  focusZoneSettings?: Partial<FocusZoneHookSettings>
+  className?: string
+  preventOverflow?: bool
+  pinPosition?: bool
+  variant?: "ResponsiveValue<'anchored', 'anchored' | 'fullscreen'>"
+  onPositionChange?: "({ position }: { position: AnchorPosition; }) => void"
+  displayCloseButton?: bool
+  closeButtonProps?: Partial<IconButtonProps>
+  renderAs?: [portal, popover]
   renderAnchor: "<T extends Omit<React.HTMLAttributes<HTMLElement>, 'aria-label' | 'aria-labelledby'>>(props: T) => JSX.Element"
   anchorRef?: "React.RefObject<HTMLElement | null>"
   anchorId?: string
@@ -87,7 +107,7 @@ Breadcrumbs:
   spreads: ["React.PropsWithChildren<{ className?: string; overflow?: 'wrap' | 'menu' | 'menu-with-root'; variant?: 'normal' | 'spacious'; style?: React.CSSProperties; }>"]
 Breadcrumb:
   pkg: "@primer/react"
-  spreads: [BreadcrumbsProps]
+  spreads: ["React.PropsWithChildren<{ className?: string; overflow?: 'wrap' | 'menu' | 'menu-with-root'; variant?: 'normal' | 'spacious'; style?: React.CSSProperties; }>"]
 ButtonGroup:
   pkg: "@primer/react"
   spreads: ["PropsWithChildren<{ role?: string; className?: string; }>"]
@@ -131,7 +151,7 @@ Dialog:
   style?: "React.CSSProperties"
 DialogButton:
   pkg: "@primer/react"
-  spreads: ["Omit<ButtonBaseProps, \"content\">"]
+  spreads: ["Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, \"content\">"]
   alignContent?: [center, start]
   icon?: "React.FunctionComponent<IconProps> | React.ElementType | React.ReactElement<any>"
   leadingVisual?: "React.ElementType | React.ReactElement<any>"
@@ -139,6 +159,14 @@ DialogButton:
   trailingAction?: "React.ElementType"
   children?: ReactNode
   count?: "number | string"
+  variant?: [link, default, primary, invisible, danger]
+  size?: [small, medium, large]
+  disabled?: bool
+  block?: bool
+  loading?: bool
+  loadingAnnouncement?: string
+  inactive?: bool
+  labelWrap?: bool
   buttonType?: [default, primary, danger, normal]
   content: ReactNode
   autoFocus?: bool
@@ -252,9 +280,25 @@ Select:
   placeholder?: string
 SelectPanel:
   pkg: "@primer/react"
-  spreads: [SelectPanelBaseProps, "Omit<Partial<Omit<GroupedListProps, keyof ListPropsBase>>, \"selectionVariant\" | \"variant\" | \"message\">", "Omit<ListPropsBase, \"selectionVariant\" | \"variant\" | \"message\">", "Pick<AnchoredOverlayProps, 'open' | 'height' | 'width' | 'align' | 'displayInViewport'>", AnchoredOverlayWrapperAnchorProps]
+  spreads: ["Omit<Partial<Omit<GroupedListProps, keyof ListPropsBase>>, \"selectionVariant\" | \"variant\" | \"message\">", "Omit<ListPropsBase, \"selectionVariant\" | \"variant\" | \"message\">", "Pick<AnchoredOverlayProps, 'open' | 'height' | 'width' | 'align' | 'displayInViewport'>", Partial<AnchoredOverlayPropsWithAnchor>]
   variants:
-    - loading?: bool
+    - title?: "string | React.ReactElement<any>"
+      subtitle?: "string | React.ReactElement<any>"
+      onOpenChange: "(open: bool, gesture: 'anchor-click' | 'anchor-key-press' | 'click-outside' | 'escape' | 'selection' | 'cancel') => void"
+      secondaryAction?: "React.ReactElement<typeof SecondaryButton> | React.ReactElement<typeof SecondaryLink>"
+      placeholder?: string
+      inputLabel?: string
+      overlayProps?: Partial<OverlayProps>
+      initialLoadingType?: [spinner, skeleton]
+      className?: string
+      notice?: "{ text: string | React.ReactElement<any>; variant: 'info' | 'warning' | 'error'; }"
+      message?: "{ title: string; body: string | React.ReactElement<any>; variant: 'empty' | 'error' | 'warning'; icon?: React.ComponentType<IconProps>; action?: React.ReactElement<any>; }"
+      footer?: "string | React.ReactElement<any>"
+      showSelectedOptionsFirst?: bool
+      disableFullscreenOnNarrow?: bool
+      showSelectAll?: bool
+      focusPrependedElements?: bool
+      loading?: bool
       loadingType?: FilteredActionListLoadingType
       placeholderText?: string
       filterValue?: string
@@ -278,6 +322,9 @@ SelectPanel:
       focusPrependedElements?: bool
       scrollBehavior?: [auto, instant, smooth]
       virtualized?: bool
+    - renderAnchor: null
+      anchorRef: "React.RefObject<HTMLElement | null>"
+      anchorId?: string
       selected: ItemInput
       onSelectedChange: "(selected: ItemInput | undefined) => void"
       variant?: [anchored]
@@ -292,7 +339,12 @@ GroupedList:
   items: "((FilteredActionListItemProps | (Partial<FilteredActionListItemProps> & { renderItem: RenderItemFn; })) & { groupId: string; })[]"
 SideNav:
   pkg: "@primer/react"
-  spreads: ["ComponentProps<typeof SideNav>"]
+  as?: "React.ElementType"
+  variant?: [lightweight, normal]
+  bordered?: bool
+  className?: string
+  children?: ReactNode
+  aria-label?: string
 Spinner:
   pkg: "@primer/react"
   spreads: [HTMLDataAttributes]
@@ -437,19 +489,21 @@ PageHeader:
   aria-label?: "React.AriaAttributes['aria-label']"
   as?: "React.ElementType | 'header' | 'div'"
   className?: string
-  role?: [article, button, dialog, figure, form, img, link, main, menu, menuitem, option, search, table, switch, none, alertdialog, alert, application, banner, cell, checkbox, columnheader, combobox, complementary, contentinfo, definition, directory, document, feed, grid, gridcell, group, heading, list, listbox, listitem, log, marquee, math, menubar, menuitemcheckbox, menuitemradio, navigation, note, presentation, progressbar, radio, radiogroup, region, row, rowgroup, rowheader, scrollbar, searchbox, separator, slider, spinbutton, status, tab, tablist, tabpanel, term, textbox, timer, toolbar, tooltip, tree, treegrid, treeitem]
+  role?: [article, button, dialog, figure, form, img, link, main, menu, menuitem, option, search, table, switch, none, alert, alertdialog, application, banner, cell, checkbox, columnheader, combobox, complementary, contentinfo, definition, directory, document, feed, grid, gridcell, group, heading, list, listbox, listitem, log, marquee, math, menubar, menuitemcheckbox, menuitemradio, navigation, note, presentation, progressbar, radio, radiogroup, region, row, rowgroup, rowheader, scrollbar, searchbox, separator, slider, spinbutton, status, tab, tablist, tabpanel, term, textbox, timer, toolbar, tooltip, tree, treegrid, treeitem]
   hasBorder?: bool
 Title:
   pkg: "@primer/react"
-  spreads: [ChildrenPropTypes]
   as?: [h1, h2, h3, h4, h5, h6]
+  className?: string
+  hidden?: "bool | ResponsiveValue<bool>"
 Actions:
   pkg: "@primer/react"
   spreads: [React.PropsWithChildren<ChildrenPropTypes>]
 TitleArea:
   pkg: "@primer/react"
-  spreads: [ChildrenPropTypes]
   variant?: "'subtitle' | 'medium' | 'large' | ResponsiveValue<'subtitle' | 'medium' | 'large'>"
+  className?: string
+  hidden?: "bool | ResponsiveValue<bool>"
 SkeletonBox:
   pkg: "@primer/react"
   spreads: [HTMLProps<HTMLElement>]
@@ -461,7 +515,7 @@ SelectPanelItem: { pkg: "@primer/react" }
 SelectPanelGroupedList: { pkg: "@primer/react" }
 Button:
   pkg: "@primer/react"
-  spreads: [ButtonBaseProps]
+  spreads: [React.ButtonHTMLAttributes<HTMLButtonElement>]
   alignContent?: [start, center]
   icon?: "React.FunctionComponent<IconProps> | React.ElementType | React.ReactElement<any>"
   leadingVisual?: "React.ElementType | React.ReactElement<any>"
@@ -469,6 +523,14 @@ Button:
   trailingAction?: "React.ElementType"
   children?: ReactNode
   count?: "number | string"
+  variant?: [default, primary, invisible, danger, link]
+  size?: [small, medium, large]
+  disabled?: bool
+  block?: bool
+  loading?: bool
+  loadingAnnouncement?: string
+  inactive?: bool
+  labelWrap?: bool
 IconButton:
   pkg: "@primer/react"
   spreads: ["Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, \"aria-label\" | \"aria-labelledby\">"]
@@ -539,7 +601,23 @@ PageLayout.Content:
   style?: "React.CSSProperties"
 PageLayout.Pane:
   pkg: "@primer/react"
-  spreads: [PageLayoutPaneBaseProps]
+  position?: "'start' | 'end' | ResponsiveValue<'start' | 'end'>"
+  positionWhenNarrow?: [inherit, start, end]
+  aria-labelledby?: string
+  aria-label?: string
+  width?: PaneWidthValue
+  minWidth?: number
+  widthStorageKey?: string
+  padding?: keyof typeof SPACING_MAP
+  divider?: "'none' | 'line' | ResponsiveValue<'none' | 'line', 'none' | 'line' | 'filled'>"
+  dividerWhenNarrow?: [inherit, none, line, filled]
+  sticky?: bool
+  offsetHeader?: "string | number"
+  hidden?: "bool | ResponsiveValue<bool>"
+  resizable?: bool
+  id?: string
+  className?: string
+  style?: "React.CSSProperties"
   onResizeEnd?: "(width: number) => void"
   currentWidth?: number
 PageLayout.Sidebar:
@@ -571,19 +649,72 @@ PageLayout.Footer:
   style?: "React.CSSProperties"
 SplitPageLayout.Header:
   pkg: "@primer/react"
-  spreads: [PageLayoutHeaderProps]
+  aria-label?: "React.AriaAttributes['aria-label']"
+  aria-labelledby?: "React.AriaAttributes['aria-labelledby']"
+  padding?: keyof typeof SPACING_MAP
+  divider?: "'none' | 'line' | ResponsiveValue<'none' | 'line', 'none' | 'line' | 'filled'>"
+  dividerWhenNarrow?: [inherit, none, line, filled]
+  hidden?: "bool | ResponsiveValue<bool>"
+  className?: string
+  style?: "React.CSSProperties"
 SplitPageLayout.Content:
   pkg: "@primer/react"
-  spreads: [PageLayoutContentProps]
+  as?: "React.ElementType"
+  aria-label?: "React.AriaAttributes['aria-label']"
+  aria-labelledby?: "React.AriaAttributes['aria-labelledby']"
+  width?: [full, medium, large, xlarge]
+  padding?: keyof typeof SPACING_MAP
+  hidden?: "bool | ResponsiveValue<bool>"
+  className?: string
+  style?: "React.CSSProperties"
 SplitPageLayout.Pane:
   pkg: "@primer/react"
-  spreads: [PageLayoutPaneProps]
+  position?: "'start' | 'end' | ResponsiveValue<'start' | 'end'>"
+  positionWhenNarrow?: [inherit, start, end]
+  aria-labelledby?: string
+  aria-label?: string
+  width?: PaneWidthValue
+  minWidth?: number
+  widthStorageKey?: string
+  padding?: keyof typeof SPACING_MAP
+  divider?: "'none' | 'line' | ResponsiveValue<'none' | 'line', 'none' | 'line' | 'filled'>"
+  dividerWhenNarrow?: [inherit, none, line, filled]
+  sticky?: bool
+  offsetHeader?: "string | number"
+  hidden?: "bool | ResponsiveValue<bool>"
+  resizable?: bool
+  id?: string
+  className?: string
+  style?: "React.CSSProperties"
+  onResizeEnd?: "(width: number) => void"
+  currentWidth?: number
 SplitPageLayout.Sidebar:
   pkg: "@primer/react"
-  spreads: [PageLayoutSidebarProps]
+  aria-label?: "React.AriaAttributes['aria-label']"
+  aria-labelledby?: "React.AriaAttributes['aria-labelledby']"
+  position?: [start, end]
+  width?: "PaneWidth | CustomWidthOptions"
+  minWidth?: number
+  resizable?: bool
+  widthStorageKey?: string
+  padding?: keyof typeof SPACING_MAP
+  divider?: [none, line]
+  sticky?: bool
+  responsiveVariant?: [default, fullscreen]
+  hidden?: "bool | ResponsiveValue<bool>"
+  id?: string
+  className?: string
+  style?: "React.CSSProperties"
 SplitPageLayout.Footer:
   pkg: "@primer/react"
-  spreads: [PageLayoutFooterProps]
+  aria-label?: "React.AriaAttributes['aria-label']"
+  aria-labelledby?: "React.AriaAttributes['aria-labelledby']"
+  padding?: keyof typeof SPACING_MAP
+  divider?: "'none' | 'line' | ResponsiveValue<'none' | 'line', 'none' | 'line' | 'filled'>"
+  dividerWhenNarrow?: [inherit, none, line, filled]
+  hidden?: "bool | ResponsiveValue<bool>"
+  className?: string
+  style?: "React.CSSProperties"
 ActionList.ContainerContext: { pkg: "@primer/react" }
 ActionList.Group:
   pkg: "@primer/react"
@@ -601,7 +732,7 @@ ActionList.Item:
   variant?: [default, danger]
   size?: [medium, large]
   disabled?: bool
-  role?: [article, button, dialog, figure, form, img, link, main, menu, menuitem, option, search, table, switch, none, alertdialog, alert, application, banner, cell, checkbox, columnheader, combobox, complementary, contentinfo, definition, directory, document, feed, grid, gridcell, group, heading, list, listbox, listitem, log, marquee, math, menubar, menuitemcheckbox, menuitemradio, navigation, note, presentation, progressbar, radio, radiogroup, region, row, rowgroup, rowheader, scrollbar, searchbox, separator, slider, spinbutton, status, tab, tablist, tabpanel, term, textbox, timer, toolbar, tooltip, tree, treegrid, treeitem]
+  role?: [article, button, dialog, figure, form, img, link, main, menu, menuitem, option, search, table, switch, none, alert, alertdialog, application, banner, cell, checkbox, columnheader, combobox, complementary, contentinfo, definition, directory, document, feed, grid, gridcell, group, heading, list, listbox, listitem, log, marquee, math, menubar, menuitemcheckbox, menuitemradio, navigation, note, presentation, progressbar, radio, radiogroup, region, row, rowgroup, rowheader, scrollbar, searchbox, separator, slider, spinbutton, status, tab, tablist, tabpanel, term, textbox, timer, toolbar, tooltip, tree, treegrid, treeitem]
   id?: string
   inactiveText?: string
   loading?: bool
@@ -636,10 +767,10 @@ ActionList.Description:
   truncate?: bool
 ActionList.LeadingVisual:
   pkg: "@primer/react"
-  spreads: [VisualProps]
+  spreads: [React.HTMLAttributes<HTMLSpanElement>]
 ActionList.TrailingVisual:
   pkg: "@primer/react"
-  spreads: [VisualProps]
+  spreads: [React.HTMLAttributes<HTMLSpanElement>]
 ActionList.Heading:
   pkg: "@primer/react"
   as: [h1, h2, h3, h4, h5, h6]
@@ -674,7 +805,22 @@ ActionList.TrailingAction:
       style?: "React.CSSProperties"
 ActionMenu.Button:
   pkg: "@primer/react"
-  spreads: [ButtonProps]
+  spreads: [React.ButtonHTMLAttributes<HTMLButtonElement>]
+  alignContent?: [center, start]
+  icon?: "React.FunctionComponent<IconProps> | React.ElementType | React.ReactElement<any>"
+  leadingVisual?: "React.ElementType | React.ReactElement<any>"
+  trailingVisual?: "React.ElementType | React.ReactElement<any>"
+  trailingAction?: "React.ElementType"
+  children?: ReactNode
+  count?: "number | string"
+  variant?: [link, default, primary, invisible, danger]
+  size?: [small, medium, large]
+  disabled?: bool
+  block?: bool
+  loading?: bool
+  loadingAnnouncement?: string
+  inactive?: bool
+  labelWrap?: bool
 ActionMenu.Anchor:
   pkg: "@primer/react"
   spreads: [React.HTMLAttributes<HTMLElement>]
@@ -688,7 +834,18 @@ Autocomplete.Input:
   spreads: ["ComponentProps<typeof AutocompleteInput>"]
 Autocomplete.Menu:
   pkg: "@primer/react"
-  spreads: ["ComponentProps<typeof AutocompleteMenu>"]
+  addNewItem?: "T & { handleAddItem: (item: Omit<T, 'onAction' | 'leadingVisual'>) => void; }"
+  emptyStateText?: "ReactNode | false"
+  filterFn?: "(item: T, i: number) => bool"
+  items: "T[]"
+  loading?: bool
+  selectedItemIds: "string[]"
+  sortOnCloseFn?: "(itemIdA: string, itemIdB: string) => number"
+  selectionVariant?: [single, multiple]
+  onOpenChange?: "(open: bool) => void"
+  onSelectedChange?: "(item: T | T[]) => void"
+  customScrollContainerRef?: "React.MutableRefObject<HTMLElement | null>"
+  ['aria-labelledby']: string
 Autocomplete.Overlay:
   pkg: "@primer/react"
   spreads: ["ComponentProps<typeof AutocompleteOverlay>"]
@@ -701,7 +858,7 @@ Breadcrumbs.Item:
   spreads: ["PolymorphicProps<As, 'a', { to?: To; selected?: bool; }>"]
 Breadcrumb.Item:
   pkg: "@primer/react"
-  spreads: [BreadcrumbsItemProps<As>]
+  spreads: ["PolymorphicProps<As, 'a', { to?: To; selected?: bool; }>"]
 CheckboxGroup.Caption: { pkg: "@primer/react" }
 CheckboxGroup.Label: { pkg: "@primer/react" }
 CheckboxGroup.Validation: { pkg: "@primer/react" }
@@ -749,16 +906,27 @@ NavList.SubNav:
   children: ReactNode
 NavList.LeadingVisual:
   pkg: "@primer/react"
-  spreads: [ActionListLeadingVisualProps]
+  spreads: [React.HTMLAttributes<HTMLSpanElement>]
 NavList.TrailingVisual:
   pkg: "@primer/react"
-  spreads: [ActionListTrailingVisualProps]
+  spreads: [React.HTMLAttributes<HTMLSpanElement>]
 NavList.TrailingAction:
   pkg: "@primer/react"
-  spreads: [ActionListTrailingActionProps]
+  variants:
+    - as?: [button]
+      href?: never
+      loading?: bool
+    - as: [a]
+      href: string
+      loading?: never
+      icon?: "React.ElementType"
+      label: string
+      className?: string
+      style?: "React.CSSProperties"
 NavList.Divider:
   pkg: "@primer/react"
-  spreads: [ActionListDividerProps]
+  className?: string
+  style?: "React.CSSProperties"
 NavList.Group:
   pkg: "@primer/react"
   spreads: [React.HTMLAttributes<HTMLLIElement>]
@@ -772,7 +940,15 @@ NavList.GroupExpand:
   renderItem?: "(item: GroupItem) => ReactNode"
 NavList.GroupHeading:
   pkg: "@primer/react"
-  spreads: [ActionListGroupHeadingProps]
+  spreads: ["Pick<ActionListGroupProps, 'variant' | 'auxiliaryText'>", React.HTMLAttributes<HTMLElement>]
+  size?: [small, medium, large]
+  visuallyHidden?: bool
+  className?: string
+  style?: "React.CSSProperties"
+  as?: [h1, h2, h3, h4, h5, h6]
+  headingWrapElement?: [div, li]
+  _internalBackwardCompatibleTitle?: string
+  variant?: [filled, subtle]
 Popover.Content:
   pkg: "@primer/react"
   spreads: [HTMLProps<HTMLDivElement>]
@@ -894,18 +1070,56 @@ TreeView.ErrorDialog:
 UnderlineNav.Item: { pkg: "@primer/react" }
 ActionBar.IconButton:
   pkg: "@primer/react"
-  spreads: [IconButtonProps]
-  disabled?: bool
+  spreads: ["Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, \"aria-label\" | \"aria-labelledby\">"]
+  variants:
+    - disabled?: bool
+      aria-label: string
+      aria-labelledby?: undefined
+    - aria-label?: undefined
+      aria-labelledby: string
+      icon: "React.ElementType"
+      unsafeDisableTooltip?: bool
+      description?: string
+      tooltipDirection?: [s, nw, n, ne, e, se, sw, w]
+      keyshortcuts?: string
+      keybindingHint?: "string | string[]"
+      variant?: [link, default, primary, invisible, danger]
+      size?: [small, medium, large]
+      disabled?: bool
+      block?: bool
+      loading?: bool
+      loadingAnnouncement?: string
+      inactive?: bool
+      labelWrap?: bool
 ActionBar.Divider: { pkg: "@primer/react" }
 ActionBar.Group: { pkg: "@primer/react" }
 ActionBar.Menu:
   pkg: "@primer/react"
-  spreads: [IconButtonProps]
-  aria-label: string
-  icon: "ActionBarIconButtonProps['icon']"
-  items: "ActionBarMenuItemProps[]"
-  overflowIcon?: "ActionBarIconButtonProps['icon'] | 'none'"
-  returnFocusRef?: "React.RefObject<HTMLElement>"
+  spreads: ["Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, \"aria-label\" | \"aria-labelledby\">"]
+  variants:
+    - aria-label: string
+      icon: "ActionBarIconButtonProps['icon']"
+      items: "ActionBarMenuItemProps[]"
+      overflowIcon?: "ActionBarIconButtonProps['icon'] | 'none'"
+      returnFocusRef?: "React.RefObject<HTMLElement>"
+      aria-label: string
+      aria-labelledby?: undefined
+    - aria-label?: undefined
+      aria-labelledby: string
+      icon: "React.ElementType"
+      unsafeDisableTooltip?: bool
+      description?: string
+      tooltipDirection?: [s, nw, n, ne, e, se, sw, w]
+      keyshortcuts?: string
+      keybindingHint?: "string | string[]"
+      variant?: [link, default, primary, invisible, danger]
+      size?: [small, medium, large]
+      disabled?: bool
+      block?: bool
+      loading?: bool
+      loadingAnnouncement?: string
+      inactive?: bool
+      labelWrap?: bool
 Stack.Item:
   pkg: "@primer/react"
   spreads: ["React.PropsWithChildren<{ as?: As; grow?: bool | ResponsiveValue<bool>; shrink?: bool | ResponsiveValue<bool>; className?: string; }>"]
@@ -994,10 +1208,11 @@ ParentLink:
   spreads: ["React.PropsWithChildren<ChildrenPropTypes & LinkProps>"]
 Navigation:
   pkg: "@primer/react"
-  spreads: [ChildrenPropTypes]
   as?: [nav, div]
   aria-label?: "React.AriaAttributes['aria-label']"
   aria-labelledby?: "React.AriaAttributes['aria-labelledby']"
+  className?: string
+  hidden?: "bool | ResponsiveValue<bool>"
 ButtonComponent: { pkg: "@primer/react" }
 ItemContext: { pkg: "@primer/react" }
 ListContext: { pkg: "@primer/react" }
@@ -1018,10 +1233,12 @@ VisualOrIndicator: { pkg: "@primer/react" }
 TrailingAction: { pkg: "@primer/react" }
 AnchoredOverlayWrapperAnchor:
   pkg: "@primer/react"
-  spreads: [Partial<AnchoredOverlayPropsWithAnchor>, AnchoredOverlayPropsWithoutAnchor]
+  spreads: [Partial<AnchoredOverlayPropsWithAnchor>]
   variants:
     - {}
-    - {}
+    - renderAnchor: null
+      anchorRef: "React.RefObject<HTMLElement | null>"
+      anchorId?: string
 Summary:
   pkg: "@primer/react"
   spreads: ["React.ComponentPropsWithoutRef<React.ElementType extends As ? As : 'summary'>"]
@@ -1039,7 +1256,7 @@ BaseOverlay:
   left?: "React.CSSProperties['left']"
   right?: "React.CSSProperties['right']"
   bottom?: "React.CSSProperties['bottom']"
-  role?: [article, button, dialog, figure, form, img, link, main, menu, menuitem, option, search, table, switch, none, alertdialog, alert, application, banner, cell, checkbox, columnheader, combobox, complementary, contentinfo, definition, directory, document, feed, grid, gridcell, group, heading, list, listbox, listitem, log, marquee, math, menubar, menuitemcheckbox, menuitemradio, navigation, note, presentation, progressbar, radio, radiogroup, region, row, rowgroup, rowheader, scrollbar, searchbox, separator, slider, spinbutton, status, tab, tablist, tabpanel, term, textbox, timer, toolbar, tooltip, tree, treegrid, treeitem]
+  role?: [article, button, dialog, figure, form, img, link, main, menu, menuitem, option, search, table, switch, none, alert, alertdialog, application, banner, cell, checkbox, columnheader, combobox, complementary, contentinfo, definition, directory, document, feed, grid, gridcell, group, heading, list, listbox, listitem, log, marquee, math, menubar, menuitemcheckbox, menuitemradio, navigation, note, presentation, progressbar, radio, radiogroup, region, row, rowgroup, rowheader, scrollbar, searchbox, separator, slider, spinbutton, status, tab, tablist, tabpanel, term, textbox, timer, toolbar, tooltip, tree, treegrid, treeitem]
   children?: ReactNode
   className?: string
   responsiveVariant?: [fullscreen]
@@ -1108,7 +1325,7 @@ FilteredActionListItem:
   onAction?: "(item: FilteredActionListItemProps, event: React.MouseEvent<HTMLDivElement> | React.KeyboardEvent<HTMLDivElement>) => void"
   id?: "number | string"
   children?: ReactNode
-  role?: [article, button, dialog, figure, form, img, link, main, menu, menuitem, option, search, table, switch, none, alertdialog, alert, application, banner, cell, checkbox, columnheader, combobox, complementary, contentinfo, definition, directory, document, feed, grid, gridcell, group, heading, list, listbox, listitem, log, marquee, math, menubar, menuitemcheckbox, menuitemradio, navigation, note, presentation, progressbar, radio, radiogroup, region, row, rowgroup, rowheader, scrollbar, searchbox, separator, slider, spinbutton, status, tab, tablist, tabpanel, term, textbox, timer, toolbar, tooltip, tree, treegrid, treeitem]
+  role?: [article, button, dialog, figure, form, img, link, main, menu, menuitem, option, search, table, switch, none, alert, alertdialog, application, banner, cell, checkbox, columnheader, combobox, complementary, contentinfo, definition, directory, document, feed, grid, gridcell, group, heading, list, listbox, listitem, log, marquee, math, menubar, menuitemcheckbox, menuitemradio, navigation, note, presentation, progressbar, radio, radiogroup, region, row, rowgroup, rowheader, scrollbar, searchbox, separator, slider, spinbutton, status, tab, tablist, tabpanel, term, textbox, timer, toolbar, tooltip, tree, treegrid, treeitem]
   item?: "Merge<React.ComponentPropsWithoutRef<'div'>, FilteredActionListItemProps> | ((Partial<FilteredActionListItemProps> & { renderItem: RenderItemFn; }) & { key?: Key; })"
   className?: string
 FilteredActionListLoadingTypes: { pkg: "@primer/react" }
@@ -1330,8 +1547,9 @@ SelectPanel.SecondaryAction:
   slot?: string
   style?: CSSProperties
   title?: string
-  aria-label?: string
-  aria-labelledby?: string
+  role?: AriaRole
+  children?: ReactNode
+  className?: string
   defaultChecked?: bool
   defaultValue?: "string | number | readonly string[]"
   suppressContentEditableWarning?: bool
@@ -1339,7 +1557,6 @@ SelectPanel.SecondaryAction:
   accessKey?: string
   autoCapitalize?: "\"off\" | \"none\" | \"on\" | \"sentences\" | \"words\" | \"characters\" | undefined | (string & {})"
   autoFocus?: bool
-  className?: string
   contentEditable?: "Booleanish | \"inherit\" | \"plaintext-only\""
   contextMenu?: string
   dir?: string
@@ -1353,7 +1570,6 @@ SelectPanel.SecondaryAction:
   tabIndex?: number
   translate?: [yes, no]
   radioGroup?: string
-  role?: AriaRole
   about?: string
   content?: string
   datatype?: string
@@ -1410,6 +1626,8 @@ SelectPanel.SecondaryAction:
   aria-hidden?: Booleanish
   aria-invalid?: "bool | \"false\" | \"true\" | \"grammar\" | \"spelling\""
   aria-keyshortcuts?: string
+  aria-label?: string
+  aria-labelledby?: string
   aria-level?: number
   aria-live?: [off, assertive, polite]
   aria-modal?: Booleanish
@@ -1435,7 +1653,6 @@ SelectPanel.SecondaryAction:
   aria-valuemin?: number
   aria-valuenow?: number
   aria-valuetext?: string
-  children?: ReactNode
   dangerouslySetInnerHTML?: "{ // Should be InnerHTML['innerHTML']. // But unfortunately we're mixing renderer-specific type declarations. __html: string | TrustedHTML; }"
   onCopy?: ClipboardEventHandler<T>
   onCopyCapture?: ClipboardEventHandler<T>
@@ -1611,7 +1828,8 @@ Panel:
   spreads: [React.HTMLAttributes<HTMLDivElement>]
 TableSortHeader:
   pkg: "@primer/react"
-  spreads: [TableHeaderProps]
+  spreads: ["Omit<React.ComponentPropsWithoutRef<'th'>, 'align'>"]
+  align?: [start, end]
   direction: [ASC, DESC, NONE]
   onToggleSort: "() => void"
 ```
