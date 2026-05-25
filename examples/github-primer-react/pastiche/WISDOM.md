@@ -8,7 +8,7 @@
 - [GENERAL] No arbitrary media queries; use Primer's viewport ranges (narrow <768px, regular ≥768px, wide ≥1400px) or named breakpoints (xsmall–xxlarge).
 - [GENERAL] Contrast ratios (4.5:1 text, 3:1 non-text), focus-visible on all interactive elements, semantic HTML by default, `aria-label` on every icon-only control.
 - [GENERAL] `Box` is not exported from `@primer/react`. For generic containers needing Primer token styling, use a plain HTML element (`div`, `section`, etc.) with `style` referencing Primer CSS custom properties, or use `Stack` when flex layout with gap is needed.
-- [GENERAL] Always wrap rendered text in a `Text` component — never place raw strings directly inside layout or interactive components. `Text` establishes its own typographic context (size, weight, color), preventing unintended inheritance from parent components like ActionList or Button.
+- [GENERAL] Always wrap rendered text in the appropriate typographic component — `Text` for body and inline text, `Heading` (with the correct `as` prop for h1–h6) for heading-level text. Never place raw strings directly inside layout or interactive components; the typographic component establishes its own context (size, weight, color), preventing unintended inheritance.
 - [Button] Never render more than one variant="primary" Button in a single button group or page region. Primary is the single highest-priority action.
 - [Dialog] Before using size="xlarge" (640px), consider whether the content belongs on a separate page. Dialogs are for transient content, not full workflows.
 - [IconButton] Always provide aria-label describing the button's action. IconButton has no visible text — the label is the only accessible name.
