@@ -182,8 +182,9 @@ Decorative icon inside a button or list item that reinforces the adjacent text l
 
 ## Visual hierarchy
 
-Primary page heading that establishes the top of the content hierarchy.
-→ `Heading` as="h1" | "h2"
+Page with multiple heading levels — anchor the topmost heading level present at variant="large" and step down. Heading variant and Text size share the same font-size scale, so each level must be visually distinct from the next and from body text.
+→ `Heading` variant="large" | "medium" | "small"
+→ `Text` size="small" | "medium" | "large"
 
 De-emphasized secondary text that provides supporting context without competing with primary content.
 → `Text` size="small" weight="light"
