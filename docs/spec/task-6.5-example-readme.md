@@ -58,7 +58,7 @@ A small metrics line under each screenshot pair showing approximate token usage 
 
 ### 11. Plan requirements note
 
-One-line prerequisite noting which Claude plans support Opus. Deferred until after a Sonnet experiment to determine whether Opus is actually required.
+One-line prerequisite noting that pastiche requires Claude Max plan (Opus). Pro plan users can install and try it by manually switching `model: sonnet` in the agent meta.yaml, but this is unsupported and uses more tokens due to heavier reviewer corrections.
 
 ### 12. Link to pastiche documents
 
