@@ -282,6 +282,7 @@ type Classification =
   | { kind: 'spread' }
   | { kind: 'expand' }
   | { kind: 'recurse'; node: TypeNode; aliasName?: string }
+  | { kind: 'recurse-iface'; decl: InterfaceDeclaration; aliasName: string }
   | {
       kind: 'recurse-omit';
       target: { node: TypeNode } | { iface: InterfaceDeclaration };
@@ -399,6 +400,13 @@ function classifyBranch(node: TypeNode, ctx: ResolveCtx): Classification {
     if (decls.length === 0) return { kind: 'spread' };
     const fp = decls[0].getSourceFile().getFilePath();
     if (fp.includes('/node_modules/') && !ctx.knownPaths.has(fp)) return { kind: 'spread' };
+    const resolved = resolveLocalProjectType(node, ctx);
+    if (resolved) {
+      if ('iface' in resolved.target) {
+        return { kind: 'recurse-iface', decl: resolved.target.iface, aliasName: resolved.aliasName };
+      }
+      return { kind: 'recurse', node: resolved.target.node, aliasName: resolved.aliasName };
+    }
     return { kind: 'spread' };
   }
   return { kind: 'expand' };
@@ -583,6 +591,14 @@ function renderBranch(branch: TypeNode, ctx: ResolveCtx): RenderedSegment[] {
       return renderPropsSegments(cls.node, ctx);
     } finally {
       if (cls.aliasName) ctx.visiting.delete(cls.aliasName);
+    }
+  }
+  if (cls.kind === 'recurse-iface') {
+    ctx.visiting.add(cls.aliasName);
+    try {
+      return expandInterface(cls.decl, ctx);
+    } finally {
+      ctx.visiting.delete(cls.aliasName);
     }
   }
   // recurse-omit: walk the inner project-local type, then drop omitted keys.
