@@ -86,7 +86,7 @@ Sequenced delivery plan for shipping v1 of pastiche, derived from `OSS_SPEC.md`.
 - [x] **6.2.5** Deep research session on primer.style → human-readable research doc at `examples/github-primer-react/docs/primer-research.md`. Upstream of KNOWLEDGE/WISDOM curation; also prototype evidence for a future research-from-docs `pastiche-setup` mode.
 - [x] **6.3** KNOWLEDGE skeleton pass — one or two entries per canonical 12 sections, distilled from 6.2.5. Lint-clean.
 - [x] **6.4** WISDOM skeleton pass — 3–5 atom-tagged rules, distilled from 6.2.5. Parallel-eligible with 6.3.
-- [ ] **6.5** Run pastiche tasks against the example app (KNOWLEDGE/WISDOM deepen JIT; findings logged to `docs/phase-6-findings.md`). Cherry-pick three best invocations as failure-mode artifacts (component omission, token omission, wrong choice) at `examples/github-primer-react/artifacts/<NN>-<failure-mode>/` with input/round1/reviewer/round2/final.
+- [ ] **6.5** Run pastiche tasks against the example app (KNOWLEDGE/WISDOM deepen JIT). Author `examples/github-primer-react/README.md` — short intro, three best pages as side-by-side screenshot pairs (pastiche output vs real GitHub) with collapsible prompts and per-page performance metrics. Screenshots at `assets/`. Spec: `docs/spec/task-6.5-example-readme.md`.
 - [ ] **6.6** Non-affiliation banners — example README + KNOWLEDGE/WISDOM headers + research doc header. Parallel-eligible throughout.
 
 ---
