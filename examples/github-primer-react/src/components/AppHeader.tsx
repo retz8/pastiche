@@ -82,9 +82,13 @@ export function AppHeader() {
         <UnderlineNav aria-label="Repository navigation">
           <UnderlineNav.Item
             as={Link}
-            href="/"
+            href="/blob/main/src/components/Button.tsx"
             icon={CodeIcon}
-            aria-current={pathname === "/" ? "page" : undefined}
+            aria-current={
+              pathname === "/" || pathname.startsWith("/blob")
+                ? "page"
+                : undefined
+            }
           >
             Code
           </UnderlineNav.Item>
