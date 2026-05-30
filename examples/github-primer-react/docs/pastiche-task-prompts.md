@@ -180,16 +180,3 @@ No persistence — interacting with controls does not need to save anything. The
 
 ---
 
-## 11. Compare / Open PR (`/compare/[base]...[head]`)
-
-Build the Compare page at `/compare/[base]...[head]`.
-
-The top area has two branch selectors — a base branch and a compare (head) branch. Changing either branch would update the comparison. Between them, a directional indicator shows the merge direction.
-
-If the branches are comparable, a summary area shows the comparison stats: how many commits ahead, how many files changed, and how many contributors involved.
-
-Below the summary, an "Open pull request" area provides a title field (pre-filled with the latest commit message or branch name), a description textarea, and controls for reviewers, assignees, labels, and milestone — similar to the new issue sidebar. A "Create pull request" button submits the form with a secondary option to create as draft.
-
-The lower portion of the page shows the actual diff. A commit list shows all commits in the comparison — each with its message, author, hash, and timestamp. Below the commits, a file-by-file diff view shows additions and deletions with line numbers. A summary bar at the top of the diff area shows total files changed, additions, and deletions.
-
-Use hardcoded mock data — two branch names, 3–5 commits, and diffs across 3–4 files with a mix of additions, deletions, and modifications. No API calls.
