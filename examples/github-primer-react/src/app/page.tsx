@@ -161,13 +161,13 @@ export default function RepositoryHomePage() {
             </PageHeader.TitleArea>
             <PageHeader.Actions>
               <Stack direction="horizontal" gap="condensed" align="center" wrap="wrap">
-                <Button leadingVisual={EyeIcon} count={REPO.watchers}>
+                <Button size="small" leadingVisual={EyeIcon} count={REPO.watchers}>
                   Watch
                 </Button>
-                <Button leadingVisual={RepoForkedIcon} count={REPO.forks}>
+                <Button size="small" leadingVisual={RepoForkedIcon} count={REPO.forks}>
                   Fork
                 </Button>
-                <Button leadingVisual={StarIcon} count={REPO.stars}>
+                <Button size="small" leadingVisual={StarIcon} count={REPO.stars}>
                   Star
                 </Button>
               </Stack>
@@ -184,7 +184,7 @@ export default function RepositoryHomePage() {
           >
             <Stack direction="horizontal" gap="condensed" align="center" wrap="wrap">
               <ActionMenu>
-                <ActionMenu.Button leadingVisual={GitBranchIcon}>
+                <ActionMenu.Button size="small" leadingVisual={GitBranchIcon}>
                   {REPO.defaultBranch}
                 </ActionMenu.Button>
                 <ActionMenu.Overlay width="medium">
@@ -219,10 +219,10 @@ export default function RepositoryHomePage() {
             </Stack>
 
             <Stack direction="horizontal" gap="condensed" align="center" wrap="wrap">
-              <Button leadingVisual={SearchIcon}>Go to file</Button>
-              <Button leadingVisual={CodeIcon}>Add file</Button>
+              <Button size="small" leadingVisual={SearchIcon}>Go to file</Button>
+              <Button size="small" leadingVisual={CodeIcon}>Add file</Button>
               <ActionMenu>
-                <ActionMenu.Button variant="primary" leadingVisual={CodeIcon}>
+                <ActionMenu.Button size="small" variant="primary" leadingVisual={CodeIcon}>
                   Code
                 </ActionMenu.Button>
                 <ActionMenu.Overlay width="medium">
@@ -512,7 +512,7 @@ export default function App() {
       </SplitPageLayout.Content>
 
       <SplitPageLayout.Sidebar position="end" aria-label="About this repository">
-        <Stack direction="vertical" gap="none">
+        <Stack direction="vertical" gap="none" padding="normal">
           {/* About */}
           <Stack direction="vertical" gap="condensed" paddingBlock="normal" style={sectionBorder}>
             <Heading as="h2" variant="small">
