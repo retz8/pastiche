@@ -1,0 +1,9 @@
+platform: claude-code
+packages:
+  - name: mui-subset
+    types:
+      - node_modules/@mui/material/Button/index.d.ts
+      - node_modules/@mui/material/TextField/index.d.ts
+      - node_modules/@mui/material/Dialog/index.d.ts
+      - node_modules/@mui/material/Card/index.d.ts
+tokens: []

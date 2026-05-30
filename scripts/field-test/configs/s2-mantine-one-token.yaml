@@ -1,0 +1,6 @@
+platform: claude-code
+packages:
+  - name: mantine
+    types: node_modules/@mantine/core/lib/index.d.ts
+tokens:
+  - node_modules/@mantine/core/styles.css

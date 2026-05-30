@@ -1045,6 +1045,13 @@ export function dedupeComponents(
     if (seen.has(flat)) {
       const dotComp = seen.get(dotName)!;
       const flatComp = seen.get(flat)!;
+      // Only collapse within a single package. The flat/dotted pair is an
+      // intra-library artifact (a compound and its flattened alias). Across
+      // packages, `Avatar.Group` (one library's compound) and `AvatarGroup`
+      // (another's flat component) are genuinely distinct and must both
+      // survive — otherwise composing two `types` packages silently drops the
+      // flat one.
+      if (dotComp.pkg !== flatComp.pkg) continue;
       // Merge props: if the dot-notation entry lacks props but the flattened
       // one has them, transfer before dropping.
       const dotHasProps = !!(dotComp.propsTypeNode || dotComp.propsInterface);

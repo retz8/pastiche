@@ -1,0 +1,7 @@
+platform: claude-code
+packages:
+  - name: mui
+    types: node_modules/@mui/material/index.d.ts
+  - name: mantine
+    types: node_modules/@mantine/core/lib/index.d.ts
+tokens: []

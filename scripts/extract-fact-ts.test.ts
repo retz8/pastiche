@@ -592,6 +592,27 @@ test('dedupeComponents keeps first-listed and warns on collisions', () => {
   assert.match(warnings[0], /Button.*@org\/a.*@org\/b/);
 });
 
+test('dedupeComponents subsumes a flat name under a same-package dotted compound', () => {
+  // Intra-library: a library that exports both `ActionList.Item` (compound)
+  // and a flattened `ActionListItem` alias collapses to the dotted form.
+  const dotted = { name: 'ActionList.Item', pkg: '@org/a', position: 0, ctx: {} as any };
+  const flat = { name: 'ActionListItem', pkg: '@org/a', position: 1, propsInterface: {} as any, ctx: {} as any };
+  const out = extractor.dedupeComponents([dotted, flat], () => {});
+  assert.deepEqual(out.map(c => c.name), ['ActionList.Item']);
+  assert.ok(out[0].propsInterface, 'props should transfer from flat to dotted');
+});
+
+test('dedupeComponents does not subsume a flat name across packages', () => {
+  // Field-test gap (Phase 7 / MUI+Mantine multi-types): one library exports the
+  // flat `AvatarGroup` while another exports the compound `Avatar.Group`. These
+  // are distinct components from distinct packages; the intra-library flat/dotted
+  // subsumption must not silently delete the flat one.
+  const flat = { name: 'AvatarGroup', pkg: '@mui/material', position: 0, ctx: {} as any };
+  const dotted = { name: 'Avatar.Group', pkg: '@mantine/core', position: 1, ctx: {} as any };
+  const out = extractor.dedupeComponents([flat, dotted], () => {});
+  assert.deepEqual(out.map(c => c.name).sort(), ['Avatar.Group', 'AvatarGroup']);
+});
+
 test('renderFact wraps components in a fenced yaml block', async () => {
   const cwd = await mktempCwd({
     'pastiche/config.yaml': `

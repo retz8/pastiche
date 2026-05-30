@@ -3,3 +3,4 @@ node_modules
 *.tsbuildinfo
 rust/pastiche-lint/target/
 dist-plugin/
+scripts/field-test/workspace/

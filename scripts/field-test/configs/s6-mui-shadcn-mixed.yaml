@@ -1,0 +1,8 @@
+platform: claude-code
+packages:
+  - name: mui
+    types: node_modules/@mui/material/index.d.ts
+  - name: shadcn-ui
+    source_dir: shadcn-src/apps/v4/registry/new-york-v4/ui
+tokens:
+  - shadcn-src/apps/v4/app/globals.css
