@@ -496,10 +496,7 @@ export default function ActionsPage() {
                       align="baseline"
                       wrap="wrap"
                     >
-                      <Link
-                        href={`/actions/runs/${run.id}`}
-                        onClick={(event) => event.preventDefault()}
-                      >
+                      <Link href={`/actions/runs/${run.id}`}>
                         <Text weight="semibold">{run.title}</Text>
                       </Link>
                       <Text size="small" weight="light">
