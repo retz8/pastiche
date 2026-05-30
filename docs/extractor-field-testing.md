@@ -90,25 +90,34 @@ Tier-1 spot-check method per library:
   `*SlotsAndSlotProps`), which is fragile and risks re-introducing Tier-1
   omissions by suppressing the safety net. Extractor backlog.
 
-### Gap 3 — HTML-attribute over-expansion  *(Tier 3 · documented limitation)*
+### Gap 3 — HTML-attribute over-expansion  *(Tier 3 · fixed)*
 
-- **Surfaced by:** scenario 7 (`TextField`, `StandardTextField`, …).
-- **Construct:** components whose props extend a fully-resolved HTML element
-  attributes interface (MUI's `StandardProps<FormControlProps, …>`) expand to
-  the entire DOM + ARIA + event-handler attribute surface (~300 prop lines per
-  atom).
-- **Flavor:** noise / over-capture. The expanded props are technically valid but
-  drown the component-specific props.
-- **Root cause:** interface expansion follows `extends`/spread chains into the
-  React DOM attribute base interfaces when they resolve within the package's
-  type graph.
-- **Resolution:** documented limitation, not fixed. The expanded props are real;
-  suppressing the DOM-attribute base would need a denylist of known ambient
-  React/DOM interfaces. Extractor backlog.
+- **Surfaced by:** scenario 1 (MUI `TextField`); also its variants in scenario 7.
+  Localized — 1 of 296 atoms in the full MUI barrel carried the soup.
+- **Construct:** `TextField`'s props resolve through the type checker's
+  *apparent*-property set (a mapped/override type with no single syntactic node),
+  whose flatten pulls in the entire DOM + ARIA + event-handler surface inherited
+  from React's `HTMLAttributes` — ~308 prop lines, burying the ~30 real props.
+- **Flavor:** noise / over-capture. No component omitted, so not Tier 1.
+- **Root cause:** `expandTypeNode`'s checker branch iterates `type.getProperties()`
+  (apparent props) with no source-file filter — unlike every *syntactic* path
+  (`classifyBranch`, `expandInterface`), which already skips declarations in
+  `node_modules` outside the configured packages. Inherited ambient props from
+  `@types/react` slipped through the one unguarded path.
+- **Distilled test:** `checker-flattened props drop third-party node_modules
+  members but keep in-package props` in `scripts/extract-fact-ts.test.ts` (a
+  mapped-type props shape extending a `node_modules`-declared base).
+- **Resolution:** fixed — added the same provenance guard to `expandTypeNode`'s
+  `getProperties()` loop: skip any property whose declaration is in `node_modules`
+  and not in `knownPaths`. In-package props (and project-local `source_dir` props,
+  which are not under `node_modules`) are kept. MUI `TextField`: 308 → 36 prop
+  lines; the DOM/ARIA soup is gone with every real prop retained. Component counts
+  unchanged across all seven scenarios; no atom newly emptied (29 prop-less atoms
+  before and after, all pre-existing); full suite green.
 
 ## Known limitations carried forward
 
-- Gaps 2 and 3 above (over-capture noise) — extractor backlog, not adopter
+- Gap 2 above (`*Props` helper over-capture) — extractor backlog, not adopter
   patches.
 - Cross-package *same-name* collisions are resolved by warn-and-keep-first; the
   warning may repeat once per re-exporting source file. Out of scope for 7.1.

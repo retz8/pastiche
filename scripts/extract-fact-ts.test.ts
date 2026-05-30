@@ -613,6 +613,44 @@ test('dedupeComponents does not subsume a flat name across packages', () => {
   assert.deepEqual(out.map(c => c.name).sort(), ['Avatar.Group', 'AvatarGroup']);
 });
 
+test('checker-flattened props drop third-party node_modules members but keep in-package props', async () => {
+  // Field-test gap (Phase 7 / MUI TextField): when a component's props resolve
+  // through the type checker's apparent-property set (here a mapped type), that
+  // set flattens every inherited member — including ambient props from a
+  // third-party base in node_modules (React's HTMLAttributes/ARIA soup). Those
+  // out-of-package props must be dropped, the component's own props kept.
+  const cwd = await mktempCwd({
+    'pastiche/config.yaml': `
+platform: claude-code
+packages:
+  - name: "@org/web"
+    types: dist/index.d.ts
+tokens: []
+`,
+    'node_modules/dom-base/index.d.ts': `
+export interface DomBase { id?: string; role?: string; tabIndex?: number; }
+`,
+    'dist/index.d.ts': `
+import { DomBase } from '../node_modules/dom-base/index.js';
+interface FooOwn extends DomBase { label?: string; variant?: 'a' | 'b'; }
+type FooProps = { [K in keyof FooOwn]: FooOwn[K] };
+export declare const Foo: (props: FooProps) => null;
+export type { FooProps };
+`,
+  });
+  const cfg = extractor.loadConfig(cwd);
+  const { packageSources } = extractor.buildProject(cfg, cwd);
+  const comps = extractor.discoverComponentsForPackage(cfg.packages[0], packageSources.get('@org/web')!);
+  const out = extractor.renderFact(comps, []);
+  // In-package props kept.
+  assert.match(out, /^  label\?: string$/m);
+  assert.match(out, /^  variant\?: \[a, b\]$/m);
+  // Third-party DomBase props (declared under node_modules) dropped.
+  assert.ok(!/^  id\?:/m.test(out), 'id (node_modules DomBase) should be dropped');
+  assert.ok(!/^  role\?:/m.test(out), 'role (node_modules DomBase) should be dropped');
+  assert.ok(!/tabIndex/.test(out), 'tabIndex (node_modules DomBase) should be dropped');
+});
+
 test('renderFact wraps components in a fenced yaml block', async () => {
   const cwd = await mktempCwd({
     'pastiche/config.yaml': `

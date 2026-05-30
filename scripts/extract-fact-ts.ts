@@ -638,6 +638,18 @@ function expandTypeNode(node: TypeNode, ctx: ResolveCtx): RenderedProp[] {
   for (const sym of t.getProperties()) {
     const decls = sym.getDeclarations();
     const decl = decls[0];
+    // Provenance guard. getProperties() returns the *apparent* property set,
+    // which flattens every inherited member — including the ~250 ambient
+    // DOM/ARIA/event props a component picks up from third-party bases like
+    // `@types/react`'s HTMLAttributes. Drop any prop whose declaration lives in
+    // node_modules outside the configured packages, mirroring the boundary the
+    // syntactic classify/expandInterface paths already enforce. In-package
+    // props (knownPaths) and project-local source_dir props (not in
+    // node_modules) are kept.
+    if (decl && decl.getSourceFile().getFilePath().includes('/node_modules/')
+        && !ctx.knownPaths.has(decl.getSourceFile().getFilePath())) {
+      continue;
+    }
     let optional = (sym.getFlags() & 16777216) !== 0; // SymbolFlags.Optional
     let type: ResolvedType;
     if (decl && Node.isPropertySignature(decl)) {
