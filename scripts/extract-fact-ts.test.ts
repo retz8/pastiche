@@ -58,7 +58,7 @@ tokens:
   assert.equal(cfg.platform, 'claude-code');
   assert.equal(cfg.packages.length, 1);
   assert.equal(cfg.packages[0].name, '@org/web');
-  assert.equal(cfg.packages[0].types, 'dist/index.d.ts');
+  assert.deepEqual(cfg.packages[0].types, ['dist/index.d.ts']);
   assert.equal(cfg.packages[0].source_dir, undefined);
   assert.deepEqual(cfg.tokens, ['styles/theme.css']);
 });
@@ -685,11 +685,11 @@ test('e2e: source_dir fixture produces correct FACT.md', () => {
   // TestButton (from button.test.tsx) must NOT appear
   assert.ok(!/TestButton:/.test(fact), 'TestButton from sidecar leaked into FACT.md');
 
-  // Accordion: discriminated union renders as variants list (decision 15)
+  // Accordion: discriminated union is flattened to an inline union (union flattening, 349aeaa)
   assert.match(fact, /^Accordion:$/m);
-  assert.match(fact, /^  variants:$/m);
-  assert.match(fact, /^    - type: \[single\]$/m);
-  assert.match(fact, /^    - type: \[multiple\]$/m);
+  assert.match(fact, /^  type: \[single, multiple\]$/m);
+  assert.match(fact, /^  value\?: string$/m);
+  assert.match(fact, /^  onValueChange\?: "\(v: string\) => void"$/m);
 
   // Tokens: all three CSS shapes, no bullet prefix
   assert.match(fact, /^--color-primary$/m);
