@@ -109,6 +109,14 @@ Sequenced delivery plan for shipping v1 of pastiche, derived from `OSS_SPEC.md`.
 - [ ] **8.4** `docs/adapters/claude-code.md`; finalize `docs/adapters/codex.md` (from Phase 0).
 - [ ] **8.5** `docs/contributing/adding-an-extractor.md` (extractor plugin contract). *Absorbed old 5.3 per `docs/spec/phase-5-skills.md`: design + document the pluggable FACT extractor contract; the `fact_extractor` config field (dropped in task 2.4) is reintroduced alongside this contract when a second extractor lands; v1 hard-codes `dist/extract-fact.js`. See OSS_SPEC §14.1.*
 - [ ] **8.6** `LICENSE` — MIT (§14.5).
+- [ ] **8.7** Author `examples/github-primer-react/README.md` — pastiche output showcase. Deferred here from task 6.5 (whose `/pastiche` task prompts have now been run); locked decisions in `docs/spec/task-6.5-example-readme.md`. Build it:
+    - Short intro (what the example is, what pastiche does) + one sentence linking the `pastiche/` directory so readers can see the FACT/KNOWLEDGE/WISDOM documents that drive the results.
+    - Cherry-pick the three most visually impressive page results from the run; README is extensible for more pages later.
+    - Per showcase section: page title, then a two-column markdown table `| Pastiche Output | Real GitHub |` of side-by-side screenshots (direct visual comparison, not implied); the exact `/pastiche` prompt in a collapsible `<details>` block; a small metrics line under the pair (~tokens · ~run time, self-reported with model/date context).
+    - Consistency claim stated as text (single screenshot per page; repeated runs produce nearly identical UI — readers verify by re-running).
+    - One-line prerequisite: requires Claude Max plan (Opus); Pro users can try it by switching `model: sonnet` in the agent meta.yaml — unsupported, uses more tokens.
+    - Screenshots committed at `examples/github-primer-react/assets/`.
+    - Non-affiliation banner is out of scope here (task 6.6).
 
 ---
 
