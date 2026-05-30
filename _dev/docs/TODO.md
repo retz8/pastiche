@@ -95,7 +95,7 @@ Sequenced delivery plan for shipping v1 of pastiche, derived from `OSS_SPEC.md`.
 
 > Extracted from old 6.7 per `docs/spec/phase-6-reference-adoption.md`. Per-phase grill required.
 
-- [ ] **7.1** Stress-test `scripts/extract-fact-ts.ts` against ≥3 varied real-world FE codebases (different DS shapes, generics, re-exports, namespaced components). Document gaps; iterate the extractor until coverage is acceptable. Defers the question of a manual FACT-overrides surface until empirical evidence justifies it.
+- [ ] **7.1** Stress-test `scripts/extract-fact-ts.ts` against ≥3 varied real-world FE codebases (different DS shapes, generics, re-exports, namespaced components). Document gaps; iterate the extractor until coverage is acceptable.
 
 ---
 
