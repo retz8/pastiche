@@ -127,9 +127,9 @@ function writeExtractFactWrapper() {
 }
 
 function buildRustBinary() {
-  const manifestPath = path.join(ROOT, 'rust', 'pastiche-lint', 'Cargo.toml');
+  const manifestPath = path.join(ROOT, 'core', 'tools', 'pastiche-lint', 'Cargo.toml');
   if (!fs.existsSync(manifestPath)) {
-    throw new Error('rust/pastiche-lint/Cargo.toml not found — cannot build pastiche-lint binary');
+    throw new Error('core/tools/pastiche-lint/Cargo.toml not found — cannot build pastiche-lint binary');
   }
 
   log('compiling Rust binary (cargo build --release)...');
@@ -139,7 +139,7 @@ function buildRustBinary() {
   });
 
   const binaryName = process.platform === 'win32' ? 'pastiche-lint.exe' : 'pastiche-lint';
-  const src = path.join(ROOT, 'rust', 'pastiche-lint', 'target', 'release', binaryName);
+  const src = path.join(ROOT, 'core', 'tools', 'pastiche-lint', 'target', 'release', binaryName);
   if (!fs.existsSync(src)) {
     throw new Error(`compiled binary not found at ${src}`);
   }
