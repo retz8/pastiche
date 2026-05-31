@@ -21,7 +21,7 @@ function ensureDir(dir: string) {
 }
 
 function renderAgents() {
-  const agentsDir = path.join(ROOT, 'agents');
+  const agentsDir = path.join(ROOT, 'core', 'agents');
   const templatePath = path.join(ROOT, 'adapters', 'claude-code', 'agents.template');
   const templateRaw = fs.readFileSync(templatePath, 'utf8');
 
@@ -61,7 +61,7 @@ function renderAgents() {
 }
 
 function copySkills() {
-  const skillsDir = path.join(ROOT, 'skills');
+  const skillsDir = path.join(ROOT, 'core', 'skills');
   const files = fs.readdirSync(skillsDir).filter(f => f.endsWith('.md'));
 
   for (const file of files) {
@@ -77,7 +77,7 @@ function copySkills() {
 }
 
 function copyTemplates() {
-  const templatesDir = path.join(ROOT, 'templates');
+  const templatesDir = path.join(ROOT, 'core', 'templates');
   const outDir = path.join(DIST, 'templates');
   ensureDir(outDir);
 
