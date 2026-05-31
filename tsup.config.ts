@@ -2,7 +2,6 @@ import { defineConfig } from 'tsup';
 
 export default defineConfig({
   entry: { 'extract-fact': 'core/tools/extract-fact/extract-fact-ts.ts' },
-  outDir: 'dist-plugin/dist',
   format: ['esm'],
   target: 'node20',
   platform: 'node',
