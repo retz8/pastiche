@@ -1,8 +1,6 @@
 # pastiche
 
-**Coding agents invent components that don't exist in your design system. Pastiche makes them use the ones that do.**
-
-Pastiche is a Claude Code plugin for faithful design-system execution. Given a frontend task, it produces code that follows your established design system and component library — not by inventing, but by faithfully executing within the vocabulary your team already ships.
+Pastiche is a Claude Code plugin for faithful design-system execution. Given a frontend task, it **produces code that follows your established design system and component library** — not by inventing, but by faithfully executing within the vocabulary your team already ships.
 
 ## Quickstart
 
