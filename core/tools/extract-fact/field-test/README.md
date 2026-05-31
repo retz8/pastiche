@@ -1,6 +1,6 @@
 # Extractor field-test harness (Phase 7 / task 7.1)
 
-Drives `scripts/extract-fact-ts.ts` over real design-system codebases across the
+Drives `core/tools/extract-fact/extract-fact-ts.ts` over real design-system codebases across the
 full `config.yaml` scenario space. Findings: `docs/extractor-field-testing.md`.
 Spec: `docs/spec/phase-7-extractor-field-testing.md`.
 

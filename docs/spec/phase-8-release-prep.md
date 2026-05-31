@@ -22,7 +22,7 @@ core/
   skills/      canonical SKILL bodies (content, not adapted)
   templates/   the three docs — pastiche-specific (not adapted)
   tools/
-    extract-fact/   TS source + test + __fixtures__ (bundled to bin/extract-fact)
+    extract-fact/   TS source + test + __fixtures__ + field-test/ harness (bundled to bin/extract-fact)
     pastiche-lint/  Rust cargo project, Cargo.toml here (compiled to bin/pastiche-lint)
 adapters/
   claude-code/  the seam: manifest render rules + agents.template
