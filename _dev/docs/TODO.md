@@ -106,7 +106,7 @@ Sequenced delivery plan for shipping v1 of pastiche, derived from `OSS_SPEC.md`.
 > **Sequencing:** 8.1 (restructure) → 8.2 (build refit) land first; all doc tasks come after so they document the final shape. 8.3 (LICENSE) is independent and can slot anywhere.
 
 - [x] **8.1** Repo restructure into `core/ + adapters/` layout — move `agents/`, `skills/`, `templates/` under `core/`; relocate the Rust lint project to `core/tools/pastiche-lint/` and the extractor to `core/tools/extract-fact/`; reduce `scripts/` to build + field-test only. Pure moves + path fixes (build script, `tsup.config.ts`, `Cargo.toml` location, `.gitignore`, skill `bin/` assumptions). No content changes. Verify the build still produces a working plugin. One atomic task. Spec: `docs/spec/phase-8-release-prep.md`.
-- [ ] [WIP] **8.2** Build + distribution refit — `--platform=<name|all>` flag + adapter registry (v1 registers `claude-code` only); output to committed `dist/claude-code/`; `.gitignore` flip to track `dist/`; generate `plugin.json` from `package.json` (kills hardcoded `0.0.0-dev`); hand-author root `.claude-plugin/marketplace.json` (`source: ./dist/claude-code`); add `.version-bump.json` + bump script stamping authored files only. *Depends on 8.1.* Spec: `docs/spec/phase-8-release-prep.md`.
+- [x] **8.2** Build + distribution refit — `--platform=<name|all>` flag + adapter registry (v1 registers `claude-code` only); output to committed `dist/claude-code/`; `.gitignore` flip to track `dist/`; generate `plugin.json` from `package.json` (kills hardcoded `0.0.0-dev`); hand-author root `.claude-plugin/marketplace.json` (`source: ./dist/claude-code`, versionless — CC resolves version from the generated `plugin.json`). No bump tool: `package.json` is the sole authored version (release = edit version → rebuild → commit). *Depends on 8.1.* Spec: `docs/spec/phase-8-release-prep.md`.
 - [ ] **8.3** `LICENSE` — MIT (§14.5). *Independent; details defer to task spec.*
 - [ ] **8.4** `README.md`: positioning, quickstart (real `/plugin marketplace add` flow), KISA linked as production adopter. *Details defer to task spec.*
 - [ ] **8.5** Per-document format docs: `docs/fact.md`, `docs/knowledge.md`, `docs/wisdom.md`, `docs/config.md` (hydrates from OSS_SPEC §9.4 + §9.4.1 — four stack scenarios + field semantics). *Details defer to task spec.*
@@ -133,6 +133,8 @@ Sequenced delivery plan for shipping v1 of pastiche, derived from `OSS_SPEC.md`.
 - [ ] **9.4** Ship v1.
 
 ---
+
+> **Known v1 limitation (from task 8.2):** the committed `dist/claude-code/bin/pastiche-lint` is compiled for the builder's OS/arch (darwin/arm64). Adopters on other platforms get a non-runnable binary. Multi-arch distribution (per-arch binaries, CI matrix build, or compile-on-install) is deferred post-v1.
 
 > **Personal note (Jioh):** After finishing Rust basics study, revisit `core/tools/pastiche-lint/` as a real-world reading exercise — config parsing, regex, serde_yaml, CLI entry, test patterns with tempfile. Good second-pass material.
 
