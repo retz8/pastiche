@@ -37,8 +37,6 @@ Pastiche keeps DESIGN.md's insight and splits it across three documents, each in
 | **KNOWLEDGE.md** | UI/UX mapping | General design know-how connected to your library, as a mapping from scenario to atom — *"in this situation, use these components and these tokens."* Curated by humans. |
 | **WISDOM.md** | Rules & logic | The **business logic behind the UI that can't be codified** — both general rules and component-specific ones. Curated by humans. |
 
-FACT.md is mechanical and regenerated on every codebase change. KNOWLEDGE.md and WISDOM.md are **living documents**: every time your team runs pastiche, they grow richer — and as they do, pastiche's output gets better and more consistent. The design system's knowledge compounds instead of leaking away.
-
 ### Executing Task
 
 At runtime, pastiche runs a **bounded doubt-defense loop** — depth comes from the dialogue between agents, not from a heavyweight reviewer:
@@ -51,9 +49,13 @@ flowchart LR
     R1 --> REV --> R2
 ```
 
-FACT.md is the ground truth for hallucination detection: if generated code uses a component or prop that isn't in FACT.md, the reviewer flags it as invented.
+### A System That Grows
 
-For the full philosophy — the metaphor, the implementer/reviewer asymmetry, and the loop economics — see [`spec.md`](./spec.md).
+FACT.md is mechanical — it's regenerated on every codebase change and always reflects what exists. KNOWLEDGE.md and WISDOM.md are different: they are **living documents**, curated and extended by your team over time.
+
+When you run `/pastiche` on a task, it reports the gaps it hit along the way such as scenarios missing from KNOWLEDGE.md, rules missing from WISDOM.md. You fold them back in and the next run is sharper. The more your team uses pastiche, the richer these documents become. And the richer they become, the better and more consistent its output gets.
+
+For the full philosophy, the metaphor, the implementer/reviewer asymmetry, and the loop economics — see [`spec.md`](./spec.md).
 
 ## The workflow
 
