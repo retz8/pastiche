@@ -1,0 +1,20 @@
+{
+  "name": "pastiche",
+  "description": "Faithful design-system execution for LLM coding agents",
+  "version": "0.0.0-dev",
+  "author": {
+    "name": "Jioh In",
+    "email": "ekkicb71@gmail.com"
+  },
+  "homepage": "https://github.com/retz8/pastiche",
+  "repository": "https://github.com/retz8/pastiche",
+  "license": "MIT",
+  "keywords": [
+    "design-system",
+    "claude-code",
+    "claude-code-plugin",
+    "llm",
+    "frontend",
+    "agent-skills"
+  ]
+}
