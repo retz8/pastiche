@@ -3,7 +3,7 @@
   "version": "0.0.0-dev",
   "private": true,
   "type": "module",
-  "description": "Faithful design-system execution for LLM coding agents",
+  "description": "Draw UI consistently with agents, at the top of Design System & Component Library",
   "author": { "name": "Jioh In", "email": "ekkicb71@gmail.com" },
   "repository": "https://github.com/retz8/pastiche",
   "homepage": "https://github.com/retz8/pastiche",

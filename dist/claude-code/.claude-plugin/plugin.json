@@ -1,6 +1,6 @@
 {
   "name": "pastiche",
-  "description": "Faithful design-system execution for LLM coding agents",
+  "description": "Draw UI consistently with agents, at the top of Design System & Component Library",
   "version": "0.0.0-dev",
   "author": {
     "name": "Jioh In",

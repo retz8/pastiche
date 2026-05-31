@@ -5,7 +5,7 @@
     {
       "name": "pastiche",
       "source": "./dist/claude-code",
-      "description": "Faithful design-system execution for LLM coding agents",
+      "description": "Draw UI consistently with agents, at the top of Design System & Component Library",
       "author": { "name": "Jioh In", "email": "ekkicb71@gmail.com" }
     }
   ]
