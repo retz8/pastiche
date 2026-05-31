@@ -4,6 +4,18 @@
   "private": true,
   "type": "module",
   "description": "Faithful design-system execution for LLM coding agents",
+  "author": { "name": "Jioh In", "email": "ekkicb71@gmail.com" },
+  "repository": "https://github.com/retz8/pastiche",
+  "homepage": "https://github.com/retz8/pastiche",
+  "license": "MIT",
+  "keywords": [
+    "design-system",
+    "claude-code",
+    "claude-code-plugin",
+    "llm",
+    "frontend",
+    "agent-skills"
+  ],
   "scripts": {
     "test": "node --test --import tsx 'core/tools/**/*.test.ts'",
     "extract:fact": "node --import tsx core/tools/extract-fact/extract-fact-ts.ts",
