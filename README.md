@@ -31,11 +31,15 @@ But DESIGN.md stops at the surface. It produces a good-looking *prototype*, not 
 
 Pastiche keeps DESIGN.md's insight and splits it across three documents, each inheriting one piece of the problem:
 
+### Three Docs
+
 | Document | Layer | What it captures |
 |---|---|---|
 | **FACT.md** | What exists | The components and CSS tokens available in your codebase. Inherits DESIGN.md directly — auto-extracted, so it's never out of date. |
 | **KNOWLEDGE.md** | UI/UX mapping | General design know-how connected to your library, as a mapping from scenario to atom — *"in this situation, use these components and these tokens."* Curated by humans. |
-| **WISDOM.md** | Rules & logic | The component-intrinsic conventions and hard-won UI/UX rules that can't be codified mechanically, tagged to the components they govern. |
+| **WISDOM.md** | Rules & logic | The component-intrinsic conventions and hard-won UI/UX rules that can't be codified mechanically. |
+
+### Executing Task
 
 At runtime, pastiche runs a **bounded doubt-defense loop** — depth comes from the dialogue between agents, not from a heavyweight reviewer:
 
