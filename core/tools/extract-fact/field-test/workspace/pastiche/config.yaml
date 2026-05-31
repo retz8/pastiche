@@ -1,5 +1,0 @@
-platform: claude-code
-packages:
-  - name: mui
-    types: node_modules/@mui/material/index.d.ts
-tokens: []
