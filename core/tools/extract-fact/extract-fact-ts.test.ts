@@ -11,7 +11,7 @@ import { fileURLToPath } from 'node:url';
 const SCRIPT_PATH = fileURLToPath(new URL('./extract-fact-ts.ts', import.meta.url));
 
 const TSX_LOADER = fileURLToPath(
-  new URL('../node_modules/tsx/dist/loader.mjs', import.meta.url),
+  new URL('../../../node_modules/tsx/dist/loader.mjs', import.meta.url),
 );
 
 function runMain(cwd: string): { stdout: string; stderr: string; status: number } {

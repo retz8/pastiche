@@ -5,8 +5,8 @@
   "type": "module",
   "description": "Faithful design-system execution for LLM coding agents",
   "scripts": {
-    "test": "node --test --import tsx 'scripts/*.test.ts'",
-    "extract:fact": "node --import tsx scripts/extract-fact-ts.ts",
+    "test": "node --test --import tsx 'core/tools/**/*.test.ts'",
+    "extract:fact": "node --import tsx core/tools/extract-fact/extract-fact-ts.ts",
     "test:lint": "cargo test --manifest-path core/tools/pastiche-lint/Cargo.toml",
     "build": "tsx scripts/build.ts"
   },
