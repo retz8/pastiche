@@ -170,8 +170,13 @@ const ADAPTERS: Record<string, PlatformAdapter> = {
 // --- entrypoint ---
 
 function parsePlatform(): string {
+  // Two invocation forms must both work and both validate:
+  //   npm run build -- --platform=x   → reaches process.argv
+  //   npm run build --platform=x      → npm swallows it into npm_config_platform
   const arg = process.argv.find(a => a.startsWith('--platform='));
-  return arg ? arg.split('=')[1] : 'all';
+  if (arg) return arg.split('=')[1];
+  if (process.env.npm_config_platform) return process.env.npm_config_platform;
+  return 'all';
 }
 
 function main() {
