@@ -1,0 +1,12 @@
+{
+  "name": "pastiche-marketplace",
+  "owner": { "name": "Jioh In", "email": "ekkicb71@gmail.com" },
+  "plugins": [
+    {
+      "name": "pastiche",
+      "source": "./dist/claude-code",
+      "description": "Faithful design-system execution for LLM coding agents",
+      "author": { "name": "Jioh In", "email": "ekkicb71@gmail.com" }
+    }
+  ]
+}
