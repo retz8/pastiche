@@ -37,7 +37,9 @@ Pastiche keeps DESIGN.md's insight and splits it across three documents, each in
 |---|---|---|
 | **FACT.md** | What exists | The components and CSS tokens available in your codebase. Inherits DESIGN.md directly — auto-extracted, so it's never out of date. |
 | **KNOWLEDGE.md** | UI/UX mapping | General design know-how connected to your library, as a mapping from scenario to atom — *"in this situation, use these components and these tokens."* Curated by humans. |
-| **WISDOM.md** | Rules & logic | The component-intrinsic conventions and hard-won UI/UX rules that can't be codified mechanically. |
+| **WISDOM.md** | Rules & logic | The **business logic behind the UI that can't be codified** — both general rules and component-specific ones. Curated by humans. |
+
+FACT.md is mechanical and regenerated on every codebase change. KNOWLEDGE.md and WISDOM.md are **living documents**: every time your team runs pastiche, they grow richer — and as they do, pastiche's output gets better and more consistent. The design system's knowledge compounds instead of leaking away.
 
 ### Executing Task
 
@@ -74,7 +76,7 @@ For the full philosophy — the metaphor, the implementer/reviewer asymmetry, an
 | `/pastiche-sync` | Re-extract FACT.md after codebase changes |
 | `/pastiche-lint` | Cross-document consistency check |
 | `/pastiche-write-knowledge` | Add a curated scenario → component mapping |
-| `/pastiche-write-wisdom` | Add a component-intrinsic rule |
+| `/pastiche-write-wisdom` | Add a rule — general or component-specific |
 
 **Agents** (internal — orchestrated by the loop, not called directly): `pastiche-implementer-round1`, `pastiche-reviewer`, `pastiche-implementer-round2`.
 
