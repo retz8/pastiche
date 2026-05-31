@@ -99,17 +99,20 @@ Sequenced delivery plan for shipping v1 of pastiche, derived from `OSS_SPEC.md`.
 
 ---
 
-## Phase 8 — Packaging & docs
+## Phase 8 — Release prep: restructure, packaging & docs
 
-> Renumbered from old Phase 7. **⚠ Pre-pivot wording remains in tasks below.** Plugin-only distribution per Phase 4 spec. Old 7.1 plugin packaging is partially complete via Phase 6.0 (build orchestrator, `dist-plugin/` layout, minimal `plugin.json`, bundling) — what remains here is `marketplace.json`, version metadata, and release polish. Per-phase grill required.
+> Retitled & restructured 2026-05-31 per `docs/spec/phase-8-release-prep.md`. Reframed from "Packaging & docs" into a pre-release cleanup/refactor phase — license to change the **form** of prior-phase work (e.g. file moves, re-enveloping) but **not** its content. Pre-pivot wording in the old block is superseded. Old 8.1 "release polish" split into new 8.1 (repo restructure) + 8.2 (build + distribution refit). Phase-level decisions (agents stay first-class; `core/ + adapters/` layout with `core/tools/`; lockstep single version from `package.json`; `--platform` flag + adapter registry; commit `dist/claude-code/`; root `.claude-plugin/marketplace.json` authored + in-artifact `plugin.json` generated) are locked in the phase spec. 8.1 + 8.2 are specified there; 8.3–8.8 details defer to each task's own spec/grill.
+>
+> **Sequencing:** 8.1 (restructure) → 8.2 (build refit) land first; all doc tasks come after so they document the final shape. 8.3 (LICENSE) is independent and can slot anywhere.
 
-- [ ] **8.1** Plugin release polish: harden `.claude-plugin/plugin.json` (description, version), add `.claude-plugin/marketplace.json` (§14.6). Build orchestrator + minimal manifest already shipped in Phase 6.0.
-- [ ] **8.2** `README.md`: positioning, quickstart, KISA linked as production adopter.
-- [ ] **8.3** Per-document format docs: `docs/fact.md`, `docs/knowledge.md`, `docs/wisdom.md`, `docs/config.md` (hydrates from OSS_SPEC §9.4 + §9.4.1 — four stack scenarios + field semantics).
-- [ ] **8.4** `docs/adapters/claude-code.md`; finalize `docs/adapters/codex.md` (from Phase 0).
-- [ ] **8.5** `docs/contributing/adding-an-extractor.md` (extractor plugin contract). *Absorbed old 5.3 per `docs/spec/phase-5-skills.md`: design + document the pluggable FACT extractor contract; the `fact_extractor` config field (dropped in task 2.4) is reintroduced alongside this contract when a second extractor lands; v1 hard-codes `dist/extract-fact.js`. See OSS_SPEC §14.1.*
-- [ ] **8.6** `LICENSE` — MIT (§14.5).
-- [ ] **8.7** Author `examples/github-primer-react/README.md` — pastiche output showcase. Deferred here from task 6.5 (whose `/pastiche` task prompts have now been run); locked decisions in `docs/spec/task-6.5-example-readme.md`. Build it:
+- [ ] **8.1** Repo restructure into `core/ + adapters/` layout — move `agents/`, `skills/`, `templates/` under `core/`; relocate the Rust lint project to `core/tools/pastiche-lint/` and the extractor to `core/tools/extract-fact/`; reduce `scripts/` to build + field-test only. Pure moves + path fixes (build script, `tsup.config.ts`, `Cargo.toml` location, `.gitignore`, skill `bin/` assumptions). No content changes. Verify the build still produces a working plugin. One atomic task. Spec: `docs/spec/phase-8-release-prep.md`.
+- [ ] **8.2** Build + distribution refit — `--platform=<name|all>` flag + adapter registry (v1 registers `claude-code` only); output to committed `dist/claude-code/`; `.gitignore` flip to track `dist/`; generate `plugin.json` from `package.json` (kills hardcoded `0.0.0-dev`); hand-author root `.claude-plugin/marketplace.json` (`source: ./dist/claude-code`); add `.version-bump.json` + bump script stamping authored files only. *Depends on 8.1.* Spec: `docs/spec/phase-8-release-prep.md`.
+- [ ] **8.3** `LICENSE` — MIT (§14.5). *Independent; details defer to task spec.*
+- [ ] **8.4** `README.md`: positioning, quickstart (real `/plugin marketplace add` flow), KISA linked as production adopter. *Details defer to task spec.*
+- [ ] **8.5** Per-document format docs: `docs/fact.md`, `docs/knowledge.md`, `docs/wisdom.md`, `docs/config.md` (hydrates from OSS_SPEC §9.4 + §9.4.1 — four stack scenarios + field semantics). *Details defer to task spec.*
+- [ ] **8.6** `docs/adapters/claude-code.md`; finalize `docs/adapters/codex.md` (from Phase 0). *Details defer to task spec.*
+- [ ] **8.7** `docs/contributing/adding-an-extractor.md` (extractor plugin contract). *Absorbed old 5.3 per `docs/spec/phase-5-skills.md`: design + document the pluggable FACT extractor contract; the `fact_extractor` config field (dropped in task 2.4) is reintroduced alongside this contract when a second extractor lands; v1 hard-codes the bundled extractor. See OSS_SPEC §14.1. Details defer to task spec.*
+- [ ] **8.8** Author `examples/github-primer-react/README.md` — pastiche output showcase. Deferred here from task 6.5 (whose `/pastiche` task prompts have now been run); locked decisions in `docs/spec/task-6.5-example-readme.md`. Build it:
     - Short intro (what the example is, what pastiche does) + one sentence linking the `pastiche/` directory so readers can see the FACT/KNOWLEDGE/WISDOM documents that drive the results.
     - Cherry-pick the three most visually impressive page results from the run; README is extensible for more pages later.
     - Per showcase section: page title, then a two-column markdown table `| Pastiche Output | Real GitHub |` of side-by-side screenshots (direct visual comparison, not implied); the exact `/pastiche` prompt in a collapsible `<details>` block; a small metrics line under the pair (~tokens · ~run time, self-reported with model/date context).
