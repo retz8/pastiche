@@ -105,7 +105,7 @@ Sequenced delivery plan for shipping v1 of pastiche, derived from `OSS_SPEC.md`.
 >
 > **Sequencing:** 8.1 (restructure) → 8.2 (build refit) land first; all doc tasks come after so they document the final shape. 8.3 (LICENSE) is independent and can slot anywhere.
 
-- [ ] **8.1** Repo restructure into `core/ + adapters/` layout — move `agents/`, `skills/`, `templates/` under `core/`; relocate the Rust lint project to `core/tools/pastiche-lint/` and the extractor to `core/tools/extract-fact/`; reduce `scripts/` to build + field-test only. Pure moves + path fixes (build script, `tsup.config.ts`, `Cargo.toml` location, `.gitignore`, skill `bin/` assumptions). No content changes. Verify the build still produces a working plugin. One atomic task. Spec: `docs/spec/phase-8-release-prep.md`.
+- [x] **8.1** Repo restructure into `core/ + adapters/` layout — move `agents/`, `skills/`, `templates/` under `core/`; relocate the Rust lint project to `core/tools/pastiche-lint/` and the extractor to `core/tools/extract-fact/`; reduce `scripts/` to build + field-test only. Pure moves + path fixes (build script, `tsup.config.ts`, `Cargo.toml` location, `.gitignore`, skill `bin/` assumptions). No content changes. Verify the build still produces a working plugin. One atomic task. Spec: `docs/spec/phase-8-release-prep.md`.
 - [ ] **8.2** Build + distribution refit — `--platform=<name|all>` flag + adapter registry (v1 registers `claude-code` only); output to committed `dist/claude-code/`; `.gitignore` flip to track `dist/`; generate `plugin.json` from `package.json` (kills hardcoded `0.0.0-dev`); hand-author root `.claude-plugin/marketplace.json` (`source: ./dist/claude-code`); add `.version-bump.json` + bump script stamping authored files only. *Depends on 8.1.* Spec: `docs/spec/phase-8-release-prep.md`.
 - [ ] **8.3** `LICENSE` — MIT (§14.5). *Independent; details defer to task spec.*
 - [ ] **8.4** `README.md`: positioning, quickstart (real `/plugin marketplace add` flow), KISA linked as production adopter. *Details defer to task spec.*
@@ -134,6 +134,6 @@ Sequenced delivery plan for shipping v1 of pastiche, derived from `OSS_SPEC.md`.
 
 ---
 
-> **Personal note (Jioh):** After finishing Rust basics study, revisit `rust/pastiche-lint/` as a real-world reading exercise — config parsing, regex, serde_yaml, CLI entry, test patterns with tempfile. Good second-pass material.
+> **Personal note (Jioh):** After finishing Rust basics study, revisit `core/tools/pastiche-lint/` as a real-world reading exercise — config parsing, regex, serde_yaml, CLI entry, test patterns with tempfile. Good second-pass material.
 
 > **Post-v1 idea (from task 6.2.5):** Add a `/pastiche-research-ds-docs` skill that crawls a design system's public documentation (like primer.style) and generates a structured research file. The setup skill would then accept this research doc as an optional additional source alongside `design_md_reference` — a new `research_doc_reference` field in `config.yaml`. This bridges the gap for adopters whose DS knowledge lives in external docs rather than a local `DESIGN.md`. Evidence: the 6.2.5 research session produced decision-grade knowledge that the setup skill's canonical seeds + FACT alone could not surface.
