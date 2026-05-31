@@ -1,78 +1,98 @@
-# `pastiche/config.yaml` — field reference
+# config.yaml
 
-Adopter-owned configuration for a pastiche-installed project. Lives at `pastiche/config.yaml`, colocated with `FACT.md`, `KNOWLEDGE.md`, `WISDOM.md`.
+Adopter-owned configuration at `pastiche/config.yaml`, colocated with FACT.md, KNOWLEDGE.md, WISDOM.md. It tells pastiche **where your components and tokens live** and **how to verify generated code**.
 
-For the full schema block, the four supported stack scenarios, and design rationale, see `_dev/docs/OSS_SPEC.md` §9.4 and §9.4.1. This page is a quick per-field reference.
+## Why it exists
 
-## Editing
+Pastiche can't guess your repo layout — whether your components ship as `.d.ts` types or as copy-pasted source, where your CSS tokens live, how you typecheck. `config.yaml` answers that, once.
 
-The file ships from `pastiche init` with empty/null sentinels. `init` fills required fields via prompts and detection; `/pastiche-setup` mutates `setup_progress` and `design_md_reference`. The adopter may edit any field. `pastiche sync` re-reads the file on every run.
+| Who/what | Interaction |
+|---|---|
+| `/pastiche-init` | Writes it — auto-detects `packages`, `tokens`, `typecheck_command`, `build_command` and asks you to confirm |
+| `/pastiche-sync` | Re-reads it on every run and re-extracts FACT.md from the configured sources |
+| `/pastiche-setup` | Writes `design_md_reference` and `setup_progress` |
+| **You** | Own it. Edit any field by hand; the next sync honors the change |
+
+## A complete example
+
+A real config for an app using `@primer/react` (npm library with bundled types + CSS token files):
+
+```yaml
+platform: claude-code
+
+packages:
+  - name: "@primer/react"
+    types:
+      - "node_modules/@primer/react/dist/index.d.ts"
+      - "node_modules/@primer/react/dist/experimental/index.d.ts"
+
+tokens:
+  - node_modules/@primer/primitives/dist/css/functional/size/size.css
+  - node_modules/@primer/primitives/dist/css/functional/spacing/space.css
+  - node_modules/@primer/primitives/dist/css/functional/themes/light.css
+
+design_md_reference: null
+typecheck_command: npx tsc --noEmit
+build_command: npm run build
+
+setup_progress:
+  action-buttons: done
+  # … 13 section slugs total
+```
 
 ## Fields
 
-### `platform`
+| Field | Type | Meaning |
+|---|---|---|
+| `platform` | `claude-code` \| `codex` | Which adapter tree to generate. One per `init`; switching means re-running `init`. |
+| `packages` | list | Where your components live. See [modes](#packages-two-modes) below. |
+| `tokens` | list of paths | CSS files to harvest design tokens from. |
+| `design_md_reference` | path \| `null` | Optional `DESIGN.md` to seed Brand Identity during setup. |
+| `typecheck_command` | string \| `null` | Run by the implementer after writing code. `null` → skip typecheck. |
+| `build_command` | string \| `null` | Run by the orchestrator as a final check. `null` → skip build. |
+| `setup_progress` | map | 13 section slugs → `stub`/`done`. Machine-managed; don't hand-edit. |
 
-Single string. One of `claude-code` or `codex`. `null` until `init` runs. v1 generates one adapter tree per `init`; switching platforms means re-running `init`.
+## `packages`: two modes
 
-### `packages`
+Each entry has a unique `name` and **exactly one** of `types` or `source_dir`.
 
-List. Each entry declares one source of component types.
+**Mode 1 — `types`** (npm libraries that ship `.d.ts` declarations). One path or a list:
 
-Required: `name` (string, unique across entries). Exactly one of:
-- `types: <path>` — aggregate `.d.ts` file (npm-distributed libraries with bundled declarations).
-- `source_dir: <path>` — directory of source files (shadcn-style copy-paste libraries).
-
-Optional on `source_dir` entries: `extensions` (list of file extensions to scan; default `[".tsx", ".ts"]`).
-
-Ordering is preserved; on duplicate component-name exports, the first-listed entry wins.
-
-### `tokens`
-
-List. Each entry declares one source of design tokens.
-
-Required: `format` (one of `tailwind-v4-theme`, `css-vars`) and `source` (path to a CSS file).
-
-Optional on `css-vars` entries: `selectors` (list of CSS selectors to harvest `--*` vars from; default `[":root"]`).
-
-Both formats also harvest class selectors (`.btn-primary`, `.text-h1`) from the same file as token-atoms. Multiple `tokens` entries layer freely.
-
-### `design_md_reference`
-
-Path string or `null`. Points at the project's `DESIGN.md` (or equivalent) when the adopter opts in during `/pastiche-setup`. Non-root paths allowed (e.g., `docs/DESIGN.md`).
-
-Safety: path is resolved to absolute, verified to exist and live inside the consumer repo. Read-time failure → warn and proceed as `null`. Write-time failure → reject opt-in.
-
-### `typecheck_command`
-
-String or `null`. Full shell command (e.g., `"pnpm typecheck"`, `"npm run typecheck"`). `null` means the implementer agents skip the typecheck step. `init` auto-detects from `package.json` scripts and prompts to confirm.
-
-### `setup_progress`
-
-Map of 13 kebab-case section slugs (12 KNOWLEDGE sections + `general-wisdom`) to status strings (`stub` | `done`). Same slug accepted as `/pastiche-setup --section <slug>`. State flips from `stub` → `done` as setup walks each section. Machine-managed; the adopter does not normally edit this block.
-
-Canonical keys (order matches the template):
-
+```yaml
+packages:
+  - name: "@mui/material"
+    types: node_modules/@mui/material/index.d.ts
+  - name: "@primer/react"
+    types:
+      - node_modules/@primer/react/dist/index.d.ts
+      - node_modules/@primer/react/dist/experimental/index.d.ts
 ```
-action-buttons, forms-input-collection, feedback-status, overlays,
-navigation-wayfinding, content-display, layout-page-structure,
-date-time-selection, iconography, visual-hierarchy,
-domain-specific-patterns, brand-identity, general-wisdom
+
+**Mode 2 — `source_dir`** (shadcn-style components copied into your repo). One directory, walked for `.tsx`/`.ts`:
+
+```yaml
+packages:
+  - name: ui
+    source_dir: src/components/ui
+```
+
+On duplicate component-name exports across entries, the **first-listed entry wins**.
+
+## `tokens`
+
+A flat list of CSS file paths. The extractor harvests every CSS custom property (`--*`) and class selector from each file, regardless of where it's declared (`@theme`, `:root`, `[data-theme]`, …). Layer as many files as you need:
+
+```yaml
+tokens:
+  - src/app/globals.css
+  - src/styles/brand-tokens.css
 ```
 
 ## Deferred to v1.x
 
-The following fields and formats are not in v1 and will fail-closed at lint time if specified:
+These fail-closed at lint time if present: per-file `.d.ts` globs (`types_glob`); token *format* declarations (`tailwind-v3-config`, `dtcg-json`, `js-export`); per-entry `extensions`, `exclude`, `prefix`, `selectors`. The fields `pastiche_version` and `fact_extractor` return when a second extractor lands.
 
-- `types_glob` (per-file `.d.ts` with no aggregate)
-- Token formats `tailwind-v3-config`, `dtcg-json`, `js-export`, `classes`
-- Per-package `exclude` (glob array), per-token `prefix` (filter string)
-- The dropped fields `pastiche_version` and `fact_extractor` return in v1.x when a real comparison target exists (see OSS_SPEC §14.1).
+## Related
 
-## Stack scenarios
-
-See OSS_SPEC §9.4.1 for full configs covering the four supported combinations:
-
-1. Monorepo with aggregate `.d.ts` + Tailwind v4 theme (KISA-style).
-2. npm aggregate `.d.ts` + CSS-vars token files (Primer / MUI).
-3. shadcn source-walk + Tailwind v4 (canonical 2026 React setup).
-4. shadcn source-walk + multiple token files.
+- What gets extracted into [`fact.md`](./fact.md).
+- Authored interactively by `/pastiche-init` and `/pastiche-setup`.

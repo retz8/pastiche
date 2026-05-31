@@ -1,4 +1,5 @@
 .agents/
+_dev/
 node_modules
 *.tsbuildinfo
 core/tools/pastiche-lint/target/
