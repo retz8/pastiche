@@ -27,13 +27,15 @@ Then, from the root of your frontend project:
 
 Coding agents keep failing at the same thing: producing **consistent** UI. To fix that, teams started encoding their design system into a single document an agent could read. Google's [DESIGN.md](https://github.com/google-labs-code/design.md) is the clearest example, capturing tokens and visual patterns well enough for an agent to generate coherent-looking screens.
 
-But DESIGN.md stops at the surface. It produces a good-looking *prototype*, not a working feature because it's missing the golden pieces: the **component library** the team actually ships, and the **business logic** behind the UI that can't be reduced to tokens and patterns.
+But DESIGN.md stops at the surface. It produces a good-looking *prototype*, not a working feature because it's missing the golden pieces: the **component library the team actually ships**, and the **business logic behind the UI** that can't be reduced to tokens and patterns.
 
 Pastiche keeps DESIGN.md's insight and splits it across three documents, each inheriting one piece of the problem:
 
-- **FACT.md** — inherits DESIGN.md directly: which components and CSS tokens actually exist. Auto-extracted from your codebase, so it's never out of date.
-- **KNOWLEDGE.md** — the UI/UX layer: general design know-how connected to your library, as a mapping from scenario to atom — *"in this situation, use these components and these tokens."* Curated by humans.
-- **WISDOM.md** — the rules layer: the component-intrinsic conventions and hard-won UI/UX rules that can't be codified mechanically, tagged to the components they govern and maintained as the system evolves.
+| Document | Layer | What it captures |
+|---|---|---|
+| **FACT.md** | What exists | The components and CSS tokens available in your codebase. Inherits DESIGN.md directly — auto-extracted, so it's never out of date. |
+| **KNOWLEDGE.md** | UI/UX mapping | General design know-how connected to your library, as a mapping from scenario to atom — *"in this situation, use these components and these tokens."* Curated by humans. |
+| **WISDOM.md** | Rules & logic | The component-intrinsic conventions and hard-won UI/UX rules that can't be codified mechanically, tagged to the components they govern. |
 
 At runtime, pastiche runs a **bounded doubt-defense loop** — depth comes from the dialogue between agents, not from a heavyweight reviewer:
 
