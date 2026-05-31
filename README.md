@@ -2,7 +2,7 @@
 
 **Coding agents invent components that don't exist in your design system. Pastiche makes them use the ones that do.**
 
-Pastiche is a [Claude Code](https://docs.claude.com/en/docs/claude-code) plugin for faithful design-system execution. Given a frontend task, it produces code that follows your established design system and component library — not by inventing, but by faithfully executing within the vocabulary your team already ships.
+Pastiche is a Claude Code plugin for faithful design-system execution. Given a frontend task, it produces code that follows your established design system and component library — not by inventing, but by faithfully executing within the vocabulary your team already ships.
 
 ## Quickstart
 
@@ -25,9 +25,9 @@ Then, from the root of your frontend project:
 
 ## How it works
 
-Coding agents keep failing at the same thing: producing **consistent** UI. To fix that, teams started encoding their design system into a single document an agent could read — Google's [DESIGN.md](https://github.com/google-labs-code/design.md) is the clearest example, capturing tokens and visual patterns well enough for an agent to generate coherent-looking screens.
+Coding agents keep failing at the same thing: producing **consistent** UI. To fix that, teams started encoding their design system into a single document an agent could read. Google's [DESIGN.md](https://github.com/google-labs-code/design.md) is the clearest example, capturing tokens and visual patterns well enough for an agent to generate coherent-looking screens.
 
-But DESIGN.md stops at the surface. It produces a good-looking *prototype*, not a working feature — because it's missing the golden piece: the **component library** the team actually ships, and the **business logic** behind the UI that can't be reduced to tokens and patterns.
+But DESIGN.md stops at the surface. It produces a good-looking *prototype*, not a working feature because it's missing the golden pieces: the **component library** the team actually ships, and the **business logic** behind the UI that can't be reduced to tokens and patterns.
 
 Pastiche keeps DESIGN.md's insight and splits it across three documents, each inheriting one piece of the problem:
 
