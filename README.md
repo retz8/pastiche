@@ -96,6 +96,10 @@ Read more in [`spec.md`](./spec.md).
 
 **v1.** Validated end-to-end on Claude Code. Codex CLI adapter files ship as a placeholder — the shape is in place, but runtime correctness is unverified; community validation is welcome.
 
+## Contributing
+
+Developing pastiche itself (repo layout, the build, dev scripts) — see [CONTRIBUTING.md](./CONTRIBUTING.md).
+
 ## License
 
 [MIT](./LICENSE) © 2026 Jioh In
