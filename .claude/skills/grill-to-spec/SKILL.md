@@ -5,15 +5,15 @@ description: Convert a completed grill-me session into a spec file. Captures onl
 
 # Grill to Spec
 
-Convert a just-completed `grill-me` session into a spec file under `docs/spec/`.
+Convert a just-completed `grill-me` session into a spec file under `_dev/docs/spec/`.
 
 ## File naming
 
 Number first. Filename comes from the TODO number when available, otherwise name only. Do not ask the user about the path — derive it and proceed.
 
-- Task (`**N.M**` in TODO): `docs/spec/task-<N.M>-<short-name>.md`
-- Phase: `docs/spec/phase-<N>-<short-name>.md`
-- No task number available: `docs/spec/<short-name>.md`
+- Task (`**N.M**` in TODO): `_dev/docs/spec/task-<N.M>-<short-name>.md`
+- Phase: `_dev/docs/spec/phase-<N>-<short-name>.md`
+- No task number available: `_dev/docs/spec/<short-name>.md`
 
 ## Hard rules
 
