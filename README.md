@@ -1,6 +1,6 @@
 # pastiche
 
-Pastiche is a Claude Code plugin for faithful design-system execution. Given a frontend task, it **produces code that follows your established design system and component library** — not by inventing, but by faithfully executing within the vocabulary your team already ships.
+Pastiche is a Claude Code plugin for Frontend UI implementation. Given a frontend task, it **produces code that follows your established design system and component library** — not by inventing, but by faithfully executing within the vocabulary your team already ships.
 
 ## Quickstart
 
@@ -11,7 +11,7 @@ Install the plugin from this repository's marketplace:
 /plugin install pastiche@pastiche-marketplace
 ```
 
-Then, from the root of your frontend project:
+Then, from the root of your frontend project, Claude Code session:
 
 ```
 /pastiche-init      # scaffold pastiche/ docs and extract your component catalog
@@ -23,7 +23,7 @@ Then, from the root of your frontend project:
 
 ## How it works
 
-Coding agents keep failing at the same thing: producing **consistent** UI. To fix that, teams started encoding their design system into a single document an agent could read. Google's [DESIGN.md](https://github.com/google-labs-code/design.md) is the clearest example, capturing tokens and visual patterns well enough for an agent to generate coherent-looking screens.
+Coding agents keep failing at **producing consistent UI**. To fix that, teams started encoding their design system into a single document an agent could read. Google's [DESIGN.md](https://github.com/google-labs-code/design.md) is the clearest example, capturing tokens and visual patterns well enough for an agent to generate coherent-looking screens.
 
 But DESIGN.md stops at the surface. It produces a good-looking *prototype*, not a working feature because it's missing the golden pieces: the **component library the team actually ships**, and the **business logic behind the UI** that can't be reduced to tokens and patterns.
 
@@ -34,7 +34,7 @@ Pastiche keeps DESIGN.md's insight and splits it across three documents, each in
 | Document | Layer | What it captures |
 |---|---|---|
 | **FACT.md** | What exists | The components and CSS tokens available in your codebase. Inherits DESIGN.md directly — auto-extracted, so it's never out of date. |
-| **KNOWLEDGE.md** | UI/UX mapping | General design know-how connected to your library, as a mapping from scenario to atom — *"in this situation, use these components and these tokens."* Curated by humans. |
+| **KNOWLEDGE.md** | UI/UX mapping | General design know-how connected to your library, as **a mapping from scenario to atom** — *"in this situation, use these components and these tokens."* Curated by humans. |
 | **WISDOM.md** | Rules & logic | The **business logic behind the UI that can't be codified** — both general rules and component-specific ones. Curated by humans. |
 
 ### Executing Task
@@ -43,15 +43,15 @@ At runtime, pastiche runs a **bounded doubt-defense loop** — depth comes from 
 
 ```mermaid
 flowchart LR
-    R1["implementer · round 1<br/>writes code against FACT/KNOWLEDGE/WISDOM"]
-    REV["reviewer<br/>raises strict doubts"]
-    R2["implementer · round 2<br/>corrects or defends each doubt"]
+    R1["<strong>implementer · round 1</strong><br/>writes code against FACT/KNOWLEDGE/WISDOM"]
+    REV["<strong>reviewer</strong><br/>raises strict doubts"]
+    R2["<strong>implementer · round 2</strong><br/>corrects or defends each doubt"]
     R1 --> REV --> R2
 ```
 
 ### A System That Grows
 
-FACT.md is mechanical — it's regenerated on every codebase change and always reflects what exists. KNOWLEDGE.md and WISDOM.md are different: they are **living documents**, curated and extended by your team over time.
+FACT.md is regenerated on every codebase change and always reflects what exists. KNOWLEDGE.md and WISDOM.md are different: they are **living documents**, curated and extended by your team over time.
 
 When you run `/pastiche` on a task, it reports the gaps it hit along the way such as scenarios missing from KNOWLEDGE.md, rules missing from WISDOM.md. You fold them back in and the next run is sharper. The more your team uses pastiche, the richer these documents become. And the richer they become, the better and more consistent its output gets.
 
@@ -59,14 +59,14 @@ For the full philosophy, the metaphor, the implementer/reviewer asymmetry, and t
 
 ## The workflow
 
-1. **`/pastiche-init`** *(run once, right after installing the plugin)* — scaffolds `pastiche/{config.yaml, FACT.md, KNOWLEDGE.md, WISDOM.md}` and runs the extractor to populate FACT.md from your components and tokens.
-2. **`/pastiche-setup`** — an interactive session that fills KNOWLEDGE.md (scenario mappings, brand identity) and seeds WISDOM.md with general rules.
-3. **`/pastiche <task>`** — runs the doubt-defense loop on a frontend task and produces design-system-faithful code.
+1. **/pastiche-init** *(run once, right after installing the plugin)* — scaffolds `pastiche/{config.yaml, FACT.md, KNOWLEDGE.md, WISDOM.md}` and runs the extractor to populate FACT.md from your components and tokens.
+2. **/pastiche-setup** — an interactive session that fills KNOWLEDGE.md (scenario mappings, brand identity) and seeds WISDOM.md with general rules.
+3. **/pastiche** — runs the doubt-defense loop on a frontend task and produces design-system-faithful code.
 4. **Maintain over time** — re-extract with `/pastiche-sync` after codebase changes, and extend your design knowledge with `/pastiche-write-knowledge` and `/pastiche-write-wisdom` as new scenarios appear.
 
 ## What's inside
 
-**Skills**
+### Skills
 
 | Command | What it does |
 |---|---|
@@ -78,7 +78,13 @@ For the full philosophy, the metaphor, the implementer/reviewer asymmetry, and t
 | `/pastiche-write-knowledge` | Add a curated scenario → component mapping |
 | `/pastiche-write-wisdom` | Add a rule — general or component-specific |
 
-**Agents** (internal — orchestrated by the loop, not called directly): `pastiche-implementer-round1`, `pastiche-reviewer`, `pastiche-implementer-round2`.
+### Agents
+
+internal — orchestrated by the loop, not called directly
+
+- `pastiche-implementer-round1`
+- `pastiche-reviewer`
+- `pastiche-implementer-round2`.
 
 ## Philosophy
 
