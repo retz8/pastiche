@@ -35,7 +35,7 @@ model: sonnet
 tools: [Read, Bash, Glob]
 ```
 
-`model` pins the agent's model (per-role: Opus for the round-1 implementer, Sonnet for round-2 and the reviewer), and `tools` is Claude Code's per-agent tool allowlist. Keeping these in the sidecar means model and tool policy live beside the body but stay out of the platform-agnostic body itself.
+`model` optionally pins the agent's model; omit it and the agent inherits the user's session default. The round-1 implementer omits `model` (it runs on whatever the user is using), while round-2 and the reviewer pin `sonnet`. `tools` is Claude Code's per-agent tool allowlist. Keeping these in the sidecar means model and tool policy live beside the body but stay out of the platform-agnostic body itself.
 
 ## How the build assembles it
 

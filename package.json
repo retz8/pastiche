@@ -1,6 +1,6 @@
 {
   "name": "pastiche",
-  "version": "1.0.0-dev",
+  "version": "1.0.0",
   "private": true,
   "type": "module",
   "description": "Draw UI consistently with agents, at the top of Design System & Component Library",

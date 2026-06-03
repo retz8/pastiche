@@ -19,8 +19,6 @@ Then, from the root of your frontend project, Claude Code session:
 /pastiche <task>    # run a frontend task through the gated loop
 ```
 
-> **About the Claude plan.** Pastiche defaults to Opus, which a Claude Max plan provides. On Pro, switch the agent model to `sonnet` in the agent `meta.yaml` — it works, with higher token use, and isn't officially supported.
-
 ## How it works
 
 Coding agents keep failing at **producing consistent UI**. To fix that, teams started encoding their design system into a single document an agent could read. Google's [DESIGN.md](https://github.com/google-labs-code/design.md) is the clearest example, capturing tokens and visual patterns well enough for an agent to generate coherent-looking screens.

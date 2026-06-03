@@ -75,7 +75,7 @@ Pastiche decides how much to abstract **per concept**, based on whether platform
 | **agents** | diverge (Claude YAML frontmatter vs. Codex TOML `developer_instructions`, per-role model pins) | canonical body **+ per-platform sidecar**, joined through an adapter template | `body` + `sidecar` → `adapters/<p>/agents.template` → rendered agent |
 | **templates / tools** | identical everywhere | pastiche-specific / one binary | copied / compiled as-is |
 
-This is the invariant to preserve: **don't add an adapter where platforms converge, and don't inline-dispatch where they diverge.** Per-role model pinning (Opus for round 1, Sonnet for round 2 + reviewer) lives declaratively in the agent sidecars — it's a feature of the seam, not hardcoded in the build.
+This is the invariant to preserve: **don't add an adapter where platforms converge, and don't inline-dispatch where they diverge.** Per-role model policy lives declaratively in the agent sidecars (round 1 omits `model` and inherits the user's default; round 2 + reviewer pin Sonnet) — it's a feature of the seam, not hardcoded in the build.
 
 ## How the build works
 
