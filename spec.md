@@ -261,7 +261,7 @@ Output ships at the end of Round 2. The round-2 prompt explicitly tilts the impl
 
 The strong-no is a contract: the implementer takes ownership of a deliberate choice, and the reviewer respects it. This prevents infinite loops where doubt and counter-doubt circle forever.
 
-The two-round shape matches an empirically-validated cadence from prior practice. If real Pastiche workloads show two rounds insufficient, the bump path is to three rounds with a final-round exit ritual (§18).
+The two-round shape matches an empirically-validated cadence from prior practice. If real Pastiche workloads show two rounds insufficient, the bump path is to three rounds with a final-round exit ritual (see [ROADMAP](./ROADMAP.md)).
 
 ### 7.5.1 Comment protocol & doubt-list schema
 
@@ -456,7 +456,7 @@ So task fit is checked, but only through the DS lens. The reviewer never asks "d
 - Functional behavior verification.
 - Performance optimization.
 - Accessibility audits *outside of* DS-mandated patterns. (If WISDOM says "every Modal must have an accessible label," that is enforced. General a11y review beyond what WISDOM encodes is not.)
-- **Aesthetic / UI-designer review.** Pacing, hierarchy, typographic rhythm, brand fit beyond mechanical rules — handled by a separate, on-demand skill (§15), not by the gating loop.
+- **Aesthetic / UI-designer review.** Pacing, hierarchy, typographic rhythm, brand fit beyond mechanical rules — handled by a separate, on-demand skill (planned — see [ROADMAP](./ROADMAP.md)), not by the gating loop.
 
 This is the line that keeps Pastiche composable with the rest of a team's toolchain.
 
@@ -494,54 +494,12 @@ Future workflow tools (release tooling, KNOWLEDGE diff reports, etc.) may join t
 
 ---
 
-## 15. Aesthetic Review: A Separate Future Skill
-
-Pastiche's reviewer is mechanical and DS-scoped (§13). UI-designer judgment — pacing, hierarchy, typographic rhythm, brand fit beyond mechanical rules — is not what the gating loop does, and trying to make it do so would collapse the §5 asymmetry.
-
-A separate, on-demand skill (planned, not part of v1) will provide aesthetic review. It loads the brand prose section of KNOWLEDGE.md plus general UI/UX and frontend design knowledge, and offers a designer-perspective pass on a finished surface. The developer invokes it when they want one; it does not gate.
-
-Keeping aesthetic review out of Pastiche's loop preserves the two-doc-load asymmetry and the loop's economic shape. It also lets the aesthetic skill evolve independently — different cadence, different audience, different inputs.
-
----
-
-## 16. Deferred: Reverse KNOWLEDGE
-
-A mechanism considered and intentionally postponed: **auto-generated reverse-knowledge entries injected into WISDOM.md**.
-
-The idea: every KNOWLEDGE entry (`scenario → [atoms]`) has a natural inverse (`[atoms] → recommended for scenario`). The inverse could be auto-generated and merged into WISDOM as additional tagged entries. The reviewer's WISDOM grep would then surface, for each atom in the code, what scenario that atom is the recommended choice for — letting the reviewer compare against the task description and detect failure mode C (wrong choice) more rigorously, even without reading KNOWLEDGE.
-
-Why deferred:
-
-- **Speculative doubt likely covers mode C already.** The DS-expert persona ("List + Tile for an image-and-title list is unusual; Grid + Card is conventional") catches the typical version of this failure without any new mechanism.
-- **Real complexity cost.** Reverse KNOWLEDGE introduces an auto-generation pipeline, splits WISDOM into human-authored vs. machine-generated sections with distinct lifecycles, and creates sync hazards when humans edit machine-generated entries. This also violates the atom-only / scenario-pure separation the system relies on.
-- **Premature optimization risk.** Until speculative doubt is tested in practice, it is not clear the additional rigor is needed.
-
-If speculative doubt proves insufficient on real workloads — particularly for organizations where DS conventions are highly specific and not aligned with mainstream LLM priors — reverse KNOWLEDGE returns as a v2 candidate.
-
----
-
-## 17. What Pastiche Is Not
+## 15. What Pastiche Is Not
 
 - **Not a design system itself.** Pastiche is consumed by an existing design system + component library.
 - **Not a code generator from scratch.** It executes scoped frontend tasks within an existing codebase.
 - **Not a general code reviewer.** Code quality, type checking, and functional correctness belong to other tools (see §13).
-- **Not an aesthetic reviewer.** Brand fit beyond mechanical rules is a separate future skill (§15).
+- **Not an aesthetic reviewer.** Brand fit beyond mechanical rules is a separate, on-demand skill — planned, not part of v1 (see [ROADMAP](./ROADMAP.md)).
 - **Not a replacement for DESIGN.md** in domains where DESIGN.md is sufficient (pure visual prototyping with primitive tokens). Pastiche addresses the DS + component library case.
 - **Not opinionated about which design system you use.** FACT is extracted from your code; KNOWLEDGE and WISDOM are written by your team.
 - **Not a runtime UI generation protocol.** Pastiche operates at build time, producing source code.
-
----
-
-## 18. Open Questions and Future Work
-
-These are not blockers — they are areas where the system will be refined as it meets reality.
-
-- **KNOWLEDGE.md curation cost.** How much effort does a mature DS team need to invest to keep KNOWLEDGE useful? The hypothesis is that the strong-no feedback loop (§10) makes this incremental rather than upfront.
-- **FACT extraction beyond the React/TypeScript shape.** v1 ships a TypeScript-types-and-CSS-token extractor, and its component discovery is React-shaped — it recognizes React idioms (`XxxProps` types, PascalCase function/`const` components). FACT.md itself is framework- and language-agnostic — a catalog of atom names and prop shapes — so the open question is the extractor, not the format. What is the right discovery strategy for other component models (Vue's `defineProps`, Angular's `@Input` classes) and for projects where types are loose, missing, or live in Storybook story metadata or sidecar metadata? Adopters can already swap in their own extractor against the documented FACT shape (§14.1); the question is which of these Pastiche should ship natively.
-- **Speculative doubt calibration.** How does the reviewer persona prompt evolve as real runs surface noisy or missed doubts? Calibration is empirical and prompt-driven (§7.2), not rule-based.
-- **Two-round vs. three-round loop.** v1 caps at two implementer rounds (§7.5). If real workloads show two rounds insufficient — particularly for tasks where compounded validation surfaces important issues late — bump to three rounds with a final-round exit ritual where the implementer must correct or strong-no every remaining doubt before shipping.
-- **Strong-no abuse mitigation.** v1 trusts the persona (§7.7). If empirical signal shows systemic over-defense, add a single reviewer re-flag round for thin strong-no reasoning.
-- **Reverse KNOWLEDGE re-evaluation.** If speculative doubt proves insufficient for failure mode C in DS-specific contexts that diverge from mainstream LLM priors, revisit the deferred mechanism (§16).
-- **Aesthetic review skill design.** The separate skill (§15) is sketched, not specced. Its inputs, invocation pattern, and relationship to Pastiche's gating loop are future work.
-
-These will be answered by use, not by speculation.

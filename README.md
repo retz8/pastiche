@@ -94,7 +94,7 @@ Read more in [`spec.md`](./spec.md).
 
 ## Compatibility
 
-| | Supported today | Planned |
+| | Supported today | [Planned](./ROADMAP.md) |
 |---|---|---|
 | **Framework** | React (TypeScript / TSX) | Vue, Angular |
 | **Agent platform** | Claude Code | Codex, OpenCode, Cursor |
@@ -102,6 +102,10 @@ Read more in [`spec.md`](./spec.md).
 **Framework — React only, for now.** The FACT extractor reads React component types (`.ts`/`.tsx` files, `XxxProps` shapes). It doesn't yet read Vue (`defineProps`) or Angular (`@Input` classes).
 
 A Codex adapter already ships as an unverified placeholder; community validation is welcome.
+
+## Known limitations
+
+- **Lint binary — macOS (Apple Silicon) only, for now.** The bundled `pastiche-lint` is prebuilt for darwin/arm64. On other OS/arch it won't run, so the consistency check is skipped — pastiche still works, but stale tags and missing sections go uncaught. Multi-arch builds are [planned](./ROADMAP.md).
 
 ## Contributing
 
