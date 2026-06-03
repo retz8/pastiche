@@ -1,4 +1,4 @@
-# Pastiche: A Claude Skill for Faithful Design System Execution
+# Pastiche: A Plugin for Faithful Design System Execution
 
 ---
 
@@ -22,7 +22,7 @@ DESIGN.md does not model this layer. It can describe *how a button should look*,
 
 ### 1.3 Pastiche's Position
 
-Pastiche is the missing layer. It is a Claude Code skill that lets an LLM execute frontend tasks faithfully within a real design system + component library, by giving it a minimal, well-structured representation of that system to read and reason about.
+Pastiche is the missing layer. It is a plugin that lets an LLM coding agent execute frontend tasks faithfully within a real design system + component library, by giving it a minimal, well-structured representation of that system to read and reason about.
 
 ---
 
@@ -146,7 +146,7 @@ Pastiche is a feedback-loop skill with two subagents. Their asymmetry is the sou
 5. Grep FACT.md for prop signatures of chosen atoms only — never read FACT whole, never grep FACT to discover atoms.
 6. Implement, applying both KNOWLEDGE mappings and WISDOM rules.
 7. Where KNOWLEDGE provides no clear mapping, fall back per §6.
-8. Run `typecheck_command` from `pastiche.config.yaml` if configured. Patch errors using the compiler's error messages as ground truth; bounded to 3 attempts per error. Hard constraint: no FACT re-grep during this step. Skip if `typecheck_command` is null or absent.
+8. Run `typecheck_command` from `pastiche/config.yaml` if configured. Patch errors using the compiler's error messages as ground truth; bounded to 3 attempts per error. Hard constraint: no FACT re-grep during this step. Skip if `typecheck_command` is null or absent.
 
 **Round 2 carries forward round 1's work** (§7.5). The architectural intent is for round 2 to resume the round-1 agent so KNOWLEDGE/WISDOM/FACT context already loaded is reused. In environments where agent resumption is not exposed as a tool, round 2 is dispatched as a fresh agent but primed with round 1's full report (chosen atoms, gaps encountered) so it does not re-do atom discovery — it only re-greps WISDOM/FACT when a correction introduces a *new* atom. Either way, round 2 is tilted toward correction over defense to offset the bias of acting on round 1's own code.
 
@@ -464,31 +464,33 @@ This is the line that keeps Pastiche composable with the rest of a team's toolch
 
 ## 14. Tooling
 
-Pastiche v1 ships two small scripts. Both are mechanical, not LLM-driven, and both are necessary for the system's invariant to hold over time.
+Pastiche ships two small tools — a FACT extractor and a cross-document lint. Both are mechanical, not LLM-driven, and both are necessary for the system's invariant to hold over time.
+
+The two are implemented in different languages, by necessity. The extractor is written in TypeScript because it leans on the TypeScript compiler API (`ts-morph`) to read component type declarations. The lint is written in Rust because it runs repeatedly inside skills — setup, the `write-*` mutators, and sync each invoke it as a self-check — so it must be fast and reliable on every call.
 
 ### 14.1 FACT extraction
 
-A script reads the project's component library source (TypeScript declarations, theme tokens, package barrel exports) and produces FACT.md. Regenerated on every codebase change as part of the DS build pipeline.
+The extractor reads the project's component library source (component type declarations, package barrel exports) and its design-token CSS (`:root` CSS-variable definitions), and produces FACT.md. Regenerated whenever the component library changes.
 
-The extraction strategy is project-specific (TypeScript types, Storybook story metadata, design-token CSS, etc.). v1 ships a TypeScript-types extractor. Other projects can swap in their own extractor; the contract is just "produce FACT.md in the documented shape."
+The extraction strategy is project-specific (TypeScript types, Storybook story metadata, design-token CSS, etc.). Pastiche ships a TypeScript-types-and-CSS-token extractor. Other projects can swap in their own extractor; the contract is just "produce FACT.md in the documented shape."
 
 ### 14.2 Cross-doc tag-sanity lint
 
-A CI script verifies that every atom mentioned in WISDOM.md or KNOWLEDGE.md resolves to a FACT.md entry. FACT is the single source of truth; WISDOM and KNOWLEDGE both index against it.
+The lint verifies that every atom mentioned in WISDOM.md or KNOWLEDGE.md resolves to a FACT.md entry. FACT is the single source of truth; WISDOM and KNOWLEDGE both index against it.
 
-**WISDOM check.** Every `[atom]` tag is grepped and matched against FACT atoms verbatim, in whatever spelling FACT canonically lists (component names, token names, utility-class names, etc. — see §4). Stale tags fail CI:
+**WISDOM check.** Every `[atom]` tag is grepped and matched against FACT atoms verbatim, in whatever spelling FACT canonically lists (component names, token names, utility-class names, etc. — see §4). Stale tags fail the lint:
 
 > `WISDOM.md line 47 tags [Modal] but FACT.md has no Modal — was it renamed or removed?`
 
-**KNOWLEDGE check.** KNOWLEDGE is prose, not tag-grepped at runtime, but its component recommendations (the right-hand side of `→` lines and any code-spans naming atoms) must still resolve to FACT — otherwise a component rename silently rots a recommendation and the §9 invariant erodes from the KNOWLEDGE side. Unresolved references fail CI with the same shape of error.
+**KNOWLEDGE check.** KNOWLEDGE is prose, not tag-grepped at runtime, but its component recommendations (the right-hand side of `→` lines and any code-spans naming atoms) must still resolve to FACT — otherwise a component rename silently rots a recommendation and the §9 invariant erodes from the KNOWLEDGE side. Unresolved references fail the lint with the same shape of error.
 
 **`[GENERAL]` is the lone allow-listed non-FACT tag** (§4). The lint recognizes it explicitly in WISDOM and skips the FACT check for that one tag; every other tag and KNOWLEDGE reference must resolve to a FACT atom. Adding further allow-listed tags requires a spec amendment — not a lint config change — to preserve the §9 invariant.
 
-**Canonical-section check.** The lint also verifies that KNOWLEDGE.md declares every canonical section from §3.2 as an H2 (`## <name>`). Stubs are allowed; missing sections fail CI. Extra H2 sections beyond the canonical list are permitted (project extension). This makes the taxonomy normative without forbidding growth.
+**Canonical-section check.** The lint also verifies that KNOWLEDGE.md declares every canonical section from §3.2 as an H2 (`## <name>`). Stubs are allowed; missing sections fail the lint. Extra H2 sections beyond the canonical list are permitted (project extension). This makes the taxonomy normative without forbidding growth.
 
-The lint is small, runs in seconds, and fails closed. It is not optional.
+The lint is small, runs near-instantly, and fails closed. It runs as a self-check whenever the documents are mutated, and on demand; it is not optional.
 
-Future workflow scripts (release tooling, KNOWLEDGE diff reports, etc.) may join the toolchain over time; v1 ships only these two.
+Future workflow tools (release tooling, KNOWLEDGE diff reports, etc.) may join the toolchain over time; v1 ships only these two.
 
 ---
 
@@ -535,7 +537,7 @@ If speculative doubt proves insufficient on real workloads — particularly for 
 These are not blockers — they are areas where the system will be refined as it meets reality.
 
 - **KNOWLEDGE.md curation cost.** How much effort does a mature DS team need to invest to keep KNOWLEDGE useful? The hypothesis is that the strong-no feedback loop (§10) makes this incremental rather than upfront.
-- **FACT extraction tooling for non-TypeScript-types projects.** v1 ships a TS-types extractor. What is the right strategy for projects where types are loose, missing, or where the truth lives in Storybook / design-token CSS / sidecar metadata?
+- **FACT extraction beyond the React/TypeScript shape.** v1 ships a TypeScript-types-and-CSS-token extractor, and its component discovery is React-shaped — it recognizes React idioms (`XxxProps` types, PascalCase function/`const` components). FACT.md itself is framework- and language-agnostic — a catalog of atom names and prop shapes — so the open question is the extractor, not the format. What is the right discovery strategy for other component models (Vue's `defineProps`, Angular's `@Input` classes) and for projects where types are loose, missing, or live in Storybook story metadata or sidecar metadata? Adopters can already swap in their own extractor against the documented FACT shape (§14.1); the question is which of these Pastiche should ship natively.
 - **Speculative doubt calibration.** How does the reviewer persona prompt evolve as real runs surface noisy or missed doubts? Calibration is empirical and prompt-driven (§7.2), not rule-based.
 - **Two-round vs. three-round loop.** v1 caps at two implementer rounds (§7.5). If real workloads show two rounds insufficient — particularly for tasks where compounded validation surfaces important issues late — bump to three rounds with a final-round exit ritual where the implementer must correct or strong-no every remaining doubt before shipping.
 - **Strong-no abuse mitigation.** v1 trusts the persona (§7.7). If empirical signal shows systemic over-defense, add a single reviewer re-flag round for thin strong-no reasoning.

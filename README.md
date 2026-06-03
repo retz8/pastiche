@@ -19,7 +19,7 @@ Then, from the root of your frontend project, Claude Code session:
 /pastiche <task>    # run a frontend task through the gated loop
 ```
 
-> **Prerequisite:** Claude Max plan (Opus). Pro users can switch the agent model to Sonnet.
+> **About the Claude plan.** Pastiche defaults to Opus, which a Claude Max plan provides. On Pro, switch the agent model to `sonnet` in the agent `meta.yaml` — it works, with higher token use, and isn't officially supported.
 
 ## How it works
 
@@ -92,9 +92,16 @@ A *pastiche* is a work that openly imitates the style of a master — not a forg
 
 Read more in [`spec.md`](./spec.md).
 
-## Status
+## Compatibility
 
-**v1.** Validated end-to-end on Claude Code. Codex CLI adapter files ship as a placeholder — the shape is in place, but runtime correctness is unverified; community validation is welcome.
+| | Supported today | Planned |
+|---|---|---|
+| **Framework** | React (TypeScript / TSX) | Vue, Angular |
+| **Agent platform** | Claude Code | Codex, OpenCode, Cursor |
+
+**Framework — React only, for now.** The FACT extractor reads React component types (`.ts`/`.tsx` files, `XxxProps` shapes). It doesn't yet read Vue (`defineProps`) or Angular (`@Input` classes).
+
+A Codex adapter already ships as an unverified placeholder; community validation is welcome.
 
 ## Contributing
 
