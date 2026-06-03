@@ -103,9 +103,12 @@ Read more in [`spec.md`](./spec.md).
 | | Supported today | [Planned](./ROADMAP.md) |
 |---|---|---|
 | **Framework** | React (TypeScript / TSX) | Vue, Angular |
+| **Component library** | Any React + TypeScript library that exposes prop types | Libraries that ship no TypeScript types |
 | **Agent platform** | Claude Code | Codex, OpenCode, Cursor |
 
 **Framework — React only, for now.** The FACT extractor reads React component types (`.ts`/`.tsx` files, `XxxProps` shapes). It doesn't yet read Vue (`defineProps`) or Angular (`@Input` classes).
+
+**Component library — not tied to any specific one.** Pastiche doesn't hardcode support for individual libraries. It works with anything that exposes TypeScript prop types, whether a typed npm package (MUI, Primer, Mantine, Chakra, Ant Design, …) or shadcn-style source components copied into your repo. See [`docs/config.md`](./docs/config.md) for the ingestion modes and setup.
 
 A Codex adapter already ships as an unverified placeholder; community validation is welcome.
 
