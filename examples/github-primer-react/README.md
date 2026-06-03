@@ -387,15 +387,23 @@ npm install
 npm run dev
 ```
 
-pastiche is already set up in this repo (the `pastiche/` folder is committed). To regenerate any
-page from scratch, open a Claude Code session at this app's root and run:
+The app's pastiche config (the `pastiche/` folder with FACT/KNOWLEDGE/WISDOM) is already committed.
+To regenerate any page from scratch, launch Claude Code from this app's root with the bundled
+pastiche plugin loaded:
+
+```bash
+claude --plugin-dir ../../dist/claude-code
+```
+
+Then, inside the session, run `/pastiche` with any task prompt from above:
 
 ```
 /pastiche <paste any task prompt from above>
 ```
 
-> **Prerequisite.** The pastiche plugin must be installed in Claude Code, on a Claude Max plan (the
-> generation step runs on Opus). Setup instructions are in the [main repository](https://github.com/retz8/pastiche).
+> **Prerequisite.** Requires a Claude Max plan; the generation step runs on Opus. The pastiche
+> plugin ships in this repo at `dist/claude-code`, so no separate install is needed. See the
+> [main repository](https://github.com/retz8/pastiche) for details.
 
 
 → Back to the [pastiche main repository](https://github.com/retz8/pastiche).
