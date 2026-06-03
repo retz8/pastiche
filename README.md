@@ -53,6 +53,12 @@ FACT.md is regenerated on every codebase change and always reflects what exists.
 
 When you run `/pastiche` on a task, it reports the gaps it hit along the way such as scenarios missing from KNOWLEDGE.md, rules missing from WISDOM.md. You fold them back in and the next run is sharper. The more your team uses pastiche, the richer these documents become. And the richer they become, the better and more consistent its output gets.
 
+### Shared Across the Org
+
+The `pastiche/` folder isn't tied to one repo. KNOWLEDGE.md and WISDOM.md are an **abstraction of your design system and brand**, not of any single codebase — so they travel. Share one `pastiche/` folder across teams and every team produces UI in the same voice while building entirely different products.
+
+Picture one company with several product teams — an energy app, a vehicle dashboard, a robotics console. Different domains, different repos, same `pastiche/` folder, and every team's output stays on-brand and consistent. The design system is authored once and executed faithfully everywhere.
+
 For the full philosophy, the metaphor, the implementer/reviewer asymmetry, and the loop economics — see [`spec.md`](./spec.md).
 
 ## The workflow
