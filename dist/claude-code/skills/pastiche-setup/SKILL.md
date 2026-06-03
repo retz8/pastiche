@@ -37,7 +37,7 @@ If every `setup_progress` entry is `stub`, this is a first run.
 
 Pick the next section: lowest stub in canonical order, or `--section <name>` if provided.
 
-After each section, prompt: *"Section `<name>` done. Continue / switch / pause?"*
+After each section, prompt: *"Next section: `<next stub in canonical order>`. Continue / switch / pause?"*
 
 - Continue → next stub in canonical order.
 - Switch → ask which section; jump.
