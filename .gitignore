@@ -1,5 +1,9 @@
+# dev folders
 .agents/
+.claude/
 _dev/
+
+# builds
 node_modules
 *.tsbuildinfo
 core/tools/pastiche-lint/target/
