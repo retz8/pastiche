@@ -62,6 +62,8 @@ For the full philosophy, the metaphor, the implementer/reviewer asymmetry, and t
 3. **/pastiche** — runs the doubt-defense loop on a frontend task and produces design-system-faithful code.
 4. **Maintain over time** — re-extract with `/pastiche-sync` after codebase changes, and extend your design knowledge with `/pastiche-write-knowledge` and `/pastiche-write-wisdom` as new scenarios appear.
 
+> **Already have a `DESIGN.md`?** Setup goes much faster. If a `DESIGN.md` sits at your repo root, `/pastiche-setup` offers to use it as a reference — mining its narrative into KNOWLEDGE.md scenarios and WISDOM.md rules, and porting its brand/style prose into your Brand Identity. You mostly review drafts instead of writing from scratch. No `DESIGN.md`? Setup just walks you through each section from the ground up.
+
 ## What's inside
 
 ### Skills
