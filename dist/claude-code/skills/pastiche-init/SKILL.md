@@ -7,6 +7,10 @@ description: Use when bootstrapping pastiche in a frontend repo for the first ti
 
 Bootstrap pastiche in the user's repo. Refuses to touch an existing `pastiche/` — the verb is `init`, not `update`.
 
+## Output discipline
+
+Stay terse. Do detection silently — do not narrate what you're reading, why a file matched, or how pastiche works internally. The only things the user sees are: the one-line preflight path, the proposed config block, the confirm question, any direct question for ambiguous fields, and the close message. No reasoning, no per-field commentary, no explanation of FACT/KNOWLEDGE/WISDOM. The config block plus the printed status messages below are the entire surface.
+
 ## Preflight
 
 1. Resolve repo root: `git rev-parse --show-toplevel`; on failure, fall back silently to cwd. Print: *"Writing to `<repo-root>/pastiche/`."*
@@ -24,15 +28,17 @@ Read `<repo-root>/package.json` and probe canonical locations. Classify against 
 - `components.json` at repo root → `source_dir:` pointing at the configured alias dir (shadcn).
 - Multiple coexist → multiple entries.
 
-**`tokens`:**
+**`tokens`:** check the obvious spots only — a global stylesheet referenced by the app entry, or a conventional path (`src/styles/`, `app/globals.css`, `src/index.css`). A quick match is enough:
 - CSS file containing `@theme { ... }` → Tailwind v4 theme file.
 - CSS file containing `:root { --... }` → plain CSS vars.
+
+Do not exhaustively crawl the repo for token files. If the first obvious candidates don't make it clear, leave `tokens` empty in the draft and ask the user to name the file in the confirm step — don't keep hunting.
 
 **`typecheck_command`:** check `package.json` `scripts` for `typecheck` / `type-check` / `tsc`. Detect package manager from lockfile (`pnpm-lock.yaml` → `pnpm`, `yarn.lock` → `yarn`, `bun.lock` → `bun`, else `npm run`). Compose accordingly.
 
 **`build_command`:** check `package.json` `scripts` for `build`. Detect package manager from lockfile (same as above). Compose accordingly (e.g., `npm run build`).
 
-Use file tools freely. Trust your judgment on non-standard workspace names, weird `exports` fields, or unusual token paths.
+Trust your judgment on non-standard workspace names or weird `exports` fields. But don't over-invest in any single field: if something is ambiguous — especially token paths — stop guessing and ask the user to identify it directly in the confirm step. A direct question beats an obsessive search for a recommendation.
 
 ## Draft + confirm
 

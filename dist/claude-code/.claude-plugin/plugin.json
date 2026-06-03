@@ -1,7 +1,7 @@
 {
   "name": "pastiche",
   "description": "Draw UI consistently with agents, at the top of Design System & Component Library",
-  "version": "1.0.0",
+  "version": "1.0.0-dev",
   "author": {
     "name": "Jioh In",
     "email": "ekkicb71@gmail.com"
