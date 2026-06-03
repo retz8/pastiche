@@ -17,7 +17,8 @@ Bootstrap pastiche in the user's repo. Refuses to touch an existing `pastiche/` 
 
 Read `<repo-root>/package.json` and probe canonical locations. Classify against these priors; combine as needed.
 
-**`packages`:**
+**`packages`:** each entry needs a `name` plus exactly one of `types`/`source_dir`.
+- `name:` — the package's published/workspace name (the `name` field in its `package.json`, e.g. `@org/web`). For a `source_dir`-only setup with no package name, use a short logical label (e.g. `ui`). Required and non-empty — the extractor rejects entries without it.
 - Workspace package with `dist/index.d.ts` → `types:` (monorepo / built lib).
 - npm dep with `node_modules/<pkg>/dist/index.d.ts` (or `types`/`module` in its `package.json`) → `types:` (Primer / MUI / Mantine / Chakra shape).
 - `components.json` at repo root → `source_dir:` pointing at the configured alias dir (shadcn).
@@ -35,7 +36,7 @@ Use file tools freely. Trust your judgment on non-standard workspace names, weir
 
 ## Draft + confirm
 
-Present the full proposed config in one block — `platform: claude-code` (hardcoded), then drafted `packages`, `tokens`, `typecheck_command`, `build_command`. Ask:
+Present the full proposed config in one block — `platform: claude-code` (hardcoded), then drafted `packages` (each with its `name` and `types`/`source_dir`), `tokens`, `typecheck_command`, `build_command`. Ask:
 
 > Looks right? Edit anything?
 
