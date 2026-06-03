@@ -376,6 +376,23 @@ Empty state placeholder when a list or page has no content yet — guiding the u
 - [FormControl] Never disable or hide the submit button, even when the form is invalid. Disabled buttons break keyboard navigation and leave users without feedback on what went wrong.
 ```
 
+And `config.yaml` points pastiche at this app's library and tokens. `FACT.md` is generated from it:
+```yaml
+platform: claude-code
+
+packages:
+  - name: "@primer/react"
+    types:
+      - "node_modules/@primer/react/dist/index.d.ts"
+      - "node_modules/@primer/react/dist/experimental/index.d.ts"
+
+tokens:
+  - node_modules/@primer/primitives/dist/css/functional/size/size.css
+  - node_modules/@primer/primitives/dist/css/functional/spacing/space.css
+  - node_modules/@primer/primitives/dist/css/functional/typography/typography.css
+  # ...and the rest of Primer's functional token CSS
+```
+
 See the full set under [`pastiche/`](pastiche/).
 
 
