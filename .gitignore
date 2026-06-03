@@ -2,6 +2,7 @@
 .agents/
 .claude/
 _dev/
+skills-lock.json
 
 # builds
 node_modules
