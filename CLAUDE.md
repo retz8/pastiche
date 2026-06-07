@@ -16,6 +16,17 @@ The runtime mechanism is a **bounded doubt-defense loop**: `pastiche-implementer
 
 ## How to work in this repo
 
+### Daily work harness
+
+Full design: `_dev/docs/harness.md`. Summary:
+
+- **Hierarchy**: `_dev/TODO.md` groups (one minor version each) → tasks (parent GH issue + feature branch `<version>/<task-name>`) → sub-tasks (child GH issues + `<feat>/<sub-task-name>` branches).
+- **Task kickoff**: `pick-up-task` (marks `[WIP]`, handles branch) → `grill-me` → `grill-to-spec` → plan if needed (plan docs at `_dev/docs/<branch-name>/`; small patches at `_dev/docs/patches/`) → `divide-task` (sub-task issues labeled `autonomous-ready` / `decision-needed` / `blocked-by-<issue#>`, mirrored into TODO.md).
+- **Execution**: nightly routine picks only `autonomous-ready`, unblocked sub-tasks of the `[WIP]` task; PRs sub-task → feat and auto-merges. Live sessions use worktrees off the feat branch unless told otherwise. When a blocker completes, remove its `blocked-by-#` label from blocked issues.
+- **Review**: Monday session reviews the accumulated feat diff. Small fixes directly on feat; substantial rework → new sub-task issue. Nothing reaches `main` without human review of the feat→main PR.
+- **Commits**: conventional commits — `<type>(<task-name>):` on task work, `<type>:` otherwise.
+- **Releases**: tasks don't bump versions. Group complete → `release-pastiche` on main (bump → build → CHANGELOG → tag → GH Release → close milestone). Patch = hotfix only; in-flight feat branches absorb hotfixes via `rebase-feat-with-main`.
+
 ### Invariants
 
 - **Project-agnostic.** No canonical or adapter file embeds KISA atom names, paths, or phrasing. KISA atoms only appear in `examples/primer-react/` (the reference adoption — not yet built, see OSS_SPEC §12).

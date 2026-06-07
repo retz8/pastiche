@@ -1,8 +1,15 @@
 # dev folders
 .agents/
-.claude/
-_dev/
+.claude/settings.local.json
+# symlinks into .agents/ (superpowers skills)
+.claude/skills/executing-plans
+.claude/skills/subagent-driven-development
+.claude/skills/write-a-skill
+.claude/skills/writing-plans
 skills-lock.json
+_dev/*
+!_dev/TODO.md
+!_dev/docs/
 
 # builds
 node_modules
